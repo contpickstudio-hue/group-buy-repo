@@ -503,6 +503,10 @@
             to { opacity: 0; transform: translate(-50%, -30px) scale(1.2); }
         }
 
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
         .filter-bar {
             display: flex;
             flex-wrap: wrap;
@@ -951,6 +955,14 @@
                     <option value="Hamilton">Hamilton</option>
                     <option value="Niagara">Niagara</option>
                 </select>
+                <select id="groupbuy-vendor" class="form-select" onchange="handleGroupBuyVendor(event)">
+                    <option value="All">All Vendors</option>
+                    <option value="Soo Fresh Imports">Soo Fresh Imports</option>
+                    <option value="Han Market">Han Market</option>
+                    <option value="Island Co-op">Island Co-op</option>
+                    <option value="Harbor Foods">Harbor Foods</option>
+                    <option value="Taste of Seou">Taste of Seou</option>
+                </select>
                 <select id="groupbuy-sort" class="form-select" onchange="handleGroupBuySort(event)">
                     <option value="deadline">Sort by Deadline</option>
                     <option value="priceLow">Price: Low to High</option>
@@ -1048,6 +1060,12 @@
 
     <div id="toast-root" class="toast-container"></div>
     <div id="success-pulse" class="success-pulse">✓</div>
+    <div id="loading-overlay" class="modal-overlay" style="background:rgba(15,23,42,0.7); display:none;">
+        <div class="modal-panel" style="max-width:220px; text-align:center;">
+            <div class="spinner" style="margin:0 auto 1rem; width:32px; height:32px; border-radius:999px; border:3px solid #e5e7eb; border-top-color:#6366f1; animation:spin 0.6s linear infinite;"></div>
+            <p class="screen-subtitle">Loading data…</p>
+        </div>
+    </div>
 
     <!-- Supabase client (for cloud persistence and auth). -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1063,7 +1081,8 @@
             products: 'products',
             orders: 'orders',
             errands: 'errands',
-            applications: 'applications'
+            applications: 'applications',
+            messages: 'messages'
         };
 
         /**
@@ -1130,29 +1149,34 @@
         }
 
         const HelperDefaults = {
-            firstName: '',
-            lastName: '',
-            photoDataUrl: '',
-            street: '',
-            city: '',
-            province: '',
-            postal: '',
-            phone: '',
-            generatedCode: '',
-            enteredCode: '',
-            smsVerified: false
+                firstName: '',
+                lastName: '',
+                photoDataUrl: '',
+                street: '',
+                city: '',
+                province: '',
+                postal: '',
+                phone: '',
+                generatedCode: '',
+                enteredCode: '',
+                smsVerified: false
         };
 
         const FilterDefaults = () => ({
             groupbuys: {
                 search: '',
                 region: 'All',
-                sort: 'deadline'
+                sort: 'deadline',
+                vendor: 'All'
             },
             errands: {
                 region: 'All',
                 status: 'open',
                 sort: 'newest'
+            },
+            vendorOrders: {
+                status: 'all',
+                search: ''
             }
         });
 
@@ -1171,6 +1195,7 @@
             orders: [],
             errands: [],
             applications: [],
+            messages: [],
             filters: FilterDefaults()
         };
 
@@ -1307,10 +1332,10 @@
             return list.map((product, index) => ({
                 ...product,
                 id: product.id ?? Date.now() + index,
-                targetQuantity: product.targetQuantity || 1,
-                currentQuantity: product.currentQuantity || 0,
-                ownerEmail: product.ownerEmail || null,
-                createdAt: product.createdAt || new Date().toISOString()
+                targetQuantity: product.targetQuantity ?? product.target_quantity ?? 1,
+                currentQuantity: product.currentQuantity ?? product.current_quantity ?? 0,
+                ownerEmail: product.ownerEmail ?? product.owner_email ?? null,
+                createdAt: product.createdAt || product.created_at || new Date().toISOString()
             }));
         }
 
@@ -1318,11 +1343,16 @@
             return list.map((errand, index) => ({
                 ...errand,
                 id: errand.id ?? Date.now() + index,
-                requesterEmail: errand.requesterEmail || AppState.user?.email || '',
+                requesterEmail: errand.requesterEmail ?? errand.requester_email ?? '',
+                requesterName: errand.requesterName ?? errand.requester_name ?? '',
+                budgetMin: errand.budgetMin ?? errand.budget_min ?? 0,
+                budgetMax: errand.budgetMax ?? errand.budget_max ?? 0,
+                preferredTime: errand.preferredTime ?? errand.preferred_time ?? '',
                 status: errand.status || 'open',
-                assignedHelperEmail: errand.assignedHelperEmail || null,
-                assignedHelperName: errand.assignedHelperName || null,
-                createdAt: errand.createdAt || new Date().toISOString()
+                assignedHelperEmail: errand.assignedHelperEmail ?? errand.assigned_helper_email ?? null,
+                assignedHelperName: errand.assignedHelperName ?? errand.assigned_helper_name ?? null,
+                acceptedHelperId: errand.acceptedHelperId ?? errand.accepted_helper_id ?? null,
+                createdAt: errand.createdAt || errand.created_at || new Date().toISOString()
             }));
         }
 
@@ -1340,6 +1370,8 @@
                 AppState.errands = normalizeErrands(storedErrands);
                 const storedApps = await dbLoadSlice(StorageKeys.applications, []);
                 AppState.applications = normalizeApplications(storedApps);
+                const storedMessages = await dbLoadSlice(StorageKeys.messages, []);
+                AppState.messages = storedMessages || [];
                 return;
             }
 
@@ -1364,6 +1396,17 @@
             } else {
                 AppState.applications = normalizeApplications(appsData || []);
             }
+
+            const { data: msgData, error: msgErr } = await supabaseClient
+                .from('messages')
+                .select('*')
+                .order('created_at', { ascending: false });
+            if (msgErr) {
+                console.error('Error loading messages', msgErr);
+                AppState.messages = [];
+            } else {
+                AppState.messages = msgData || [];
+            }
         }
 
         async function saveErrandsToBackend() {
@@ -1371,6 +1414,7 @@
                 // Fallback to existing key–value behavior
                 dbSaveSlice(StorageKeys.errands, AppState.errands);
                 dbSaveSlice(StorageKeys.applications, AppState.applications);
+                dbSaveSlice(StorageKeys.messages, AppState.messages);
                 return;
             }
 
@@ -1413,6 +1457,21 @@
                 .upsert(appsPayload, { onConflict: 'id' });
             if (appErr) {
                 console.error('Error saving applications', appErr);
+            }
+
+            const msgsPayload = AppState.messages.map(m => ({
+                id: m.id,
+                product_id: m.productId,
+                sender_email: m.senderEmail,
+                sender_name: m.senderName,
+                body: m.body,
+                created_at: m.createdAt
+            }));
+            const { error: msgErr } = await supabaseClient
+                .from('messages')
+                .upsert(msgsPayload, { onConflict: 'id' });
+            if (msgErr) {
+                console.error('Error saving messages', msgErr);
             }
         }
 
@@ -1532,6 +1591,7 @@
             dbSaveSlice(StorageKeys.orders, AppState.orders);
             dbSaveSlice(StorageKeys.errands, AppState.errands);
             dbSaveSlice(StorageKeys.applications, AppState.applications);
+            dbSaveSlice(StorageKeys.messages, AppState.messages);
             dbSaveSlice(StorageKeys.loginMethod, AppState.loginMethod || null);
         }
 
@@ -1556,6 +1616,22 @@
         function persistApplications() {
             saveState();
             saveErrandsToBackend();
+        }
+
+        function handleVendorOrderStatus(event) {
+            if (!AppState.filters.vendorOrders) {
+                AppState.filters.vendorOrders = { status: 'all', search: '' };
+            }
+            AppState.filters.vendorOrders.status = event.target.value;
+            renderDashboard();
+        }
+
+        function handleVendorOrderSearch(event) {
+            if (!AppState.filters.vendorOrders) {
+                AppState.filters.vendorOrders = { status: 'all', search: '' };
+            }
+            AppState.filters.vendorOrders.search = event.target.value;
+            renderDashboard();
         }
 
         function resetState() {
@@ -1659,6 +1735,7 @@
          * Initialization
          */
         async function initApp() {
+            setLoading(true);
             await loadState();
             refreshOrderStatuses();
             updateNavbar();
@@ -1671,9 +1748,11 @@
                 renderDashboard();
             }
             initializeModalRoot();
+            enhanceDateTimeInputs();
             if (!AppState.user) {
                 initializeGoogleSignIn();
             }
+            setLoading(false);
         }
 
         function determineInitialScreen() {
@@ -1684,10 +1763,6 @@
             const roles = AppState.user.roles || [];
             if (!roles.length) {
                 AppState.currentScreen = 'role';
-                return;
-            }
-            if (roles.includes('helper') && !AppState.user.helperVerified) {
-                AppState.currentScreen = 'helper';
                 return;
             }
             AppState.currentScreen = 'browse';
@@ -1788,7 +1863,7 @@
                 </div>
                 <div style="display:flex; gap:0.5rem; flex-wrap:wrap; justify-content:flex-end;">
                     ${resetButton}
-                    <button class="btn btn-secondary" onclick="logout()">Logout</button>
+                <button class="btn btn-secondary" onclick="logout()">Logout</button>
                 </div>
             `;
         }
@@ -1938,10 +2013,6 @@
                 goToScreen('role');
                 return;
             }
-            if (roles.includes('helper') && !AppState.user.helperVerified) {
-                goToScreen('helper');
-                return;
-            }
             goToScreen('browse');
         }
 
@@ -1989,7 +2060,7 @@
                             <input type="file" accept="image/*" class="form-input" onchange="handlePhotoUpload(event)" />
                         </div>
                         ${data.photoDataUrl ? `<img src="${data.photoDataUrl}" alt="Preview" style="max-width:180px;border-radius:12px;margin-bottom:1rem;" />` : ''}
-                        <button class="primary-cta" style="width:100%;" onclick="goToNextHelperStep()" ${data.photoDataUrl ? '' : 'disabled'}>Continue</button>
+                        <button class="primary-cta" style="width:100%;" onclick="goToNextHelperStep()" ${data.photoDataUrl || AppState.loginMethod === 'test' ? '' : 'disabled'}>Continue</button>
                     `;
                     break;
                 case 2:
@@ -2213,6 +2284,27 @@
             setTimeout(() => pulse.classList.remove('show'), 600);
         }
 
+        function setLoading(isLoading) {
+            const overlay = document.getElementById('loading-overlay');
+            if (!overlay) return;
+            overlay.style.display = isLoading ? 'flex' : 'none';
+        }
+
+        function enhanceDateTimeInputs() {
+            const input = document.getElementById('errand-time');
+            if (!input) return;
+            if (!input.placeholder) {
+                input.placeholder = 'Select a date and time';
+            }
+            const openPicker = () => {
+                if (typeof input.showPicker === 'function') {
+                    input.showPicker();
+                }
+            };
+            input.addEventListener('focus', openPicker);
+            input.addEventListener('click', openPicker);
+        }
+
         function formatCurrency(value = 0) {
             const safeValue = Number.isFinite(value) ? value : 0;
             return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(safeValue);
@@ -2229,7 +2321,12 @@
             if (!dateString) return 'TBD';
             const date = new Date(dateString);
             if (Number.isNaN(date.getTime())) return dateString;
-            return date.toLocaleString('en-CA', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+            return date.toLocaleString('en-CA', {
+                month: 'short',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit'
+            });
         }
 
         function calculateProgress(product) {
@@ -2398,12 +2495,16 @@
             if (regionSelect) {
                 regionSelect.value = AppState.filters.groupbuys.region;
             }
+            const vendorSelect = document.getElementById('groupbuy-vendor');
+            if (vendorSelect) {
+                vendorSelect.value = AppState.filters.groupbuys.vendor;
+            }
             const sortSelect = document.getElementById('groupbuy-sort');
             if (sortSelect) {
                 sortSelect.value = AppState.filters.groupbuys.sort;
             }
 
-            const { search, region, sort } = AppState.filters.groupbuys;
+            const { search, region, sort, vendor } = AppState.filters.groupbuys;
             let products = [...AppState.products];
             if (search.trim()) {
                 const query = search.trim().toLowerCase();
@@ -2414,6 +2515,9 @@
             }
             if (region !== 'All') {
                 products = products.filter(product => product.region === region);
+            }
+            if (vendor !== 'All') {
+                products = products.filter(product => (product.vendor || '').toLowerCase() === vendor.toLowerCase());
             }
 
             const sorters = {
@@ -2461,6 +2565,11 @@
             renderGroupBuyList();
         }
 
+        function handleGroupBuyVendor(event) {
+            AppState.filters.groupbuys.vendor = event.target.value;
+            renderGroupBuyList();
+        }
+
         function handleGroupBuySort(event) {
             AppState.filters.groupbuys.sort = event.target.value;
             renderGroupBuyList();
@@ -2475,6 +2584,23 @@
             if (!product) return;
             const ordersForProduct = AppState.orders.filter(order => order.productId === product.id);
             const status = computeGroupStatus(product);
+            const isVendor = AppState.user && product.ownerEmail === AppState.user.email;
+            const productMessages = AppState.messages.filter(msg => msg.productId === product.id).slice(0, 5);
+            const messagesHtml = productMessages.length
+                ? `
+                    <div class="stacked-list" style="margin-top:1rem;">
+                        ${productMessages.map(msg => `
+                            <div class="list-card">
+                                <div>
+                                    <strong>${msg.senderName || msg.senderEmail}</strong>
+                                    <p style="font-size:0.85rem; color:#64748b;">${formatDateTime(msg.createdAt)}</p>
+                                    <p>${msg.body}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `
+                : '<p class="screen-subtitle" style="margin-top:0.75rem;">No messages yet. Start a conversation to coordinate details.</p>';
             const content = `
                 <h3 class="modal-title">${product.title}</h3>
                 <p class="modal-subtitle">${product.description}</p>
@@ -2493,7 +2619,12 @@
                 </ul>
                 <div class="modal-footer">
                     <button class="btn btn-ghost" onclick="closeModal()">Close</button>
+                    ${AppState.user ? `<button class="btn btn-secondary" onclick="openProductMessagesModal(${product.id})">Messages</button>` : ''}
                     <button class="btn btn-primary" onclick="openJoinGroupBuyModal(${product.id})">Join group buy</button>
+                </div>
+                <div style="margin-top:1.5rem;">
+                    <h4>Recent messages</h4>
+                    ${messagesHtml}
                 </div>
             `;
             showModal(content);
@@ -2533,6 +2664,79 @@
                 </form>
             `;
             showModal(content);
+        }
+
+        function openProductMessagesModal(productId) {
+            const product = findProductById(productId);
+            if (!product) return;
+            if (!AppState.user) {
+                showToast('Please log in to send messages.', 'warning');
+                goToScreen('auth');
+                return;
+            }
+            const thread = AppState.messages.filter(msg => msg.productId === product.id);
+            const threadHtml = thread.length
+                ? `
+                    <div class="stacked-list" style="margin-top:1rem;">
+                        ${thread.map(msg => `
+                            <div class="list-card">
+                                <div>
+                                    <strong>${msg.senderName || msg.senderEmail}</strong>
+                                    <p style="font-size:0.85rem; color:#64748b;">${formatDateTime(msg.createdAt)}</p>
+                                    <p>${msg.body}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `
+                : '<p class="screen-subtitle" style="margin-top:0.75rem;">No messages yet. Be the first to reach out.</p>';
+            const textareaId = `product-message-${product.id}`;
+            const content = `
+                <h3 class="modal-title">Messages for ${product.title}</h3>
+                <p class="modal-subtitle">Use this space to coordinate pickup times, questions, or special requests. (Demo only)</p>
+                ${threadHtml}
+                <form onsubmit="submitProductMessage(event, ${product.id}, '${textareaId}')">
+                    <div class="form-group" style="margin-top:1.25rem;">
+                        <label class="form-label" for="${textareaId}">New message</label>
+                        <textarea id="${textareaId}" class="form-textarea" rows="3" placeholder="Ask a question or share details..." required></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-ghost" onclick="closeModal()">Close</button>
+                        <button type="submit" class="btn btn-primary">Send message</button>
+                    </div>
+                </form>
+            `;
+            showModal(content);
+        }
+
+        function submitProductMessage(event, productId, fieldId) {
+            event.preventDefault();
+            if (!AppState.user) {
+                showToast('Please log in to send messages.', 'warning');
+                goToScreen('auth');
+                return;
+            }
+            const input = document.getElementById(fieldId);
+            if (!input) return;
+            const body = input.value.trim();
+            if (!body) {
+                showToast('Please enter a short message.', 'warning');
+                return;
+            }
+            const nowIso = new Date().toISOString();
+            const msg = {
+                id: Date.now(),
+                productId,
+                senderEmail: AppState.user.email,
+                senderName: AppState.user.name,
+                body,
+                createdAt: nowIso
+            };
+            AppState.messages.unshift(msg);
+            saveState();
+            saveErrandsToBackend();
+            openProductMessagesModal(productId);
+            showToast('Message sent (demo only).', 'success');
         }
 
         function submitJoinGroupBuy(event, productId, quantityFieldId, noteFieldId) {
@@ -2580,6 +2784,126 @@
             triggerSuccessPulse();
         }
 
+        function openEditProductModal(productId) {
+            const product = findProductById(productId);
+            if (!product || !AppState.user) return;
+            if (product.ownerEmail !== AppState.user.email) {
+                showToast('Only the vendor who created this product can edit it.', 'warning');
+                return;
+            }
+            const priceId = `edit-price-${product.id}`;
+            const descId = `edit-desc-${product.id}`;
+            const deadlineId = `edit-deadline-${product.id}`;
+            const deliveryId = `edit-delivery-${product.id}`;
+            const targetId = `edit-target-${product.id}`;
+            const content = `
+                <h3 class="modal-title">Edit ${product.title}</h3>
+                <p class="modal-subtitle">Update key details for this group buy.</p>
+                <form onsubmit="submitEditProduct(event, ${product.id}, '${priceId}', '${descId}', '${deadlineId}', '${deliveryId}', '${targetId}')">
+                    <div class="form-group">
+                        <label class="form-label" for="${priceId}">Price per unit ($)</label>
+                        <input id="${priceId}" class="form-input" type="number" min="1" value="${product.price}" required />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="${descId}">Description</label>
+                        <textarea id="${descId}" class="form-textarea" rows="3" required>${product.description}</textarea>
+                    </div>
+                    <div class="form-group" style="display:flex; gap:1rem; flex-wrap:wrap;">
+                        <div style="flex:1; min-width:180px;">
+                            <label class="form-label" for="${deadlineId}">Order deadline</label>
+                            <input id="${deadlineId}" class="form-input" type="date" value="${product.deadline}" required />
+                        </div>
+                        <div style="flex:1; min-width:180px;">
+                            <label class="form-label" for="${deliveryId}">Delivery date</label>
+                            <input id="${deliveryId}" class="form-input" type="date" value="${product.deliveryDate}" required />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="${targetId}">Target quantity</label>
+                        <input id="${targetId}" class="form-input" type="number" min="1" value="${product.targetQuantity}" required />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                    </div>
+                </form>
+            `;
+            showModal(content);
+        }
+
+        function submitEditProduct(event, productId, priceId, descId, deadlineId, deliveryId, targetId) {
+            event.preventDefault();
+            const product = findProductById(productId);
+            if (!product || !AppState.user) return;
+            if (product.ownerEmail !== AppState.user.email) {
+                showToast('Only the vendor who created this product can edit it.', 'warning');
+                return;
+            }
+            const price = Number(document.getElementById(priceId)?.value || 0);
+            const description = document.getElementById(descId)?.value.trim() || '';
+            const deadline = document.getElementById(deadlineId)?.value;
+            const deliveryDate = document.getElementById(deliveryId)?.value;
+            const targetQuantity = Number(document.getElementById(targetId)?.value || 0);
+            if (price <= 0 || targetQuantity <= 0 || !description || !deadline || !deliveryDate) {
+                showToast('Please fill out all fields correctly.', 'warning');
+                return;
+            }
+            const deadlineDate = new Date(deadline);
+            const deliveryDateObj = new Date(deliveryDate);
+            if (deliveryDateObj <= deadlineDate) {
+                showToast('Delivery date must be after the order deadline.', 'warning');
+                return;
+            }
+            product.price = price;
+            product.description = description;
+            product.deadline = deadline;
+            product.deliveryDate = deliveryDate;
+            product.targetQuantity = targetQuantity;
+            saveState();
+            saveProductsToBackend();
+            renderGroupBuyList();
+            renderMarketplaceHighlights();
+            renderDashboard();
+            closeModal();
+            showToast('Product updated.', 'success');
+        }
+
+        function openDeleteProductConfirm(productId) {
+            const product = findProductById(productId);
+            if (!product || !AppState.user) return;
+            if (product.ownerEmail !== AppState.user.email) {
+                showToast('Only the vendor who created this product can delete it.', 'warning');
+                return;
+            }
+            const content = `
+                <h3 class="modal-title">Delete ${product.title}</h3>
+                <p class="modal-subtitle">This will remove the product from the marketplace. Existing orders will remain for record-keeping.</p>
+                <p class="screen-subtitle" style="margin-top:0.5rem;">Are you sure you want to continue?</p>
+                <div class="modal-footer">
+                    <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+                    <button class="btn reset-btn" onclick="confirmDeleteProduct(${product.id})">Delete product</button>
+                </div>
+            `;
+            showModal(content);
+        }
+
+        function confirmDeleteProduct(productId) {
+            const product = findProductById(productId);
+            if (!product || !AppState.user) return;
+            if (product.ownerEmail !== AppState.user.email) {
+                showToast('Only the vendor who created this product can delete it.', 'warning');
+                return;
+            }
+            AppState.products = AppState.products.filter(p => p.id !== product.id);
+            saveState();
+            saveProductsToBackend();
+            renderGroupBuyList();
+            renderMarketplaceHighlights();
+            renderDashboard();
+            closeModal();
+            showToast('Product deleted.', 'info');
+        }
+
         function cancelOrder(orderId) {
             const order = AppState.orders.find(item => item.id === Number(orderId));
             if (!order || !AppState.user) return;
@@ -2624,8 +2948,8 @@
             order.fulfillmentStatus = status;
             order.updatedAt = new Date().toISOString();
             persistOrders();
-            renderVendorDashboard();
-            showToast(`Order marked as ${status}.`, 'success');
+            renderDashboard();
+            showToast(`Order marked as ${status.replace(/_/g, ' ')}.`, 'success');
         }
 
         /**
@@ -3220,7 +3544,7 @@
                     <div class="view-actions" style="margin-top:1rem;">
                         <button class="btn btn-primary" onclick="goToScreen('role')">Edit roles</button>
                         ${roles.includes('helper') && !AppState.user.helperVerified ? '<button class="btn btn-secondary" onclick="goToScreen(\'helper\')">Finish helper verification</button>' : ''}
-                    </div>
+                </div>
                 </div>
             `;
         }
@@ -3371,12 +3695,23 @@
                             <strong>${product.title}</strong>
                             <p>${product.region} • ${calculateProgress(product)}% funded</p>
                         </div>
-                        <button class="btn btn-secondary" onclick="openProductDetail(${product.id})">View</button>
+                        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                            <button class="btn btn-secondary" onclick="openProductDetail(${product.id})">View</button>
+                            <button class="btn btn-ghost" onclick="openEditProductModal(${product.id})">Edit</button>
+                            <button class="btn reset-btn" onclick="openDeleteProductConfirm(${product.id})">Delete</button>
+                        </div>
                     </div>
                 `).join('')
                 : '<p class="screen-subtitle">No products yet. Add one using the form.</p>';
 
-            const vendorOrders = myOrders.filter(order => order.groupStatus !== 'cancelled');
+            const vendorOrdersAll = myOrders.filter(order => order.groupStatus !== 'cancelled');
+            const voFilters = AppState.filters.vendorOrders || { status: 'all', search: '' };
+            const searchLower = (voFilters.search || '').trim().toLowerCase();
+            const vendorOrders = vendorOrdersAll.filter(order => {
+                const statusMatch = voFilters.status === 'all' || order.fulfillmentStatus === voFilters.status;
+                const nameMatch = !searchLower || (order.customerName || '').toLowerCase().includes(searchLower);
+                return statusMatch && nameMatch;
+            });
             const totalSales = vendorOrders.reduce((sum, order) => sum + (order.total || 0), 0);
             const platformFee = totalSales * 0.15;
             const netIncome = totalSales - platformFee;
@@ -3503,7 +3838,19 @@
                     </form>
                 </div>
                 <div class="view-content">
-                    <h3>My Orders</h3>
+                    <div class="view-header">
+                        <h3>My Orders</h3>
+                        <div class="filter-bar" style="margin-bottom:0;">
+                            <select id="vendor-order-status" class="form-select" onchange="handleVendorOrderStatus(event)">
+                                <option value="all">All statuses</option>
+                                <option value="pending">Pending</option>
+                                <option value="confirmed">Confirmed</option>
+                                <option value="prepared">Prepared</option>
+                                <option value="delivered">Delivered</option>
+                            </select>
+                            <input id="vendor-order-search" class="form-input" type="text" placeholder="Search by customer name" oninput="handleVendorOrderSearch(event)" />
+                        </div>
+                    </div>
                     ${groupedHtml}
                 </div>
             `;
@@ -3521,14 +3868,14 @@
                 } catch (e) {
                     console.error('Supabase sign-out error', e);
                 }
-                AppState.user = null;
+            AppState.user = null;
                 AppState.loginMethod = null;
-                AppState.selectedRoles = new Set();
-                AppState.helperStepIndex = 0;
+            AppState.selectedRoles = new Set();
+            AppState.helperStepIndex = 0;
                 AppState.helperData = createHelperData();
                 saveState();
-                updateNavbar();
-                goToScreen('start');
+            updateNavbar();
+            goToScreen('start');
             })();
         }
 
@@ -3552,6 +3899,8 @@
         window.openProductDetail = openProductDetail;
         window.openJoinGroupBuyModal = openJoinGroupBuyModal;
         window.submitJoinGroupBuy = submitJoinGroupBuy;
+        window.openProductMessagesModal = openProductMessagesModal;
+        window.submitProductMessage = submitProductMessage;
         window.handleCreateErrand = handleCreateErrand;
         window.handleErrandRegion = handleErrandRegion;
         window.handleErrandStatus = handleErrandStatus;
