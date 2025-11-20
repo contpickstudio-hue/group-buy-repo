@@ -1,0 +1,3930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Korean Community Commerce</title>
+    <!-- 
+        ===========================================
+        GOOGLE SIGN-IN SETUP INSTRUCTIONS:
+        ============================================
+        
+        1. Go to https://console.cloud.google.com/
+        2. Create a new project or select an existing one
+        3. Enable Google Identity Services API
+        4. Go to "Credentials" > "Create Credentials" > "OAuth client ID"
+        5. Choose "Web application"
+        6. Add authorized JavaScript origins (e.g., http://localhost)
+        7. Copy the Client ID and replace the value below in initializeGoogleSignIn()
+        8. Serve this file via a local server for Google OAuth to work properly
+    -->
+    <style>
+        /* ============================================
+           RESET & BASE STYLES
+           ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        /* ============================================
+           NAVIGATION BAR
+           ============================================ */
+        .navbar {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 200;
+        }
+
+        .navbar-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .navbar-brand {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1d4ed8;
+            text-decoration: none;
+        }
+
+        .navbar-links {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: #475569;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.2s ease;
+        }
+
+        .nav-link:hover {
+            color: #1d4ed8;
+        }
+
+        .nav-link.active {
+            color: #1d4ed8;
+            font-weight: 600;
+        }
+
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .profile-pill {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.35rem 0.85rem;
+            background: #eef2ff;
+            border-radius: 999px;
+            font-size: 0.9rem;
+        }
+
+        .profile-pill img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #c7d2fe;
+        }
+
+        .role-badge {
+            padding: 0.2rem 0.6rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+            background-color: #4f46e5;
+        }
+
+        .role-badge.helper {
+            background-color: #059669;
+        }
+
+        .verification-badge {
+            font-size: 0.75rem;
+            color: #059669;
+            font-weight: 600;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+
+        .user-greeting {
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        /* ============================================
+           LAYOUT / SCREENS
+           ============================================ */
+        .app-shell {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem 4rem;
+        }
+
+        .screen {
+            display: none;
+            background: white;
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 15px 40px rgba(15, 23, 42, 0.08);
+        }
+
+        .screen.active {
+            display: block;
+            animation: fadeIn 0.35s ease;
+        }
+
+        .screen-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .screen-heading {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+        }
+
+        .screen-subtitle {
+            color: #64748b;
+            font-size: 1rem;
+        }
+
+        .auth-options {
+            max-width: 420px;
+            margin: 0 auto;
+        }
+
+        .view-content {
+            background: white;
+            border-radius: 14px;
+            padding: 1.75rem;
+            box-shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
+        }
+
+        .browse-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .dashboard-content > .view-content + .view-content {
+            margin-top: 1.25rem;
+        }
+
+        .divider span {
+            padding: 0 0.5rem;
+        }
+
+        .list-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+            background: #f8fafc;
+        }
+
+        .list-card strong {
+            color: #0f172a;
+        }
+
+        .list-card p {
+            margin: 0.25rem 0 0;
+            color: #475569;
+            font-size: 0.9rem;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.2rem 0.65rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge.success {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .badge.info {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .primary-cta {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.9rem 2.5rem;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: white;
+            font-size: 1.05rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s;
+            box-shadow: 0 20px 35px rgba(37, 99, 235, 0.25);
+        }
+
+        .primary-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 25px 45px rgba(37, 99, 235, 0.3);
+        }
+
+        /* Reusable cards */
+        .card {
+            background: white;
+            border-radius: 18px;
+            border: 1px solid #e2e8f0;
+            padding: 1.5rem;
+            box-shadow: 0 15px 35px rgba(15, 23, 42, 0.06);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 25px 45px rgba(15, 23, 42, 0.09);
+        }
+
+        .card h4 {
+            margin-bottom: 0.5rem;
+            color: #0f172a;
+        }
+
+        .card-cover {
+            width: 100%;
+            height: 140px;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            object-fit: cover;
+            background: #e2e8f0;
+        }
+
+        .card-meta {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 0.75rem;
+            font-size: 0.9rem;
+            color: #475569;
+            margin-top: 0.75rem;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.2rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .pill.info {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .pill.success {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            border-radius: 999px;
+            background: #e2e8f0;
+            margin-top: 0.75rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #2563eb, #7c3aed);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.2rem 0.65rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        .status-open { background:#dbeafe; color:#1d4ed8; }
+        .status-closed { background:#e2e8f0; color:#475569; }
+        .status-succeeded { background:#dcfce7; color:#15803d; }
+        .status-failed { background:#fee2e2; color:#b91c1c; }
+        .status-cancelled { background:#fef3c7; color:#92400e; }
+        .status-matched { background:#ede9fe; color:#6d28d9; }
+        .status-in_progress { background:#fef3c7; color:#b45309; }
+        .status-completed { background:#d1fae5; color:#047857; }
+        .status-confirmed { background:#ddd6fe; color:#5b21b6; }
+        .status-accepted { background:#dcfce7; color:#15803d; }
+        .status-declined { background:#fee2e2; color:#b91c1c; }
+        .status-withdrawn { background:#e5e7eb; color:#4b5563; }
+        .status-pending { background:#e0f2fe; color:#0369a1; }
+        .status-prepared { background:#ede9fe; color:#5b21b6; }
+        .status-delivered { background:#d1fae5; color:#047857; }
+
+        .toast-container {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            z-index: 600;
+        }
+
+        .toast {
+            min-width: 260px;
+            padding: 0.85rem 1.25rem;
+            border-radius: 12px;
+            color: white;
+            box-shadow: 0 20px 35px rgba(15, 23, 42, 0.2);
+            opacity: 0;
+            transform: translateY(-10px);
+            animation: toastIn 0.3s forwards;
+        }
+
+        .toast.success { background: linear-gradient(135deg,#34d399,#059669); }
+        .toast.info { background: linear-gradient(135deg,#60a5fa,#2563eb); }
+        .toast.warning { background: linear-gradient(135deg,#fbbf24,#f97316); }
+        .toast.error { background: linear-gradient(135deg,#f87171,#ef4444); }
+
+        .success-pulse {
+            position: fixed;
+            top: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90px;
+            height: 90px;
+            border-radius: 999px;
+            background: rgba(34,197,94,0.15);
+            border: 2px solid #34d399;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: #047857;
+            font-size: 2rem;
+            z-index: 601;
+            animation: pulseFade 0.8s ease;
+        }
+
+        .success-pulse.show {
+            display: flex;
+        }
+
+        .form-error {
+            color: #dc2626;
+            font-size: 0.85rem;
+            margin-top: 0.35rem;
+        }
+
+        .svg-template-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.75rem;
+            color: #475569;
+        }
+
+        .svg-template-btn:hover {
+            border-color: #6366f1;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+        }
+
+        .svg-template-btn.selected {
+            border-color: #6366f1;
+            background: #eef2ff;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .svg-template-btn:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        @keyframes toastIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulseFade {
+            from { opacity: 1; transform: translate(-50%, -10px) scale(0.95); }
+            to { opacity: 0; transform: translate(-50%, -30px) scale(1.2); }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            align-items: center;
+        }
+
+        .filter-bar .form-input,
+        .filter-bar .form-select {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .hover-link {
+            color: #2563eb;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .hover-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Modal styling */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            z-index: 500;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            animation: fadeIn 0.25s ease;
+        }
+
+        .modal-panel {
+            background: white;
+            border-radius: 24px;
+            padding: 2rem;
+            width: min(640px, 100%);
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 35px 60px rgba(15, 23, 42, 0.25);
+            animation: slideUp 0.25s ease;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            border: none;
+            background: transparent;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #94a3b8;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #0f172a;
+        }
+
+        .modal-subtitle {
+            color: #475569;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-footer {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1.75rem;
+            justify-content: flex-end;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: #2563eb;
+            border: 1px solid rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-ghost:hover {
+            background: rgba(37, 99, 235, 0.08);
+        }
+
+        .view-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .view-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .stacked-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .reset-btn {
+            background: #f87171;
+            color: white;
+        }
+
+        .reset-btn:hover {
+            background: #ef4444;
+        }
+
+        /* ============================================
+           CARDS / FORMS / COMPONENTS
+           ============================================ */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .role-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: border-color 0.2s ease, transform 0.2s;
+            background: #f8fafc;
+        }
+
+        .role-card:hover {
+            border-color: #6366f1;
+            transform: translateY(-2px);
+        }
+
+        .role-card.active {
+            border-color: #4338ca;
+            background: #eef2ff;
+        }
+
+        .role-card h3 {
+            margin-bottom: 0.5rem;
+            color: #0f172a;
+        }
+
+        .role-card p {
+            color: #475569;
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.45rem;
+            font-weight: 600;
+            color: #0f172a;
+            font-size: 0.9rem;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 0.8rem 0.9rem;
+            border-radius: 10px;
+            border: 1.5px solid #e2e8f0;
+            font-size: 0.95rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s;
+            background: #f8fafc;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+            background: white;
+        }
+
+        .helper-progress {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .progress-dot {
+            flex: 1;
+            height: 6px;
+            border-radius: 999px;
+            background: #e2e8f0;
+        }
+
+        .progress-dot.active {
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ============================================
+           RESPONSIVE DESIGN
+           ============================================ */
+        @media (max-width: 768px) {
+            .navbar-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .navbar-links {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .auth-section {
+                width: 100%;
+            }
+
+            .login-form {
+                width: 100%;
+            }
+
+            .login-input {
+                flex: 1;
+            }
+
+            .welcome-title {
+                font-size: 2rem;
+            }
+
+            .welcome-description {
+                font-size: 1rem;
+            }
+
+            .homepage {
+                padding: 2rem 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar-brand {
+                font-size: 1rem;
+            }
+
+            .nav-link {
+                font-size: 0.85rem;
+            }
+
+            .welcome-title {
+                font-size: 1.75rem;
+            }
+
+            .svg-graphic {
+                max-width: 300px;
+            }
+
+            .modal-content {
+                padding: 1.5rem;
+                max-width: 95%;
+            }
+
+            .modal-title {
+                font-size: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="#" class="navbar-brand" onclick="goToScreen('start'); return false;">Korean Community Commerce</a>
+            <div class="navbar-links" id="navbar-links"></div>
+            <div class="navbar-actions" id="navbar-actions">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </nav>
+
+    <main class="app-shell">
+        <!-- Screen: Get Started -->
+        <section class="screen active" id="screen-start">
+            <div class="screen-header">
+                <p class="screen-subtitle">Community-powered commerce for Koreans in Canada</p>
+                <h1 class="screen-heading">Join local group buys & errands together</h1>
+            </div>
+            <div style="text-align: center;">
+                <button class="primary-cta" onclick="goToScreen('auth')">
+                    Get Started
+                </button>
+                <div style="margin-top:1rem;">
+                    <button class="btn btn-secondary" onclick="skipLoginForTesting()">Skip login (test)</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Screen: Authentication -->
+        <section class="screen" id="screen-auth">
+            <div class="screen-header">
+                <p class="screen-subtitle">Step 1 of 3</p>
+                <h2 class="screen-heading">Create your account</h2>
+                <p class="screen-subtitle">Choose Google login or continue with your email</p>
+            </div>
+            <div class="auth-options">
+                <div class="google-signin-container" style="text-align:center; margin-bottom: 1.5rem;">
+                    <div id="google-signin-button"></div>
+                </div>
+                <div class="divider"><span>or</span></div>
+                <form id="email-auth-form" onsubmit="handleEmailSignUp(event)">
+                    <div class="form-group">
+                        <label class="form-label" for="full-name">Full Name</label>
+                        <input id="full-name" class="form-input" type="text" placeholder="e.g., Soo Jin Park" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="email-address">Email</label>
+                        <input id="email-address" class="form-input" type="email" placeholder="name@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="password-input">Password</label>
+                        <input id="password-input" class="form-input" type="password" placeholder="Minimum 6 characters" minlength="6" required>
+                    </div>
+                    <div id="verification-message" class="screen-subtitle" style="display:none; margin-bottom: 1rem; color:#059669;">
+                        We sent you a verification email. Please check your inbox.
+                    </div>
+                    <button type="submit" class="primary-cta" style="width:100%;">Continue</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Screen: Choose Role -->
+        <section class="screen" id="screen-role">
+            <div class="screen-header">
+                <p class="screen-subtitle">Step 2 of 3</p>
+                <h2 class="screen-heading">How will you use the platform?</h2>
+                <p class="screen-subtitle">Pick one to customize your experience.</p>
+            </div>
+            <div class="card-grid" id="role-card-container">
+                <div class="role-card" data-role="customer" onclick="toggleRole('customer')">
+                    <h3>Customer</h3>
+                    <p>Join local group buys, request errands, and track your orders.</p>
+                </div>
+                <div class="role-card" data-role="vendor" onclick="toggleRole('vendor')">
+                    <h3>Vendor</h3>
+                    <p>Launch community group buys, manage products, and oversee fulfillment.</p>
+                </div>
+                <div class="role-card" data-role="helper" onclick="toggleRole('helper')">
+                    <h3>Helper</h3>
+                    <p>Run errands, support group-buy logistics, and earn more with your time.</p>
+                </div>
+            </div>
+            <div style="margin-top:2rem; text-align:right;">
+                <button class="primary-cta" onclick="continueAfterRole()" id="role-continue-btn" disabled>Continue</button>
+            </div>
+        </section>
+
+        <!-- Screen: Helper Verification -->
+        <section class="screen" id="screen-helper">
+            <div class="screen-header">
+                <p class="screen-subtitle">Final step • Helper verification</p>
+                <h2 class="screen-heading">Build community trust</h2>
+                <p class="screen-subtitle">Complete the steps so customers feel confident booking you.</p>
+            </div>
+            <div class="helper-progress" id="helper-progress"></div>
+            <div id="helper-step-container"><!-- JS renders forms here --></div>
+        </section>
+
+        <!-- Screen: Browse Marketplace -->
+        <section class="screen" id="screen-browse">
+            <div class="screen-header">
+                <p class="screen-subtitle">Live marketplace</p>
+                <h2 class="screen-heading">Browse group buys & errands</h2>
+                <p class="screen-subtitle">Discover what the community is organizing right now.</p>
+            </div>
+            <div class="browse-grid">
+                <div class="view-content">
+                    <div class="view-header">
+                        <h3>Featured Group Buys</h3>
+                        <button class="btn btn-primary" onclick="goToScreen('groupbuys')">View more group buys</button>
+                    </div>
+                    <div class="stacked-list" id="featured-groupbuys"></div>
+                </div>
+                <div class="view-content">
+                    <div class="view-header">
+                        <h3>Open Errands</h3>
+                        <button class="btn btn-primary" onclick="goToScreen('errands')">View all errands</button>
+                    </div>
+                    <div class="stacked-list" id="featured-errands"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Screen: Group Buy List -->
+        <section class="screen" id="screen-groupbuys">
+            <div class="screen-header">
+                <p class="screen-subtitle">Community bulk orders</p>
+                <h2 class="screen-heading">Group Buy Marketplace</h2>
+                <p class="screen-subtitle">Filter by region, compare deals, and join with confidence.</p>
+            </div>
+            <div class="filter-bar">
+                <input id="groupbuy-search" class="form-input" type="text" placeholder="Search products..." oninput="handleGroupBuySearch(event)">
+                <select id="groupbuy-region" class="form-select" onchange="handleGroupBuyRegion(event)">
+                    <option value="All">All Regions</option>
+                    <option value="Toronto">Toronto</option>
+                    <option value="Hamilton">Hamilton</option>
+                    <option value="Niagara">Niagara</option>
+                </select>
+                <select id="groupbuy-vendor" class="form-select" onchange="handleGroupBuyVendor(event)">
+                    <option value="All">All Vendors</option>
+                    <option value="Soo Fresh Imports">Soo Fresh Imports</option>
+                    <option value="Han Market">Han Market</option>
+                    <option value="Island Co-op">Island Co-op</option>
+                    <option value="Harbor Foods">Harbor Foods</option>
+                    <option value="Taste of Seou">Taste of Seou</option>
+                </select>
+                <select id="groupbuy-sort" class="form-select" onchange="handleGroupBuySort(event)">
+                    <option value="deadline">Sort by Deadline</option>
+                    <option value="priceLow">Price: Low to High</option>
+                    <option value="priceHigh">Price: High to Low</option>
+                    <option value="progress">Progress</option>
+                </select>
+            </div>
+            <div class="card-grid" id="groupbuy-list"></div>
+        </section>
+
+        <!-- Screen: Errands List -->
+        <section class="screen" id="screen-errands">
+            <div class="screen-header">
+                <p class="screen-subtitle">Need a hand?</p>
+                <h2 class="screen-heading">Community Errands Hub</h2>
+                <p class="screen-subtitle">Create errands, apply to help, and match faster.</p>
+            </div>
+            <div class="view-content" style="margin-bottom:1.5rem;">
+                <div class="view-header">
+                    <h3>Create a new errand</h3>
+                    <span class="screen-subtitle">Share details and helpers will apply.</span>
+                </div>
+                <form id="create-errand-form" onsubmit="handleCreateErrand(event)">
+                    <div class="form-group">
+                        <label class="form-label">Title</label>
+                        <input class="form-input" id="errand-title" required placeholder="e.g., Costco pickup in Etobicoke">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Region</label>
+                        <select class="form-select" id="errand-region" required>
+                            <option value="Toronto">Toronto</option>
+                            <option value="Hamilton">Hamilton</option>
+                            <option value="Niagara">Niagara</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-textarea" id="errand-description" rows="3" required placeholder="What do you need help with?"></textarea>
+                    </div>
+                    <div class="form-group" style="display:flex; gap:1rem; flex-wrap:wrap;">
+                        <div style="flex:1; min-width:180px;">
+                            <label class="form-label">Budget Min ($)</label>
+                            <input type="number" class="form-input" id="errand-budget-min" required min="0">
+                        </div>
+                        <div style="flex:1; min-width:180px;">
+                            <label class="form-label">Budget Max ($)</label>
+                            <input type="number" class="form-input" id="errand-budget-max" required min="0">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Preferred Time</label>
+                        <input type="datetime-local" class="form-input" id="errand-time" required>
+                    </div>
+                    <button class="primary-cta" style="width:100%;">Post Errand</button>
+                </form>
+            </div>
+            <div class="filter-bar">
+                <select id="errand-region-filter" class="form-select" onchange="handleErrandRegion(event)">
+                    <option value="All">All Regions</option>
+                    <option value="Toronto">Toronto</option>
+                    <option value="Hamilton">Hamilton</option>
+                    <option value="Niagara">Niagara</option>
+                </select>
+                <select id="errand-status-filter" class="form-select" onchange="handleErrandStatus(event)">
+                    <option value="open">Open errands</option>
+                    <option value="matched">Matched</option>
+                    <option value="in_progress">In progress</option>
+                    <option value="completed">Completed</option>
+                    <option value="all">All statuses</option>
+                </select>
+                <select id="errand-sort" class="form-select" onchange="handleErrandSort(event)">
+                    <option value="newest">Newest first</option>
+                    <option value="budgetHigh">Budget high → low</option>
+                    <option value="budgetLow">Budget low → high</option>
+                </select>
+            </div>
+            <div class="card-grid" id="errand-list"></div>
+        </section>
+
+        <!-- Screen: Dashboard -->
+        <section class="screen" id="screen-dashboard">
+            <div class="screen-header">
+                <h2 class="screen-heading" id="dashboard-title">Welcome back!</h2>
+                <p class="screen-subtitle" id="dashboard-subtitle">Your personalized community hub.</p>
+            </div>
+            <div id="dashboard-content" class="dashboard-content">
+                <!-- Populated by JS -->
+            </div>
+        </section>
+    </main>
+
+    <div class="modal-overlay" id="modal-root">
+        <div class="modal-panel" id="modal-panel"></div>
+    </div>
+
+    <div id="toast-root" class="toast-container"></div>
+    <div id="success-pulse" class="success-pulse">✓</div>
+    <div id="loading-overlay" class="modal-overlay" style="background:rgba(15,23,42,0.7); display:none;">
+        <div class="modal-panel" style="max-width:220px; text-align:center;">
+            <div class="spinner" style="margin:0 auto 1rem; width:32px; height:32px; border-radius:999px; border:3px solid #e5e7eb; border-top-color:#6366f1; animation:spin 0.6s linear infinite;"></div>
+            <p class="screen-subtitle">Loading data…</p>
+        </div>
+    </div>
+
+    <!-- Supabase client (for cloud persistence and auth). -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        /**
+         * App State & Persistence
+         */
+        const StorageKeys = {
+            user: 'userProfile',
+            helper: 'helperData',
+            loginMethod: 'loginMethod',
+            products: 'products',
+            orders: 'orders',
+            errands: 'errands',
+            applications: 'applications',
+            messages: 'messages'
+        };
+
+        /**
+         * Cloud persistence (Supabase) with localStorage fallback for development.
+         * This keeps the rest of the app unchanged while swapping the storage layer.
+         */
+        const SUPABASE_URL = 'https://hvahurhyuqfieczyqvgr.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2YWh1cmh5dXFmaWVjenlxdmdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMyMTIyOTMsImV4cCI6MjA3ODc4ODI5M30.QLBovRZLU1q7vfImZjx8zMFoZzz9CGpZOg_Mj5uC9xs';
+        let supabaseClient = null;
+        if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
+        const DB_TABLE = 'app_state';
+
+        async function dbSaveSlice(key, value) {
+            try {
+                if (supabaseClient) {
+                    await supabaseClient
+                        .from(DB_TABLE)
+                        .upsert({ key, value }, { onConflict: 'key' });
+                } else {
+                    // Fallback to localStorage so the app still works without Supabase configuration.
+                    if (value === null || value === undefined) {
+                        localStorage.removeItem(key);
+                    } else {
+                        localStorage.setItem(key, JSON.stringify(value));
+                    }
+                }
+            } catch (e) {
+                console.error('dbSaveSlice error', e);
+            }
+        }
+
+        async function dbLoadSlice(key, fallback) {
+            try {
+                if (supabaseClient) {
+                    const { data, error } = await supabaseClient
+                        .from(DB_TABLE)
+                        .select('value')
+                        .eq('key', key)
+                        .maybeSingle();
+                    if (error || !data) return fallback;
+                    return data.value;
+                } else {
+                    const raw = localStorage.getItem(key);
+                    return raw ? JSON.parse(raw) : fallback;
+                }
+            } catch (e) {
+                console.error('dbLoadSlice error', e);
+                return fallback;
+            }
+        }
+
+        async function dbClearAll() {
+            try {
+                if (supabaseClient) {
+                    await supabaseClient.from(DB_TABLE).delete().neq('key', '');
+                } else {
+                    localStorage.clear();
+                }
+            } catch (e) {
+                console.error('dbClearAll error', e);
+            }
+        }
+
+        const HelperDefaults = {
+                firstName: '',
+                lastName: '',
+                photoDataUrl: '',
+                street: '',
+                city: '',
+                province: '',
+                postal: '',
+                phone: '',
+                generatedCode: '',
+                enteredCode: '',
+                smsVerified: false
+        };
+
+        const FilterDefaults = () => ({
+            groupbuys: {
+                search: '',
+                region: 'All',
+                sort: 'deadline',
+                vendor: 'All'
+            },
+            errands: {
+                region: 'All',
+                status: 'open',
+                sort: 'newest'
+            },
+            vendorOrders: {
+                status: 'all',
+                search: ''
+            }
+        });
+
+        function createHelperData() {
+            return { ...HelperDefaults };
+        }
+
+        const AppState = {
+            user: null,
+            loginMethod: null,
+            currentScreen: 'start',
+            selectedRoles: new Set(),
+            helperStepIndex: 0,
+            helperData: createHelperData(),
+            products: [],
+            orders: [],
+            errands: [],
+            applications: [],
+            messages: [],
+            filters: FilterDefaults()
+        };
+
+        const SeedData = {
+            products: [
+                {
+                    id: 1,
+                    title: 'Premium Korean Strawberries',
+                    region: 'Toronto',
+                    price: 38,
+                    description: 'Sweet-picked winter strawberries flown in twice a week.',
+                    deadline: '2025-02-01',
+                    deliveryDate: '2025-02-05',
+                    vendor: 'Soo Fresh Imports',
+                    targetQuantity: 50,
+                    currentQuantity: 32,
+                    imageColor: '#f87171',
+                    ownerEmail: 'vendor@soofresh.ca'
+                },
+                {
+                    id: 2,
+                    title: 'Hanwoo Beef Sharing',
+                    region: 'Hamilton',
+                    price: 120,
+                    description: 'Family packs of marbled Grade A hanwoo beef.',
+                    deadline: '2025-02-10',
+                    deliveryDate: '2025-02-15',
+                    vendor: 'Han Market',
+                    targetQuantity: 25,
+                    currentQuantity: 18,
+                    imageColor: '#facc15',
+                    ownerEmail: 'orders@hanmarket.ca'
+                },
+                {
+                    id: 3,
+                    title: 'Jeju Tangerine Crates',
+                    region: 'Niagara',
+                    price: 45,
+                    description: '10kg crates of Jeju tangerines, direct from the island.',
+                    deadline: '2025-02-05',
+                    deliveryDate: '2025-02-09',
+                    vendor: 'Island Co-op',
+                    targetQuantity: 40,
+                    currentQuantity: 12,
+                    imageColor: '#fb923c',
+                    ownerEmail: 'hello@islandcoop.ca'
+                },
+                {
+                    id: 4,
+                    title: 'Busan Fish Cake Party Pack',
+                    region: 'Toronto',
+                    price: 52,
+                    description: 'Mix-and-match odeng assortment with spicy dipping sauces.',
+                    deadline: '2025-02-12',
+                    deliveryDate: '2025-02-17',
+                    vendor: 'Harbor Foods',
+                    targetQuantity: 60,
+                    currentQuantity: 22,
+                    imageColor: '#38bdf8',
+                    ownerEmail: 'sales@harborfoods.ca'
+                },
+                {
+                    id: 5,
+                    title: 'Korean Pantry Essentials Kit',
+                    region: 'Hamilton',
+                    price: 85,
+                    description: 'Bundle includes gochujang, doenjang, sesame oil, and seaweed.',
+                    deadline: '2025-02-08',
+                    deliveryDate: '2025-02-11',
+                    vendor: 'Taste of Seou',
+                    targetQuantity: 35,
+                    currentQuantity: 14,
+                    imageColor: '#a5b4fc',
+                    ownerEmail: 'wholesale@tasteofseou.ca'
+                }
+            ],
+            errands: [
+                {
+                    id: 1,
+                    title: 'Weekly H-Mart Grocery Run',
+                    region: 'Toronto',
+                    description: 'Need kimchi, rice, and fresh tofu delivered to my apartment.',
+                    budgetMin: 20,
+                    budgetMax: 40,
+                    preferredTime: '2025-01-28T10:00',
+                    status: 'open',
+                    requesterName: 'Emily Kim',
+                    requesterEmail: 'emily@example.com',
+                    createdAt: '2025-01-25'
+                },
+                {
+                    id: 2,
+                    title: 'Pharmacy Pickup for Mom',
+                    region: 'Hamilton',
+                    description: 'Pickup prescription from Shoppers and drop off near King St.',
+                    budgetMin: 15,
+                    budgetMax: 25,
+                    preferredTime: '2025-01-27T15:00',
+                    status: 'open',
+                    requesterName: 'Daniel Lee',
+                    requesterEmail: 'daniel@example.com',
+                    createdAt: '2025-01-25'
+                },
+                {
+                    id: 3,
+                    title: 'Airport Drop-off Ride',
+                    region: 'Niagara',
+                    description: 'Need a ride to YYZ with 2 suitcases, leaving Saturday morning.',
+                    budgetMin: 60,
+                    budgetMax: 80,
+                    preferredTime: '2025-02-01T07:00',
+                    status: 'open',
+                    requesterName: 'Grace Park',
+                    requesterEmail: 'grace@example.com',
+                    createdAt: '2025-01-24'
+                },
+                {
+                    id: 4,
+                    title: 'Document translation drop-off',
+                    region: 'Toronto',
+                    description: 'Need someone to collect translated docs near Yonge & Finch.',
+                    budgetMin: 30,
+                    budgetMax: 45,
+                    preferredTime: '2025-01-29T12:30',
+                    status: 'open',
+                    requesterName: 'Heidi Cho',
+                    requesterEmail: 'heidi@example.com',
+                    createdAt: '2025-01-26'
+                }
+            ]
+        };
+
+        function normalizeProducts(list = []) {
+            return list.map((product, index) => ({
+                ...product,
+                id: product.id ?? Date.now() + index,
+                targetQuantity: product.targetQuantity ?? product.target_quantity ?? 1,
+                currentQuantity: product.currentQuantity ?? product.current_quantity ?? 0,
+                ownerEmail: product.ownerEmail ?? product.owner_email ?? null,
+                createdAt: product.createdAt || product.created_at || new Date().toISOString()
+            }));
+        }
+
+        function normalizeErrands(list = []) {
+            return list.map((errand, index) => ({
+                ...errand,
+                id: errand.id ?? Date.now() + index,
+                requesterEmail: errand.requesterEmail ?? errand.requester_email ?? '',
+                requesterName: errand.requesterName ?? errand.requester_name ?? '',
+                budgetMin: errand.budgetMin ?? errand.budget_min ?? 0,
+                budgetMax: errand.budgetMax ?? errand.budget_max ?? 0,
+                preferredTime: errand.preferredTime ?? errand.preferred_time ?? '',
+                status: errand.status || 'open',
+                assignedHelperEmail: errand.assignedHelperEmail ?? errand.assigned_helper_email ?? null,
+                assignedHelperName: errand.assignedHelperName ?? errand.assigned_helper_name ?? null,
+                acceptedHelperId: errand.acceptedHelperId ?? errand.accepted_helper_id ?? null,
+                createdAt: errand.createdAt || errand.created_at || new Date().toISOString()
+            }));
+        }
+
+        function normalizeApplications(list = []) {
+            return list.map(app => ({
+                ...app,
+                status: app.status || 'pending'
+            }));
+        }
+
+        async function loadErrandsFromBackend() {
+            if (!supabaseClient) {
+                // Fallback: use existing key–value store / seeds
+                const storedErrands = await dbLoadSlice(StorageKeys.errands, SeedData.errands);
+                AppState.errands = normalizeErrands(storedErrands);
+                const storedApps = await dbLoadSlice(StorageKeys.applications, []);
+                AppState.applications = normalizeApplications(storedApps);
+                const storedMessages = await dbLoadSlice(StorageKeys.messages, []);
+                AppState.messages = storedMessages || [];
+                return;
+            }
+
+            const { data: errandsData, error: errErr } = await supabaseClient
+                .from('errands')
+                .select('*')
+                .order('created_at', { ascending: false });
+            if (errErr) {
+                console.error('Error loading errands', errErr);
+                AppState.errands = normalizeErrands(SeedData.errands);
+            } else {
+                AppState.errands = normalizeErrands(errandsData || []);
+            }
+
+            const { data: appsData, error: appErr } = await supabaseClient
+                .from('applications')
+                .select('*')
+                .order('created_at', { ascending: false });
+            if (appErr) {
+                console.error('Error loading applications', appErr);
+                AppState.applications = normalizeApplications([]);
+            } else {
+                AppState.applications = normalizeApplications(appsData || []);
+            }
+
+            const { data: msgData, error: msgErr } = await supabaseClient
+                .from('messages')
+                .select('*')
+                .order('created_at', { ascending: false });
+            if (msgErr) {
+                console.error('Error loading messages', msgErr);
+                AppState.messages = [];
+            } else {
+                AppState.messages = msgData || [];
+            }
+        }
+
+        async function saveErrandsToBackend() {
+            if (!supabaseClient) {
+                // Fallback to existing key–value behavior
+                dbSaveSlice(StorageKeys.errands, AppState.errands);
+                dbSaveSlice(StorageKeys.applications, AppState.applications);
+                dbSaveSlice(StorageKeys.messages, AppState.messages);
+                return;
+            }
+
+            const errandsPayload = AppState.errands.map(e => ({
+                id: e.id,
+                title: e.title,
+                region: e.region,
+                description: e.description,
+                budget_min: e.budgetMin,
+                budget_max: e.budgetMax,
+                preferred_time: e.preferredTime,
+                status: e.status,
+                requester_email: e.requesterEmail,
+                requester_name: e.requesterName,
+                created_at: e.createdAt,
+                assigned_helper_email: e.assignedHelperEmail,
+                assigned_helper_name: e.assignedHelperName,
+                accepted_helper_id: e.acceptedHelperId || null
+            }));
+            const { error: errErr } = await supabaseClient
+                .from('errands')
+                .upsert(errandsPayload, { onConflict: 'id' });
+            if (errErr) {
+                console.error('Error saving errands', errErr);
+            }
+
+            const appsPayload = AppState.applications.map(a => ({
+                id: a.id,
+                errand_id: a.errandId,
+                helper_user_id: a.helperUserId || a.helperEmail,
+                helper_email: a.helperEmail,
+                helper_name: a.helperName,
+                offer_amount: a.offerAmount,
+                message: a.message,
+                status: a.status,
+                created_at: a.createdAt
+            }));
+            const { error: appErr } = await supabaseClient
+                .from('applications')
+                .upsert(appsPayload, { onConflict: 'id' });
+            if (appErr) {
+                console.error('Error saving applications', appErr);
+            }
+
+            const msgsPayload = AppState.messages.map(m => ({
+                id: m.id,
+                product_id: m.productId,
+                sender_email: m.senderEmail,
+                sender_name: m.senderName,
+                body: m.body,
+                created_at: m.createdAt
+            }));
+            const { error: msgErr } = await supabaseClient
+                .from('messages')
+                .upsert(msgsPayload, { onConflict: 'id' });
+            if (msgErr) {
+                console.error('Error saving messages', msgErr);
+            }
+        }
+
+        async function loadProductsFromBackend() {
+            if (!supabaseClient) {
+                const storedProducts = await dbLoadSlice(StorageKeys.products, SeedData.products);
+                AppState.products = normalizeProducts(storedProducts);
+                return;
+            }
+            const { data, error } = await supabaseClient
+                .from('products')
+                .select('*')
+                .order('created_at', { ascending: false });
+            if (error) {
+                console.error('Error loading products', error);
+                AppState.products = normalizeProducts(SeedData.products);
+            } else {
+                AppState.products = normalizeProducts(data || []);
+            }
+        }
+
+        async function saveProductsToBackend() {
+            if (!supabaseClient) {
+                dbSaveSlice(StorageKeys.products, AppState.products);
+                return;
+            }
+            const payload = AppState.products.map(p => ({
+                id: p.id,
+                title: p.title,
+                description: p.description,
+                region: p.region,
+                price: p.price,
+                deadline: p.deadline,
+                delivery_date: p.deliveryDate,
+                target_quantity: p.targetQuantity,
+                current_quantity: p.currentQuantity,
+                vendor: p.vendor,
+                owner_email: p.ownerEmail,
+                image_color: p.imageColor,
+                image_data_url: p.imageDataUrl,
+                created_at: p.createdAt
+            }));
+            const { error } = await supabaseClient
+                .from('products')
+                .upsert(payload, { onConflict: 'id' });
+            if (error) {
+                console.error('Error saving products', error);
+            }
+        }
+
+        async function loadOrdersFromBackend() {
+            if (!supabaseClient) {
+                const storedOrders = await dbLoadSlice(StorageKeys.orders, []);
+                AppState.orders = normalizeOrders(storedOrders);
+                return;
+            }
+            const { data, error } = await supabaseClient
+                .from('orders')
+                .select('*')
+                .order('created_at', { ascending: false });
+            if (error) {
+                console.error('Error loading orders', error);
+                AppState.orders = normalizeOrders([]);
+            } else {
+                AppState.orders = normalizeOrders(data || []);
+            }
+        }
+
+        async function saveOrdersToBackend() {
+            if (!supabaseClient) {
+                dbSaveSlice(StorageKeys.orders, AppState.orders);
+                return;
+            }
+            const payload = AppState.orders.map(o => ({
+                id: o.id,
+                product_id: o.productId,
+                quantity: o.quantity,
+                note: o.note || '',
+                total: o.total || 0,
+                customer_name: o.customerName,
+                customer_email: o.customerEmail,
+                vendor_email: o.vendorEmail,
+                status: o.status || 'pending',
+                created_at: o.createdAt,
+                updated_at: o.updatedAt,
+                group_status: o.groupStatus || 'open',
+                fulfillment_status: o.fulfillmentStatus || 'pending',
+                cancelled: o.cancelled || false
+            }));
+            const { error } = await supabaseClient
+                .from('orders')
+                .upsert(payload, { onConflict: 'id' });
+            if (error) {
+                console.error('Error saving orders', error);
+            }
+        }
+
+        function normalizeOrders(list = []) {
+            return list.map(order => ({
+                ...order,
+                groupStatus: order.groupStatus || 'open',
+                fulfillmentStatus: order.fulfillmentStatus || 'pending',
+                createdAt: order.createdAt || new Date().toISOString(),
+                updatedAt: order.updatedAt || order.createdAt || new Date().toISOString(),
+                cancelled: Boolean(order.cancelled)
+            }));
+        }
+
+        const FulfillmentStages = ['pending', 'confirmed', 'prepared', 'delivered'];
+        const ErrandStatusFlow = ['open', 'matched', 'in_progress', 'completed'];
+
+        function saveState() {
+            // Fire-and-forget persistence to keep existing call sites synchronous.
+            dbSaveSlice(StorageKeys.user, AppState.user || null);
+            dbSaveSlice(StorageKeys.helper, AppState.helperData);
+            dbSaveSlice(StorageKeys.products, AppState.products);
+            dbSaveSlice(StorageKeys.orders, AppState.orders);
+            dbSaveSlice(StorageKeys.errands, AppState.errands);
+            dbSaveSlice(StorageKeys.applications, AppState.applications);
+            dbSaveSlice(StorageKeys.messages, AppState.messages);
+            dbSaveSlice(StorageKeys.loginMethod, AppState.loginMethod || null);
+        }
+
+        function persistUser() {
+            saveState();
+        }
+
+        function persistHelperData() {
+            saveState();
+        }
+
+        function persistOrders() {
+            saveState();
+            saveOrdersToBackend();
+        }
+
+        function persistErrands() {
+            saveState();
+            saveErrandsToBackend();
+        }
+
+        function persistApplications() {
+            saveState();
+            saveErrandsToBackend();
+        }
+
+        function handleVendorOrderStatus(event) {
+            if (!AppState.filters.vendorOrders) {
+                AppState.filters.vendorOrders = { status: 'all', search: '' };
+            }
+            AppState.filters.vendorOrders.status = event.target.value;
+            renderDashboard();
+        }
+
+        function handleVendorOrderSearch(event) {
+            if (!AppState.filters.vendorOrders) {
+                AppState.filters.vendorOrders = { status: 'all', search: '' };
+            }
+            AppState.filters.vendorOrders.search = event.target.value;
+            renderDashboard();
+        }
+
+        function resetState() {
+            AppState.user = null;
+            AppState.loginMethod = null;
+            AppState.currentScreen = 'start';
+            AppState.selectedRoles = new Set();
+            AppState.helperStepIndex = 0;
+            AppState.helperData = createHelperData();
+            AppState.products = normalizeProducts(SeedData.products);
+            AppState.orders = [];
+            AppState.errands = normalizeErrands(SeedData.errands);
+            AppState.applications = [];
+            AppState.filters = FilterDefaults();
+            saveState();
+        }
+
+        function resetApp() {
+            const content = `
+                <h3 class="modal-title">Reset App Data</h3>
+                <p class="modal-subtitle">This action cannot be undone. The following will be deleted:</p>
+                <ul style="margin:1rem 0; padding-left:1.5rem; color:#475569; line-height:1.8;">
+                    <li>All orders and group buy commitments</li>
+                    <li>All errands and helper applications</li>
+                    <li>All created products (vendor products)</li>
+                    <li>Your login session and profile</li>
+                    <li>Helper verification data</li>
+                </ul>
+                <p style="margin-top:1rem; padding:0.75rem; background:#fee2e2; border-radius:8px; color:#991b1b; font-size:0.9rem;">
+                    <strong>⚠️ Warning:</strong> You will need to sign up and verify again after reset.
+                </p>
+                <div class="modal-footer" style="margin-top:1.5rem;">
+                    <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+                    <button type="button" class="btn reset-btn" onclick="confirmResetApp()">Reset Everything</button>
+                </div>
+            `;
+            showModal(content);
+        }
+
+        function confirmResetApp() {
+            resetState();
+            dbClearAll();
+            closeModal();
+            updateNavbar();
+            renderGroupBuyList();
+            renderMarketplaceHighlights();
+            renderErrandList();
+            renderDashboard();
+            showScreen('start');
+            showToast('App reset to default state. All data cleared.', 'info');
+        }
+
+        async function loadState() {
+            const profile = await dbLoadSlice(StorageKeys.user, null);
+            if (profile) {
+                AppState.user = profile;
+                if (!Array.isArray(AppState.user.roles)) {
+                    const legacyRole = AppState.user.role ? [AppState.user.role] : [];
+                    AppState.user.roles = legacyRole;
+                }
+            }
+            const helperData = await dbLoadSlice(StorageKeys.helper, null);
+            if (helperData) {
+                AppState.helperData = { ...AppState.helperData, ...helperData };
+            }
+
+            // If a Supabase auth session exists, prefer that user.
+            if (supabaseClient) {
+                try {
+                    const { data, error } = await supabaseClient.auth.getUser();
+                    if (!error && data?.user) {
+                        const u = data.user;
+                        AppState.user = {
+                            ...(AppState.user || {}),
+                            name: u.user_metadata?.name || u.email || AppState.user?.name || '',
+                            email: u.email || AppState.user?.email || '',
+                            photoUrl: u.user_metadata?.picture || AppState.user?.photoUrl || '',
+                            roles: AppState.user?.roles || [],
+                            role: AppState.user?.role || null,
+                            helperVerified: AppState.user?.helperVerified || false
+                        };
+                        AppState.loginMethod = 'google';
+                    }
+                } catch (e) {
+                    console.error('Error getting Supabase auth user', e);
+                }
+            }
+
+            await loadProductsFromBackend();
+            await loadOrdersFromBackend();
+            await loadErrandsFromBackend();
+
+            AppState.loginMethod = await dbLoadSlice(StorageKeys.loginMethod, null);
+            AppState.selectedRoles = new Set(AppState.user?.roles || []);
+            if (!AppState.filters) {
+                AppState.filters = FilterDefaults();
+            }
+        }
+
+        /**
+         * Initialization
+         */
+        async function initApp() {
+            setLoading(true);
+            await loadState();
+            refreshOrderStatuses();
+            updateNavbar();
+            determineInitialScreen();
+            showScreen(AppState.currentScreen);
+            renderMarketplaceHighlights();
+            renderGroupBuyList();
+            renderErrandList();
+            if (AppState.user) {
+                renderDashboard();
+            }
+            initializeModalRoot();
+            enhanceDateTimeInputs();
+            if (!AppState.user) {
+                initializeGoogleSignIn();
+            }
+            setLoading(false);
+        }
+
+        function determineInitialScreen() {
+            if (!AppState.user) {
+                AppState.currentScreen = 'start';
+                return;
+            }
+            const roles = AppState.user.roles || [];
+            if (!roles.length) {
+                AppState.currentScreen = 'role';
+                return;
+            }
+            AppState.currentScreen = 'browse';
+        }
+
+        /**
+         * Screen / Navbar helpers
+         */
+        function showScreen(name) {
+            AppState.currentScreen = name;
+            document.querySelectorAll('.screen').forEach(section => section.classList.remove('active'));
+            const target = document.getElementById(`screen-${name}`);
+            if (target) target.classList.add('active');
+
+            if (name === 'auth') {
+                setTimeout(renderGoogleSignInButton, 0);
+            } else if (name === 'role') {
+                AppState.selectedRoles = new Set(AppState.user?.roles || Array.from(AppState.selectedRoles));
+                refreshRoleCards();
+            } else if (name === 'helper') {
+                renderHelperStep();
+            } else if (name === 'dashboard') {
+                renderDashboard();
+            } else if (name === 'browse') {
+                renderMarketplaceHighlights();
+            } else if (name === 'groupbuys') {
+                renderGroupBuyList();
+            } else if (name === 'errands') {
+                renderErrandList();
+            }
+
+            updateNavbar();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function goToScreen(name) {
+            if (name === 'auth' && AppState.user) {
+                advanceAfterAuthentication();
+                return;
+            }
+            showScreen(name);
+        }
+
+        function updateNavbar() {
+            const actions = document.getElementById('navbar-actions');
+            const links = document.getElementById('navbar-links');
+            if (links) {
+                const labelMap = {
+                    start: 'Home',
+                    browse: 'Browse',
+                    groupbuys: 'Group Buys',
+                    errands: 'Errands',
+                    dashboard: 'Dashboard'
+                };
+                const navItems = AppState.user
+                    ? ['browse', 'groupbuys', 'errands', 'dashboard']
+                    : ['start', 'groupbuys', 'errands'];
+                links.innerHTML = navItems.map(screen => `
+                    <a href="#" class="nav-link ${AppState.currentScreen === screen ? 'active' : ''}" onclick="goToScreen('${screen}'); return false;">
+                        ${labelMap[screen]}
+                    </a>
+                `).join('');
+            }
+
+            if (!actions) return;
+
+            const resetButton = `<button class="btn reset-btn" onclick="resetApp()">Reset App</button>`;
+
+            if (!AppState.user) {
+                actions.innerHTML = `
+                    <button class="primary-cta" style="padding:0.5rem 1.5rem; box-shadow:none;" onclick="goToScreen('auth')">
+                        Login / Sign Up
+                    </button>
+                    ${resetButton}
+                `;
+                return;
+            }
+
+            const initials = getInitials(AppState.user.name);
+            const roles = AppState.user.roles || [];
+            const roleBadges = roles.length
+                ? roles.map(role => `<span class="role-badge ${role === 'helper' ? 'helper' : ''}">${role.toUpperCase()}</span>`).join(' ')
+                : '<span class="role-badge">UNSET</span>';
+            const verifiedBadge = roles.includes('helper') && AppState.user.helperVerified
+                ? '<span class="verification-badge">Verified ✓</span>'
+                : '';
+
+            actions.innerHTML = `
+                <div class="profile-pill">
+                    ${AppState.user.photoUrl ? `<img src="${AppState.user.photoUrl}" alt="profile" />` : `<div class="role-badge">${initials}</div>`}
+                    <div>
+                        <div style="font-weight:600;">${AppState.user.name}</div>
+                        <div style="display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap;">
+                            ${roleBadges}
+                            ${verifiedBadge}
+                        </div>
+                    </div>
+                </div>
+                <div style="display:flex; gap:0.5rem; flex-wrap:wrap; justify-content:flex-end;">
+                    ${resetButton}
+                <button class="btn btn-secondary" onclick="logout()">Logout</button>
+                </div>
+            `;
+        }
+
+        function getInitials(name = '') {
+            return name.split(' ').map(part => part[0]?.toUpperCase() || '').slice(0, 2).join('');
+        }
+
+        /**
+         * Authentication (Email)
+         */
+        function handleEmailSignUp(event) {
+            event.preventDefault();
+            const fullName = document.getElementById('full-name').value.trim();
+            const email = document.getElementById('email-address').value.trim();
+            const password = document.getElementById('password-input').value;
+
+            if (!fullName || !email || password.length < 6) {
+                showToast('Please provide a valid name, email, and password (6+ chars).', 'warning');
+                return;
+            }
+
+            AppState.user = {
+                name: fullName,
+                email,
+                photoUrl: '',
+                roles: [],
+                role: null,
+                helperVerified: false
+            };
+            AppState.loginMethod = 'local';
+            persistUser();
+
+            document.getElementById('verification-message').style.display = 'block';
+            setTimeout(() => {
+                updateNavbar();
+                goToScreen('role');
+            }, 1200);
+        }
+
+        function skipLoginForTesting() {
+            AppState.user = {
+                name: 'Demo Tester',
+                email: 'demo+tester@example.com',
+                photoUrl: '',
+                roles: ['customer', 'vendor', 'helper'],
+                role: 'customer',
+                helperVerified: true
+            };
+            AppState.loginMethod = 'test';
+            AppState.selectedRoles = new Set(AppState.user.roles);
+            persistUser();
+            updateNavbar();
+            renderDashboard();
+            goToScreen('browse');
+            showToast('Signed in as demo tester.', 'info');
+        }
+
+        /**
+         * Authentication (Google via Supabase)
+         */
+        function initializeGoogleSignIn() {
+            // No-op for Supabase; button is rendered on demand.
+        }
+
+        function renderGoogleSignInButton() {
+            const container = document.getElementById('google-signin-button');
+            if (!container) return;
+            container.innerHTML = `
+                <button class="btn btn-primary" style="width:260px;" onclick="handleSupabaseGoogleSignIn()">
+                    Continue with Google
+                </button>
+            `;
+        }
+
+        async function handleSupabaseGoogleSignIn() {
+            if (!supabaseClient) {
+                showToast('Google Sign-In is not configured.', 'error');
+                return;
+            }
+            try {
+                const redirectTo = window.location.href;
+                const { error } = await supabaseClient.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: { redirectTo }
+                });
+                if (error) {
+                    console.error('Supabase Google sign-in error', error);
+                    showToast('Failed to start Google Sign-In.', 'error');
+                }
+                // On success, Supabase redirects; when user comes back,
+                // initApp() will pick up the session via refreshAuthFromSupabase.
+            } catch (e) {
+                console.error('Supabase Google sign-in error', e);
+                showToast('Failed to start Google Sign-In.', 'error');
+            }
+        }
+
+        /**
+         * Role Selection
+         */
+        function refreshRoleCards() {
+            const cards = document.querySelectorAll('.role-card');
+            cards.forEach(card => {
+                const role = card.dataset.role;
+                if (AppState.selectedRoles.has(role)) {
+                    card.classList.add('active');
+                } else {
+                    card.classList.remove('active');
+                }
+            });
+            const continueBtn = document.getElementById('role-continue-btn');
+            if (continueBtn) continueBtn.disabled = AppState.selectedRoles.size === 0;
+        }
+
+        function toggleRole(role) {
+            if (AppState.selectedRoles.has(role)) {
+                AppState.selectedRoles.delete(role);
+            } else {
+                AppState.selectedRoles.add(role);
+            }
+            refreshRoleCards();
+        }
+
+        function continueAfterRole() {
+            if (!AppState.user || AppState.selectedRoles.size === 0) return;
+            AppState.user.roles = Array.from(AppState.selectedRoles);
+            AppState.user.role = AppState.user.roles[0] || null; // legacy support
+            persistUser();
+            updateNavbar();
+
+            if (AppState.user.roles.includes('helper') && !AppState.user.helperVerified) {
+                AppState.helperStepIndex = 0;
+                goToScreen('helper');
+                return;
+            }
+            goToScreen('browse');
+        }
+
+        function advanceAfterAuthentication() {
+            if (!AppState.user) {
+                goToScreen('auth');
+                return;
+            }
+            const roles = AppState.user.roles || [];
+            if (!roles.length) {
+                goToScreen('role');
+                return;
+            }
+            goToScreen('browse');
+        }
+
+        /**
+         * Helper Verification Flow
+         */
+        const helperStepTitles = [
+            'Your Legal Name',
+            'Profile Photo',
+            'Home Address',
+            'SMS Verification',
+            'Review & Submit'
+        ];
+
+        function renderHelperStep() {
+            updateHelperProgress();
+            const container = document.getElementById('helper-step-container');
+            const step = AppState.helperStepIndex;
+            const data = AppState.helperData;
+
+            switch (step) {
+                case 0:
+                    container.innerHTML = `
+                        <h3>${helperStepTitles[0]}</h3>
+                        <p class="screen-subtitle">This name appears on your helper badge.</p>
+                        <form onsubmit="saveHelperName(event)">
+                            <div class="form-group">
+                                <label class="form-label">First Name</label>
+                                <input class="form-input" id="helper-first" value="${data.firstName}" required />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Last Name</label>
+                                <input class="form-input" id="helper-last" value="${data.lastName}" required />
+                            </div>
+                            <button class="primary-cta" style="width:100%;">Continue</button>
+                        </form>
+                    `;
+                    break;
+                case 1:
+                    container.innerHTML = `
+                        <h3>${helperStepTitles[1]}</h3>
+                        <p class="screen-subtitle">Upload a clear photo so customers recognize you.</p>
+                        <div class="form-group">
+                            <label class="form-label">Profile Photo</label>
+                            <input type="file" accept="image/*" class="form-input" onchange="handlePhotoUpload(event)" />
+                        </div>
+                        ${data.photoDataUrl ? `<img src="${data.photoDataUrl}" alt="Preview" style="max-width:180px;border-radius:12px;margin-bottom:1rem;" />` : ''}
+                        <button class="primary-cta" style="width:100%;" onclick="goToNextHelperStep()" ${data.photoDataUrl || AppState.loginMethod === 'test' ? '' : 'disabled'}>Continue</button>
+                    `;
+                    break;
+                case 2:
+                    container.innerHTML = `
+                        <h3>${helperStepTitles[2]}</h3>
+                        <p class="screen-subtitle">We use this to match you with local tasks.</p>
+                        <form onsubmit="saveHelperAddress(event)">
+                            <div class="form-group">
+                                <label class="form-label">Street</label>
+                                <input class="form-input" id="helper-street" value="${data.street}" required />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">City</label>
+                                <input class="form-input" id="helper-city" value="${data.city}" required />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Province</label>
+                                <input class="form-input" id="helper-province" value="${data.province}" required />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Postal Code</label>
+                                <input class="form-input" id="helper-postal" value="${data.postal}" required />
+                            </div>
+                            <button class="primary-cta" style="width:100%;">Continue</button>
+                        </form>
+                    `;
+                    break;
+                case 3:
+                    container.innerHTML = `
+                        <h3>${helperStepTitles[3]}</h3>
+                        <p class="screen-subtitle">Secure your account with a quick SMS check.</p>
+                        <div class="form-group">
+                            <label class="form-label">Phone Number</label>
+                            <input class="form-input" id="helper-phone" value="${data.phone}" placeholder="+1 416-555-1234" />
+                        </div>
+                        <button class="primary-cta" style="width:100%; margin-bottom:1rem;" onclick="sendVerificationCode()">Send Code</button>
+                        <div id="sms-status" class="screen-subtitle" style="display:${data.generatedCode ? 'block' : 'none'}; margin-bottom:1rem;">
+                            ${data.generatedCode ? 'We sent a 6-digit code. Enter it below.' : ''}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Enter Code</label>
+                            <input class="form-input" id="sms-code-input" value="${data.enteredCode}" maxlength="6" />
+                        </div>
+                        <button class="primary-cta" style="width:100%;" onclick="verifySmsCode()" ${data.generatedCode ? '' : 'disabled'}>
+                            Verify Code
+                        </button>
+                    `;
+                    break;
+                case 4:
+                    container.innerHTML = `
+                        <h3>${helperStepTitles[4]}</h3>
+                        <p class="screen-subtitle">Review your details before going live.</p>
+                        <div class="view-content" style="padding:1.5rem; background:#f8fafc;">
+                            <p><strong>Name:</strong> ${data.firstName} ${data.lastName}</p>
+                            <p><strong>Address:</strong> ${data.street}, ${data.city}, ${data.province} ${data.postal}</p>
+                            <p><strong>Phone:</strong> ${data.phone} ${data.smsVerified ? '(Verified)' : '(Pending)'}</p>
+                        </div>
+                        ${!data.smsVerified ? `<p class="screen-subtitle" style="margin-top:1rem; color:#dc2626;">Complete SMS verification to enable this button.</p>` : ''}
+                        <button type="button" class="primary-cta" style="width:100%; margin-top:1.5rem;" onclick="completeHelperVerification()" ${data.smsVerified ? '' : 'disabled'}>
+                            Complete Verification
+                        </button>
+                    `;
+                    break;
+                default:
+                    container.innerHTML = '';
+            }
+        }
+
+        function updateHelperProgress() {
+            const progressContainer = document.getElementById('helper-progress');
+            progressContainer.innerHTML = helperStepTitles.map((_, idx) => `
+                <div class="progress-dot ${idx <= AppState.helperStepIndex ? 'active' : ''}"></div>
+            `).join('');
+        }
+
+        function saveHelperName(event) {
+            event.preventDefault();
+            AppState.helperData.firstName = document.getElementById('helper-first').value.trim();
+            AppState.helperData.lastName = document.getElementById('helper-last').value.trim();
+            persistHelperData();
+            goToNextHelperStep();
+        }
+
+        function handlePhotoUpload(event) {
+            if (!event || !event.target || !event.target.files || !event.target.files[0]) {
+                return;
+            }
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = () => {
+                AppState.helperData.photoDataUrl = reader.result;
+                persistHelperData();
+                renderHelperStep();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function saveHelperAddress(event) {
+            event.preventDefault();
+            AppState.helperData.street = document.getElementById('helper-street').value.trim();
+            AppState.helperData.city = document.getElementById('helper-city').value.trim();
+            AppState.helperData.province = document.getElementById('helper-province').value.trim();
+            AppState.helperData.postal = document.getElementById('helper-postal').value.trim();
+            persistHelperData();
+            goToNextHelperStep();
+        }
+
+        function sendVerificationCode() {
+            const phoneInput = document.getElementById('helper-phone').value.trim();
+            if (!phoneInput) {
+                showToast('Enter a phone number first.', 'warning');
+                return;
+            }
+            const code = Math.floor(100000 + Math.random() * 900000).toString();
+            AppState.helperData.phone = phoneInput;
+            AppState.helperData.generatedCode = code;
+            AppState.helperData.smsVerified = false;
+            persistHelperData();
+            renderHelperStep();
+            showToast(`Simulated SMS code: ${code}`, 'info');
+        }
+
+        function verifySmsCode() {
+            const entered = document.getElementById('sms-code-input').value.trim();
+            AppState.helperData.enteredCode = entered;
+            if (entered === AppState.helperData.generatedCode) {
+                AppState.helperData.smsVerified = true;
+                showToast('Phone verified!', 'success');
+                goToNextHelperStep();
+            } else {
+                showToast('Incorrect code, please try again.', 'warning');
+            }
+            persistHelperData();
+        }
+
+        function goToNextHelperStep() {
+            AppState.helperStepIndex = Math.min(helperStepTitles.length - 1, AppState.helperStepIndex + 1);
+            renderHelperStep();
+        }
+
+        function completeHelperVerification() {
+            if (!AppState.helperData.smsVerified) {
+                const manualInput = document.getElementById('sms-code-input');
+                const entered = manualInput ? manualInput.value.trim() : AppState.helperData.enteredCode;
+                if (entered && entered === AppState.helperData.generatedCode) {
+                    AppState.helperData.smsVerified = true;
+                    AppState.helperData.enteredCode = entered;
+                    persistHelperData();
+                } else {
+                    showToast('Please enter the SMS code and click "Verify Code" before completing verification.', 'warning');
+                    return;
+                }
+            }
+            AppState.user.helperVerified = true;
+            if (AppState.helperData.photoDataUrl) {
+                AppState.user.photoUrl = AppState.helperData.photoDataUrl;
+            }
+            persistUser();
+            showToast('Helper profile verified! Welcome to the team.', 'success');
+            updateNavbar();
+            renderDashboard();
+            determineInitialScreen();
+            showScreen(AppState.currentScreen);
+        }
+
+        /**
+         * Modal & Utility Helpers
+         */
+        function initializeModalRoot() {
+            const overlay = document.getElementById('modal-root');
+            if (!overlay) return;
+            overlay.addEventListener('click', event => {
+                if (event.target === overlay) {
+                    closeModal();
+                }
+            });
+        }
+
+        function closeModal() {
+            const overlay = document.getElementById('modal-root');
+            const panel = document.getElementById('modal-panel');
+            if (panel) {
+                panel.innerHTML = '';
+            }
+            if (overlay) {
+                overlay.classList.remove('active');
+            }
+        }
+
+        function showModal(content) {
+            const overlay = document.getElementById('modal-root');
+            const panel = document.getElementById('modal-panel');
+            if (!overlay || !panel) return;
+            panel.innerHTML = `
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+                ${content}
+            `;
+            overlay.classList.add('active');
+        }
+
+        function showToast(message, variant = 'success') {
+            const root = document.getElementById('toast-root');
+            if (!root) return;
+            const toast = document.createElement('div');
+            toast.className = `toast ${variant}`;
+            toast.textContent = message;
+            root.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-10px)';
+                setTimeout(() => toast.remove(), 250);
+            }, 3200);
+        }
+
+        function triggerSuccessPulse() {
+            const pulse = document.getElementById('success-pulse');
+            if (!pulse) return;
+            pulse.classList.remove('show');
+            void pulse.offsetWidth;
+            pulse.classList.add('show');
+            setTimeout(() => pulse.classList.remove('show'), 600);
+        }
+
+        function setLoading(isLoading) {
+            const overlay = document.getElementById('loading-overlay');
+            if (!overlay) return;
+            overlay.style.display = isLoading ? 'flex' : 'none';
+        }
+
+        function enhanceDateTimeInputs() {
+            const input = document.getElementById('errand-time');
+            if (!input) return;
+            if (!input.placeholder) {
+                input.placeholder = 'Select a date and time';
+            }
+            const openPicker = () => {
+                if (typeof input.showPicker === 'function') {
+                    input.showPicker();
+                }
+            };
+            input.addEventListener('focus', openPicker);
+            input.addEventListener('click', openPicker);
+        }
+
+        function formatCurrency(value = 0) {
+            const safeValue = Number.isFinite(value) ? value : 0;
+            return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(safeValue);
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'TBD';
+            const date = new Date(dateString);
+            if (Number.isNaN(date.getTime())) return dateString;
+            return date.toLocaleDateString('en-CA', { month: 'short', day: 'numeric' });
+        }
+
+        function formatDateTime(dateString) {
+            if (!dateString) return 'TBD';
+            const date = new Date(dateString);
+            if (Number.isNaN(date.getTime())) return dateString;
+            return date.toLocaleString('en-CA', {
+                month: 'short',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit'
+            });
+        }
+
+        function calculateProgress(product) {
+            if (!product || !product.targetQuantity) return 0;
+            return Math.min(100, Math.round((product.currentQuantity / product.targetQuantity) * 100));
+        }
+
+        function renderProgressBar(product) {
+            const progress = calculateProgress(product);
+            return `
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width:${progress}%"></div>
+                </div>
+                <small style="display:block; margin-top:0.35rem; color:#475569;">
+                    ${product.currentQuantity}/${product.targetQuantity} committed • ${progress}% funded
+                </small>
+            `;
+        }
+
+        function computeGroupStatus(product) {
+            if (!product) return 'open';
+            const now = new Date();
+            const deadline = new Date(product.deadline);
+            const hasMetTarget = product.currentQuantity >= product.targetQuantity;
+            if (now > deadline) {
+                return hasMetTarget ? 'succeeded' : 'failed';
+            }
+            if (hasMetTarget) return 'closed';
+            return 'open';
+        }
+
+        function refreshOrderStatuses() {
+            AppState.orders = AppState.orders.map(order => {
+                if (order.cancelled) {
+                    return { ...order, groupStatus: 'cancelled' };
+                }
+                const product = findProductById(order.productId);
+                return { ...order, groupStatus: computeGroupStatus(product) };
+            });
+        }
+
+        function renderStatusBadge(status) {
+            if (!status) return '';
+            const label = status.replace(/_/g, ' ').toUpperCase();
+            return `<span class="status-badge status-${status.toLowerCase()}">${label}</span>`;
+        }
+
+        function getOrCreateFormMessage(form) {
+            if (!form) return null;
+            let node = form.querySelector('.form-error');
+            if (!node) {
+                node = document.createElement('p');
+                node.className = 'form-error';
+                form.appendChild(node);
+            }
+            return node;
+        }
+
+        function showFormMessage(form, message = '', type = 'error') {
+            const node = getOrCreateFormMessage(form);
+            if (!node) return;
+            node.textContent = message;
+            node.style.color = type === 'error' ? '#dc2626' : '#047857';
+            node.style.display = message ? 'block' : 'none';
+        }
+
+        function generateProductGraphic(title = '', color = '#e2e8f0') {
+            const safeTitle = (title || 'Group Buy').substring(0, 24);
+            const svg = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="400" height="220">
+                    <defs>
+                        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:${color};stop-opacity:0.9" />
+                            <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0.3" />
+                        </linearGradient>
+                    </defs>
+                    <rect width="400" height="220" rx="24" fill="url(#grad)" />
+                    <text x="24" y="120" font-size="32" font-family="Segoe UI, sans-serif" fill="#0f172a" font-weight="600">
+                        ${safeTitle}
+                    </text>
+                </svg>
+            `;
+            return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
+        }
+
+        function renderProductCover(product) {
+            if (product.imageDataUrl) {
+                return `<img src="${product.imageDataUrl}" alt="${product.title}" class="card-cover" />`;
+            }
+            return `<div class="card-cover" style="background:${product.imageColor || '#e2e8f0'};"></div>`;
+        }
+
+        function handleCardKey(event, type, id) {
+            if (event.key !== 'Enter' && event.key !== ' ') return;
+            event.preventDefault();
+            if (type === 'product') {
+                openProductDetail(id);
+            } else if (type === 'errand') {
+                openErrandDetail(id);
+            }
+        }
+
+        /**
+         * Group Buy Marketplace
+         */
+        function renderMarketplaceHighlights() {
+            const featuredGroupContainer = document.getElementById('featured-groupbuys');
+            if (featuredGroupContainer) {
+                const featured = [...AppState.products]
+                    .sort((a, b) => new Date(a.deadline) - new Date(b.deadline))
+                    .slice(0, 3);
+                featuredGroupContainer.innerHTML = featured.length
+                    ? featured.map(product => {
+                        const progress = calculateProgress(product);
+                        return `
+                            <div class="card" role="button" tabindex="0"
+                                onclick="openProductDetail(${product.id})"
+                                onkeypress="handleCardKey(event, 'product', ${product.id})"
+                                aria-label="View ${product.title} - ${formatCurrency(product.price)} - ${progress}% funded">
+                                <h4>${product.title}</h4>
+                                <p style="color:#475569;">${product.description}</p>
+                                <div class="card-meta">
+                                    <span class="pill info">${product.region}</span>
+                                    <span>${formatCurrency(product.price)}</span>
+                                    <span>Deadline • ${formatDate(product.deadline)}</span>
+                                </div>
+                                ${renderProgressBar(product)}
+                            </div>
+                        `;
+                    }).join('')
+                    : '<p class="screen-subtitle">No featured group buys yet. Vendors can add products from the dashboard.</p>';
+            }
+
+            const featuredErrandContainer = document.getElementById('featured-errands');
+            if (featuredErrandContainer) {
+                const openErrands = AppState.errands.filter(errand => errand.status === 'open').slice(0, 3);
+                featuredErrandContainer.innerHTML = openErrands.length
+                    ? openErrands.map(errand => `
+                        <div class="card" role="button" tabindex="0"
+                            onclick="openErrandDetail(${errand.id})"
+                            onkeypress="handleCardKey(event, 'errand', ${errand.id})"
+                            aria-label="View ${errand.title} - ${errand.region} - ${formatCurrency(errand.budgetMin)} to ${formatCurrency(errand.budgetMax)}">
+                            <h4>${errand.title}</h4>
+                            <p style="color:#475569;">${errand.description}</p>
+                            <div class="card-meta">
+                                <span class="pill info">${errand.region}</span>
+                                <span>${formatCurrency(errand.budgetMin)} - ${formatCurrency(errand.budgetMax)}</span>
+                                <span>${formatDateTime(errand.preferredTime)}</span>
+                            </div>
+                        </div>
+                    `).join('')
+                    : '<p class="screen-subtitle">No errands available - post one to get help fast.</p>';
+            }
+        }
+
+        function renderGroupBuyList() {
+            const container = document.getElementById('groupbuy-list');
+            if (!container) return;
+            refreshOrderStatuses();
+
+            const searchInput = document.getElementById('groupbuy-search');
+            if (searchInput && searchInput.value !== AppState.filters.groupbuys.search) {
+                searchInput.value = AppState.filters.groupbuys.search;
+            }
+            const regionSelect = document.getElementById('groupbuy-region');
+            if (regionSelect) {
+                regionSelect.value = AppState.filters.groupbuys.region;
+            }
+            const vendorSelect = document.getElementById('groupbuy-vendor');
+            if (vendorSelect) {
+                vendorSelect.value = AppState.filters.groupbuys.vendor;
+            }
+            const sortSelect = document.getElementById('groupbuy-sort');
+            if (sortSelect) {
+                sortSelect.value = AppState.filters.groupbuys.sort;
+            }
+
+            const { search, region, sort, vendor } = AppState.filters.groupbuys;
+            let products = [...AppState.products];
+            if (search.trim()) {
+                const query = search.trim().toLowerCase();
+                products = products.filter(product =>
+                    product.title.toLowerCase().includes(query) ||
+                    product.description.toLowerCase().includes(query)
+                );
+            }
+            if (region !== 'All') {
+                products = products.filter(product => product.region === region);
+            }
+            if (vendor !== 'All') {
+                products = products.filter(product => (product.vendor || '').toLowerCase() === vendor.toLowerCase());
+            }
+
+            const sorters = {
+                deadline: (a, b) => new Date(a.deadline) - new Date(b.deadline),
+                priceLow: (a, b) => a.price - b.price,
+                priceHigh: (a, b) => b.price - a.price,
+                progress: (a, b) => calculateProgress(b) - calculateProgress(a)
+            };
+            products.sort(sorters[sort] || sorters.deadline);
+
+            container.innerHTML = products.length
+                ? products.map(renderGroupBuyCard).join('')
+                : '<p class="screen-subtitle">No group buys match your filters. Try changing the region or search.</p>';
+        }
+
+        function renderGroupBuyCard(product) {
+            const status = computeGroupStatus(product);
+            const progress = calculateProgress(product);
+            return `
+                <div class="card" role="button" tabindex="0"
+                    onclick="openProductDetail(${product.id})"
+                    onkeypress="handleCardKey(event, 'product', ${product.id})"
+                    aria-label="View details for ${product.title} - ${formatCurrency(product.price)} - ${progress}% funded">
+                    ${renderProductCover(product)}
+                    <h4>${product.title}</h4>
+                    <p style="color:#475569;">${product.description}</p>
+                    <div class="card-meta">
+                        <span class="pill info">${product.region}</span>
+                        <span>${formatCurrency(product.price)}</span>
+                        <span>Delivery • ${formatDate(product.deliveryDate)}</span>
+                        ${renderStatusBadge(status)}
+                    </div>
+                    ${renderProgressBar(product)}
+                </div>
+            `;
+        }
+
+        function handleGroupBuySearch(event) {
+            AppState.filters.groupbuys.search = event.target.value;
+            renderGroupBuyList();
+        }
+
+        function handleGroupBuyRegion(event) {
+            AppState.filters.groupbuys.region = event.target.value;
+            renderGroupBuyList();
+        }
+
+        function handleGroupBuyVendor(event) {
+            AppState.filters.groupbuys.vendor = event.target.value;
+            renderGroupBuyList();
+        }
+
+        function handleGroupBuySort(event) {
+            AppState.filters.groupbuys.sort = event.target.value;
+            renderGroupBuyList();
+        }
+
+        function findProductById(productId) {
+            return AppState.products.find(product => product.id === Number(productId));
+        }
+
+        function openProductDetail(productId) {
+            const product = findProductById(productId);
+            if (!product) return;
+            const ordersForProduct = AppState.orders.filter(order => order.productId === product.id);
+            const status = computeGroupStatus(product);
+            const isVendor = AppState.user && product.ownerEmail === AppState.user.email;
+            const productMessages = AppState.messages.filter(msg => msg.productId === product.id).slice(0, 5);
+            const messagesHtml = productMessages.length
+                ? `
+                    <div class="stacked-list" style="margin-top:1rem;">
+                        ${productMessages.map(msg => `
+                            <div class="list-card">
+                                <div>
+                                    <strong>${msg.senderName || msg.senderEmail}</strong>
+                                    <p style="font-size:0.85rem; color:#64748b;">${formatDateTime(msg.createdAt)}</p>
+                                    <p>${msg.body}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `
+                : '<p class="screen-subtitle" style="margin-top:0.75rem;">No messages yet. Start a conversation to coordinate details.</p>';
+            const content = `
+                <h3 class="modal-title">${product.title}</h3>
+                <p class="modal-subtitle">${product.description}</p>
+                ${renderProductCover(product)}
+                <div class="card-meta" style="margin-bottom:1rem;">
+                    <span class="pill info">${product.region}</span>
+                    <span>${formatCurrency(product.price)}</span>
+                    <span>Vendor • ${product.vendor}</span>
+                    ${renderStatusBadge(status)}
+                </div>
+                ${renderProgressBar(product)}
+                <ul style="margin-top:1rem; color:#475569; padding-left:1rem;">
+                    <li>Deadline: ${formatDate(product.deadline)}</li>
+                    <li>Delivery: ${formatDate(product.deliveryDate)}</li>
+                    <li>Orders: ${ordersForProduct.length}</li>
+                </ul>
+                <div class="modal-footer">
+                    <button class="btn btn-ghost" onclick="closeModal()">Close</button>
+                    ${AppState.user ? `<button class="btn btn-secondary" onclick="openProductMessagesModal(${product.id})">Messages</button>` : ''}
+                    <button class="btn btn-primary" onclick="openJoinGroupBuyModal(${product.id})">Join group buy</button>
+                </div>
+                <div style="margin-top:1.5rem;">
+                    <h4>Recent messages</h4>
+                    ${messagesHtml}
+                </div>
+            `;
+            showModal(content);
+        }
+
+        function openJoinGroupBuyModal(productId) {
+            const product = findProductById(productId);
+            if (!product) return;
+            const status = computeGroupStatus(product);
+            if (status !== 'open') {
+                showToast('This group buy is no longer accepting orders.', 'warning');
+                return;
+            }
+            if (!AppState.user) {
+                showToast('Please log in first so we can attach the order to your account.', 'warning');
+                goToScreen('auth');
+                return;
+            }
+            const fieldId = `join-quantity-${product.id}`;
+            const noteId = `join-note-${product.id}`;
+            const content = `
+                <h3 class="modal-title">Join ${product.title}</h3>
+                <p class="modal-subtitle">Secure your spot in this community group buy.</p>
+                <form onsubmit="submitJoinGroupBuy(event, ${product.id}, '${fieldId}', '${noteId}')">
+                    <div class="form-group">
+                        <label class="form-label" for="${fieldId}">Quantity</label>
+                        <input id="${fieldId}" class="form-input" type="number" min="1" value="1" required />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="${noteId}">Notes (optional)</label>
+                        <textarea id="${noteId}" class="form-textarea" rows="3" placeholder="Pickup preferences, allergies, etc."></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Confirm join</button>
+                    </div>
+                </form>
+            `;
+            showModal(content);
+        }
+
+        function openProductMessagesModal(productId) {
+            const product = findProductById(productId);
+            if (!product) return;
+            if (!AppState.user) {
+                showToast('Please log in to send messages.', 'warning');
+                goToScreen('auth');
+                return;
+            }
+            const thread = AppState.messages.filter(msg => msg.productId === product.id);
+            const threadHtml = thread.length
+                ? `
+                    <div class="stacked-list" style="margin-top:1rem;">
+                        ${thread.map(msg => `
+                            <div class="list-card">
+                                <div>
+                                    <strong>${msg.senderName || msg.senderEmail}</strong>
+                                    <p style="font-size:0.85rem; color:#64748b;">${formatDateTime(msg.createdAt)}</p>
+                                    <p>${msg.body}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `
+                : '<p class="screen-subtitle" style="margin-top:0.75rem;">No messages yet. Be the first to reach out.</p>';
+            const textareaId = `product-message-${product.id}`;
+            const content = `
+                <h3 class="modal-title">Messages for ${product.title}</h3>
+                <p class="modal-subtitle">Use this space to coordinate pickup times, questions, or special requests. (Demo only)</p>
+                ${threadHtml}
+                <form onsubmit="submitProductMessage(event, ${product.id}, '${textareaId}')">
+                    <div class="form-group" style="margin-top:1.25rem;">
+                        <label class="form-label" for="${textareaId}">New message</label>
+                        <textarea id="${textareaId}" class="form-textarea" rows="3" placeholder="Ask a question or share details..." required></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-ghost" onclick="closeModal()">Close</button>
+                        <button type="submit" class="btn btn-primary">Send message</button>
+                    </div>
+                </form>
+            `;
+            showModal(content);
+        }
+
+        function submitProductMessage(event, productId, fieldId) {
+            event.preventDefault();
+            if (!AppState.user) {
+                showToast('Please log in to send messages.', 'warning');
+                goToScreen('auth');
+                return;
+            }
+            const input = document.getElementById(fieldId);
+            if (!input) return;
+            const body = input.value.trim();
+            if (!body) {
+                showToast('Please enter a short message.', 'warning');
+                return;
+            }
+            const nowIso = new Date().toISOString();
+            const msg = {
+                id: Date.now(),
+                productId,
+                senderEmail: AppState.user.email,
+                senderName: AppState.user.name,
+                body,
+                createdAt: nowIso
+            };
+            AppState.messages.unshift(msg);
+            saveState();
+            saveErrandsToBackend();
+            openProductMessagesModal(productId);
+            showToast('Message sent (demo only).', 'success');
+        }
+
+        function submitJoinGroupBuy(event, productId, quantityFieldId, noteFieldId) {
+            event.preventDefault();
+            const product = findProductById(productId);
+            if (!product || !AppState.user) return;
+            const quantityInput = document.getElementById(quantityFieldId);
+            const noteInput = document.getElementById(noteFieldId);
+            const quantity = Number(quantityInput?.value || 1);
+            if (!Number.isFinite(quantity) || quantity <= 0) {
+                showToast('Enter a valid quantity (1 or more).', 'warning');
+                return;
+            }
+            if (!AppState.user.roles?.includes('customer')) {
+                AppState.user.roles = [...new Set([...(AppState.user.roles || []), 'customer'])];
+                AppState.selectedRoles = new Set(AppState.user.roles);
+            }
+
+            const nowIso = new Date().toISOString();
+            const order = {
+                id: Date.now(),
+                productId: product.id,
+                quantity,
+                note: noteInput?.value?.trim() || '',
+                total: quantity * product.price,
+                customerName: AppState.user.name,
+                customerEmail: AppState.user.email,
+                vendorEmail: product.ownerEmail,
+                status: 'pending',
+                createdAt: nowIso,
+                updatedAt: nowIso,
+                groupStatus: 'open',
+                fulfillmentStatus: 'pending',
+                cancelled: false
+            };
+            AppState.orders.push(order);
+            product.currentQuantity += quantity;
+            persistOrders();
+            refreshOrderStatuses();
+            renderGroupBuyList();
+            renderMarketplaceHighlights();
+            renderDashboard();
+            closeModal();
+            showToast('Joined group buy! Track it from your dashboard.', 'success');
+            triggerSuccessPulse();
+        }
+
+        function openEditProductModal(productId) {
+            const product = findProductById(productId);
+            if (!product || !AppState.user) return;
+            if (product.ownerEmail !== AppState.user.email) {
+                showToast('Only the vendor who created this product can edit it.', 'warning');
+                return;
+            }
+            const priceId = `edit-price-${product.id}`;
+            const descId = `edit-desc-${product.id}`;
+            const deadlineId = `edit-deadline-${product.id}`;
+            const deliveryId = `edit-delivery-${product.id}`;
+            const targetId = `edit-target-${product.id}`;
+            const content = `
+                <h3 class="modal-title">Edit ${product.title}</h3>
+                <p class="modal-subtitle">Update key details for this group buy.</p>
+                <form onsubmit="submitEditProduct(event, ${product.id}, '${priceId}', '${descId}', '${deadlineId}', '${deliveryId}', '${targetId}')">
+                    <div class="form-group">
+                        <label class="form-label" for="${priceId}">Price per unit ($)</label>
+                        <input id="${priceId}" class="form-input" type="number" min="1" value="${product.price}" required />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="${descId}">Description</label>
+                        <textarea id="${descId}" class="form-textarea" rows="3" required>${product.description}</textarea>
+                    </div>
+                    <div class="form-group" style="display:flex; gap:1rem; flex-wrap:wrap;">
+                        <div style="flex:1; min-width:180px;">
+                            <label class="form-label" for="${deadlineId}">Order deadline</label>
+                            <input id="${deadlineId}" class="form-input" type="date" value="${product.deadline}" required />
+                        </div>
+                        <div style="flex:1; min-width:180px;">
+                            <label class="form-label" for="${deliveryId}">Delivery date</label>
+                            <input id="${deliveryId}" class="form-input" type="date" value="${product.deliveryDate}" required />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="${targetId}">Target quantity</label>
+                        <input id="${targetId}" class="form-input" type="number" min="1" value="${product.targetQuantity}" required />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                    </div>
+                </form>
+            `;
+            showModal(content);
+        }
+
+        function submitEditProduct(event, productId, priceId, descId, deadlineId, deliveryId, targetId) {
+            event.preventDefault();
+            const product = findProductById(productId);
+            if (!product || !AppState.user) return;
+            if (product.ownerEmail !== AppState.user.email) {
+                showToast('Only the vendor who created this product can edit it.', 'warning');
+                return;
+            }
+            const price = Number(document.getElementById(priceId)?.value || 0);
+            const description = document.getElementById(descId)?.value.trim() || '';
+            const deadline = document.getElementById(deadlineId)?.value;
+            const deliveryDate = document.getElementById(deliveryId)?.value;
+            const targetQuantity = Number(document.getElementById(targetId)?.value || 0);
+            if (price <= 0 || targetQuantity <= 0 || !description || !deadline || !deliveryDate) {
+                showToast('Please fill out all fields correctly.', 'warning');
+                return;
+            }
+            const deadlineDate = new Date(deadline);
+            const deliveryDateObj = new Date(deliveryDate);
+            if (deliveryDateObj <= deadlineDate) {
+                showToast('Delivery date must be after the order deadline.', 'warning');
+                return;
+            }
+            product.price = price;
+            product.description = description;
+            product.deadline = deadline;
+            product.deliveryDate = deliveryDate;
+            product.targetQuantity = targetQuantity;
+            saveState();
+            saveProductsToBackend();
+            renderGroupBuyList();
+            renderMarketplaceHighlights();
+            renderDashboard();
+            closeModal();
+            showToast('Product updated.', 'success');
+        }
+
+        function openDeleteProductConfirm(productId) {
+            const product = findProductById(productId);
+            if (!product || !AppState.user) return;
+            if (product.ownerEmail !== AppState.user.email) {
+                showToast('Only the vendor who created this product can delete it.', 'warning');
+                return;
+            }
+            const content = `
+                <h3 class="modal-title">Delete ${product.title}</h3>
+                <p class="modal-subtitle">This will remove the product from the marketplace. Existing orders will remain for record-keeping.</p>
+                <p class="screen-subtitle" style="margin-top:0.5rem;">Are you sure you want to continue?</p>
+                <div class="modal-footer">
+                    <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+                    <button class="btn reset-btn" onclick="confirmDeleteProduct(${product.id})">Delete product</button>
+                </div>
+            `;
+            showModal(content);
+        }
+
+        function confirmDeleteProduct(productId) {
+            const product = findProductById(productId);
+            if (!product || !AppState.user) return;
+            if (product.ownerEmail !== AppState.user.email) {
+                showToast('Only the vendor who created this product can delete it.', 'warning');
+                return;
+            }
+            AppState.products = AppState.products.filter(p => p.id !== product.id);
+            saveState();
+            saveProductsToBackend();
+            renderGroupBuyList();
+            renderMarketplaceHighlights();
+            renderDashboard();
+            closeModal();
+            showToast('Product deleted.', 'info');
+        }
+
+        function cancelOrder(orderId) {
+            const order = AppState.orders.find(item => item.id === Number(orderId));
+            if (!order || !AppState.user) return;
+            if (order.customerEmail !== AppState.user.email) {
+                showToast('You can only cancel your own orders.', 'warning');
+                return;
+            }
+            if (order.groupStatus !== 'open') {
+                showToast('This order can no longer be cancelled.', 'warning');
+                return;
+            }
+            const product = findProductById(order.productId);
+            const deadline = product ? new Date(product.deadline) : null;
+            if (deadline && new Date() > deadline) {
+                showToast('Deadline passed — cancellation unavailable.', 'warning');
+                return;
+            }
+            order.cancelled = true;
+            order.groupStatus = 'cancelled';
+            order.fulfillmentStatus = 'cancelled';
+            order.updatedAt = new Date().toISOString();
+            if (product) {
+                product.currentQuantity = Math.max(0, product.currentQuantity - order.quantity);
+            }
+            persistOrders();
+            refreshOrderStatuses();
+            renderGroupBuyList();
+            renderMarketplaceHighlights();
+            renderDashboard();
+            showToast('Order cancelled.', 'info');
+        }
+
+        function updateFulfillmentStatus(orderId, status) {
+            const order = AppState.orders.find(item => item.id === Number(orderId));
+            if (!order || !AppState.user) return;
+            const product = findProductById(order.productId);
+            if (!product || product.ownerEmail !== AppState.user.email) {
+                showToast('Only the vendor can update fulfillment status.', 'warning');
+                return;
+            }
+            if (!FulfillmentStages.includes(status)) return;
+            order.fulfillmentStatus = status;
+            order.updatedAt = new Date().toISOString();
+            persistOrders();
+            renderDashboard();
+            showToast(`Order marked as ${status.replace(/_/g, ' ')}.`, 'success');
+        }
+
+        /**
+         * Errand System
+         */
+        function renderErrandList() {
+            const container = document.getElementById('errand-list');
+            if (!container) return;
+
+            const regionSelect = document.getElementById('errand-region-filter');
+            if (regionSelect) {
+                regionSelect.value = AppState.filters.errands.region;
+            }
+            const statusSelect = document.getElementById('errand-status-filter');
+            if (statusSelect) {
+                statusSelect.value = AppState.filters.errands.status;
+            }
+            const sortSelect = document.getElementById('errand-sort');
+            if (sortSelect) {
+                sortSelect.value = AppState.filters.errands.sort;
+            }
+
+            let errands = [...AppState.errands];
+            const { region, status, sort } = AppState.filters.errands;
+            if (region !== 'All') {
+                errands = errands.filter(errand => errand.region === region);
+            }
+            if (status !== 'all') {
+                errands = errands.filter(errand => errand.status === status);
+            }
+
+            const sorters = {
+                newest: (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+                budgetHigh: (a, b) => (b.budgetMax || 0) - (a.budgetMax || 0),
+                budgetLow: (a, b) => (a.budgetMin || 0) - (b.budgetMin || 0)
+            };
+            errands.sort(sorters[sort] || sorters.newest);
+
+            container.innerHTML = errands.length
+                ? errands.map(renderErrandCard).join('')
+                : '<p class="screen-subtitle">No errands found for these filters. Try a different region.</p>';
+        }
+
+        function renderErrandCard(errand) {
+            return `
+                <div class="card" role="button" tabindex="0"
+                    onclick="openErrandDetail(${errand.id})"
+                    onkeypress="handleCardKey(event, 'errand', ${errand.id})"
+                    aria-label="View details for ${errand.title} - ${errand.region} - ${formatCurrency(errand.budgetMin)} to ${formatCurrency(errand.budgetMax)}">
+                    <h4>${errand.title}</h4>
+                    <p style="color:#475569;">${errand.description}</p>
+                    <div class="card-meta">
+                        <span class="pill info">${errand.region}</span>
+                        <span>${formatCurrency(errand.budgetMin)} - ${formatCurrency(errand.budgetMax)}</span>
+                        <span>${formatDateTime(errand.preferredTime)}</span>
+                        ${renderStatusBadge(errand.status)}
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleErrandRegion(event) {
+            AppState.filters.errands.region = event.target.value;
+            renderErrandList();
+        }
+
+        function handleErrandStatus(event) {
+            AppState.filters.errands.status = event.target.value;
+            renderErrandList();
+        }
+
+        function handleErrandSort(event) {
+            AppState.filters.errands.sort = event.target.value;
+            renderErrandList();
+        }
+
+        function requireUser(roleType) {
+            if (!AppState.user) {
+                showToast('Please log in to continue.', 'warning');
+                goToScreen('auth');
+                return false;
+            }
+            if (roleType && !AppState.user.roles?.includes(roleType)) {
+                showToast(`This action requires the ${roleType} role. Update your roles in the dashboard.`, 'warning');
+                goToScreen('role');
+                return false;
+            }
+            return true;
+        }
+
+        function handleCreateErrand(event) {
+            event.preventDefault();
+            if (!requireUser('customer')) return;
+            const form = event.target;
+            showFormMessage(form, '');
+            const title = document.getElementById('errand-title').value.trim();
+            const region = document.getElementById('errand-region').value;
+            const description = document.getElementById('errand-description').value.trim();
+            const budgetMin = Number(document.getElementById('errand-budget-min').value || 0);
+            const budgetMax = Number(document.getElementById('errand-budget-max').value || 0);
+            const preferredTime = document.getElementById('errand-time').value;
+            const errors = [];
+            if (!title) errors.push('Title is required.');
+            if (!description) errors.push('Description is required.');
+            if (!preferredTime) errors.push('Preferred time is required.');
+            if (budgetMin < 0 || budgetMax <= 0 || budgetMax < budgetMin) {
+                errors.push('Please set a valid budget range.');
+            }
+            if (errors.length) {
+                showFormMessage(form, errors[0]);
+                return;
+            }
+            const errand = {
+                id: Date.now(),
+                title,
+                region,
+                description,
+                budgetMin,
+                budgetMax,
+                preferredTime,
+                status: 'open', // open, matched, in_progress, completed
+                requesterName: AppState.user.name,
+                requesterEmail: AppState.user.email,
+                createdAt: new Date().toISOString(),
+                createdByUserId: AppState.user.email,
+                assignedHelperEmail: null,
+                assignedHelperName: null,
+                acceptedHelperId: null
+            };
+            AppState.errands.unshift(errand);
+            persistErrands();
+            form.reset();
+            showFormMessage(form, 'Errand posted! Helpers will be notified.', 'success');
+            renderErrandList();
+            renderDashboard();
+            showToast('Errand created. Helpers can now apply.', 'success');
+            triggerSuccessPulse();
+        }
+
+        function openErrandDetail(errandId) {
+            const errand = AppState.errands.find(item => item.id === Number(errandId));
+            if (!errand) return;
+            const applications = AppState.applications.filter(app => app.errandId === errand.id);
+            const isOwner = AppState.user && errand.requesterEmail === AppState.user.email;
+            const isHelper = AppState.user?.roles?.includes('helper');
+
+            const actionButtons = [
+                '<button class="btn btn-ghost" onclick="closeModal()">Close</button>'
+            ];
+
+            if (isHelper && !isOwner && errand.status === 'open') {
+                actionButtons.push(`<button class="btn btn-primary" onclick="openHelperApplyModal(${errand.id})">Apply to help</button>`);
+            }
+
+            const isAssignedHelper = AppState.user && errand.assignedHelperEmail === AppState.user.email;
+            if (isAssignedHelper && errand.status === 'matched') {
+                actionButtons.push(`<button class="btn btn-primary" onclick="markErrandInProgress(${errand.id})">Start task</button>`);
+            }
+            if (isOwner && errand.status === 'in_progress') {
+                actionButtons.push(`<button class="btn btn-primary" onclick="completeErrand(${errand.id})">Mark completed</button>`);
+            }
+
+            const ownerActions = isOwner && errand.status === 'open' && applications.length
+                ? `
+                    <div style="margin-top:1.5rem;">
+                        <h4>Helper applications</h4>
+                        <div class="stacked-list">
+                            ${applications.map(app => `
+                                <div class="list-card">
+                                    <div>
+                                        <strong>${app.helperName}</strong>
+                                        <p>${app.message || 'No message provided.'}</p>
+                                        <p style="font-size:0.85rem; color:#94a3b8;">Proposed: ${formatCurrency(app.offerAmount || 0)}</p>
+                                    </div>
+                                    <div style="display:flex; flex-direction:column; gap:0.5rem; align-items:flex-end;">
+                                        ${renderStatusBadge(app.status)}
+                                        ${app.status === 'pending' ? `
+                                            <div style="display:flex; gap:0.5rem;">
+                                                <button class="btn btn-primary" onclick="acceptHelperApplication(${app.id})">Accept</button>
+                                                <button class="btn btn-ghost" onclick="declineHelperApplication(${app.id})">Decline</button>
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `
+                : '';
+
+            const helperSummary = errand.assignedHelperName
+                ? `<p><strong>Assigned helper:</strong> ${errand.assignedHelperName}</p>`
+                : '';
+
+            const content = `
+                <h3 class="modal-title">${errand.title}</h3>
+                <p class="modal-subtitle">${errand.description}</p>
+                <div class="card-meta" style="margin-bottom:1rem;">
+                    <span class="pill info">${errand.region}</span>
+                    <span>${formatCurrency(errand.budgetMin)} - ${formatCurrency(errand.budgetMax)}</span>
+                    <span>${formatDateTime(errand.preferredTime)}</span>
+                    ${renderStatusBadge(errand.status)}
+                </div>
+                <p><strong>Posted by:</strong> ${errand.requesterName}</p>
+                ${helperSummary}
+                <div class="modal-footer" style="justify-content:flex-end; flex-wrap:wrap; gap:0.5rem;">
+                    ${actionButtons.join('')}
+                </div>
+                ${ownerActions}
+            `;
+            showModal(content);
+        }
+
+        function openHelperApplyModal(errandId) {
+            if (!requireUser('helper')) return;
+            const errand = AppState.errands.find(item => item.id === Number(errandId));
+            if (!errand) return;
+            if (errand.status !== 'open') {
+                showToast('This errand is no longer accepting helpers.', 'warning');
+                return;
+            }
+            if (errand.requesterEmail === AppState.user.email) {
+                showToast('You cannot apply to your own errand.', 'warning');
+                return;
+            }
+            const existingApplication = AppState.applications.find(app =>
+                app.errandId === errand.id && app.helperEmail === AppState.user.email
+            );
+            if (existingApplication) {
+                showToast('You have already applied to this errand.', 'info');
+                return;
+            }
+            const offerId = `helper-offer-${errand.id}`;
+            const messageId = `helper-message-${errand.id}`;
+            const content = `
+                <h3 class="modal-title">Apply to ${errand.title}</h3>
+                <p class="modal-subtitle">Send a quick note and proposed rate to the customer.</p>
+                <form onsubmit="submitHelperApplication(event, ${errand.id}, '${offerId}', '${messageId}')">
+                    <div class="form-group">
+                        <label class="form-label" for="${offerId}">Proposed amount ($)</label>
+                        <input id="${offerId}" type="number" min="0" class="form-input" required />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="${messageId}">Message</label>
+                        <textarea id="${messageId}" class="form-textarea" rows="3" required placeholder="Share availability or experience."></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Submit application</button>
+                    </div>
+                </form>
+            `;
+            showModal(content);
+        }
+
+        function submitHelperApplication(event, errandId, offerFieldId, messageFieldId) {
+            event.preventDefault();
+            if (!requireUser('helper')) return;
+            const errand = AppState.errands.find(item => item.id === Number(errandId));
+            if (!errand) return;
+            const offerValue = Number(document.getElementById(offerFieldId)?.value || 0);
+            const messageValue = document.getElementById(messageFieldId)?.value.trim();
+            if (!messageValue) {
+                showToast('Please include a short message.', 'warning');
+                return;
+            }
+            const application = {
+                id: Date.now(),
+                errandId: errand.id,
+                helperUserId: AppState.user.email,
+                helperEmail: AppState.user.email,
+                helperName: AppState.user.name,
+                offerAmount: offerValue,
+                message: messageValue,
+                status: 'pending', // pending, accepted, declined, withdrawn, in_progress, completed
+                createdAt: new Date().toISOString()
+            };
+            AppState.applications.push(application);
+            persistApplications();
+            renderDashboard();
+            closeModal();
+            showToast('Application sent! Track responses on your helper dashboard.', 'success');
+        }
+
+        function acceptHelperApplication(applicationId) {
+            const application = AppState.applications.find(app => app.id === Number(applicationId));
+            if (!application) return;
+            const errand = AppState.errands.find(item => item.id === application.errandId);
+            if (!errand || errand.requesterEmail !== AppState.user?.email) {
+                showToast('Only the errand owner can accept helpers.', 'warning');
+                return;
+            }
+            if (errand.status !== 'open') {
+                showToast('This errand is no longer accepting applications.', 'warning');
+                return;
+            }
+            errand.status = 'matched';
+            errand.matchedAt = new Date().toISOString();
+            errand.assignedHelperEmail = application.helperEmail;
+            errand.assignedHelperName = application.helperName;
+            errand.acceptedHelperId = application.helperUserId || application.helperEmail;
+            AppState.applications = AppState.applications.map(app => app.errandId === errand.id
+                ? { ...app, status: app.id === application.id ? 'accepted' : 'declined' }
+                : app
+            );
+            persistErrands();
+            persistApplications();
+            renderErrandList();
+            renderDashboard();
+            openErrandDetail(errand.id);
+            showToast('Helper accepted. Errand is now matched.', 'success');
+        }
+
+        function declineHelperApplication(applicationId) {
+            const application = AppState.applications.find(app => app.id === Number(applicationId));
+            if (!application) return;
+            const errand = AppState.errands.find(item => item.id === application.errandId);
+            if (!errand || errand.requesterEmail !== AppState.user?.email) {
+                showToast('Only the errand owner can decline helpers.', 'warning');
+                return;
+            }
+            if (application.status !== 'pending') {
+                showToast('This application has already been processed.', 'warning');
+                return;
+            }
+            application.status = 'declined';
+            persistApplications();
+            renderDashboard();
+            openErrandDetail(errand.id);
+            showToast('Application declined.', 'info');
+        }
+
+        function cancelHelperApplication(applicationId) {
+            const application = AppState.applications.find(app => app.id === Number(applicationId));
+            if (!application || !AppState.user) return;
+            if (application.helperEmail !== AppState.user.email) {
+                showToast('You can only cancel your own applications.', 'warning');
+                return;
+            }
+            if (application.status !== 'pending') {
+                showToast('This application can no longer be cancelled.', 'warning');
+                return;
+            }
+            const errand = AppState.errands.find(item => item.id === application.errandId);
+            if (errand && errand.status !== 'open') {
+                showToast('This errand is no longer accepting applications.', 'warning');
+                return;
+            }
+            application.status = 'withdrawn';
+            persistApplications();
+            renderDashboard();
+            showToast('Application withdrawn.', 'info');
+        }
+
+        function markErrandInProgress(errandId) {
+            const errand = AppState.errands.find(item => item.id === Number(errandId));
+            if (!errand || !AppState.user) return;
+            if (errand.assignedHelperEmail !== AppState.user.email) {
+                showToast('Only the assigned helper can start this errand.', 'warning');
+                return;
+            }
+            if (errand.status !== 'matched') {
+                showToast('This errand is already in progress or completed.', 'warning');
+                return;
+            }
+            errand.status = 'in_progress';
+            errand.inProgressAt = new Date().toISOString();
+            // Update accepted application to in_progress for this helper
+            AppState.applications = AppState.applications.map(app => {
+                if (app.errandId === errand.id &&
+                    app.helperEmail === AppState.user.email &&
+                    app.status === 'accepted') {
+                    return { ...app, status: 'in_progress' };
+                }
+                return app;
+            });
+            persistErrands();
+            persistApplications();
+            renderErrandList();
+            renderDashboard();
+            openErrandDetail(errand.id);
+            showToast('Task marked as in progress.', 'info');
+        }
+
+        function completeErrand(errandId) {
+            const errand = AppState.errands.find(item => item.id === Number(errandId));
+            if (!errand || !AppState.user) return;
+            if (errand.requesterEmail !== AppState.user.email) {
+                showToast('Only the customer can mark completion.', 'warning');
+                return;
+            }
+            if (errand.status !== 'in_progress') {
+                showToast('Errand is not in progress yet.', 'warning');
+                return;
+            }
+            errand.status = 'completed';
+            errand.completedAt = new Date().toISOString();
+            // Mark accepted application as completed for consistency
+            AppState.applications = AppState.applications.map(app => {
+                if (app.errandId === errand.id &&
+                    app.helperEmail === errand.assignedHelperEmail &&
+                    ['accepted', 'in_progress'].includes(app.status)) {
+                    return { ...app, status: 'completed' };
+                }
+                return app;
+            });
+            persistErrands();
+            persistApplications();
+            renderErrandList();
+            renderDashboard();
+            openErrandDetail(errand.id);
+            showToast('Errand completed! Thanks for supporting your community.', 'success');
+        }
+
+        /**
+         * SVG Template Selection
+         */
+        function selectSvgTemplate(button, templateName) {
+            document.querySelectorAll('.svg-template-btn').forEach(btn => {
+                btn.classList.remove('selected');
+                btn.setAttribute('aria-pressed', 'false');
+            });
+            button.classList.add('selected');
+            button.setAttribute('aria-pressed', 'true');
+            const templateInput = document.getElementById('vendor-product-template');
+            if (templateInput) {
+                templateInput.value = templateName;
+            }
+            const imageInput = document.querySelector('[name="vendor-product-image"]');
+            if (imageInput) {
+                imageInput.value = '';
+            }
+        }
+
+        /**
+         * Vendor Product Management
+         */
+        function handleAddProduct(event) {
+            event.preventDefault();
+            if (!requireUser('vendor')) return;
+            const form = event.target;
+            showFormMessage(form, '');
+            const title = form.querySelector('[name="vendor-product-title"]').value.trim();
+            const price = Number(form.querySelector('[name="vendor-product-price"]').value || 0);
+            const region = form.querySelector('[name="vendor-product-region"]').value;
+            const description = form.querySelector('[name="vendor-product-description"]').value.trim();
+            const deadline = form.querySelector('[name="vendor-product-deadline"]').value;
+            const deliveryDate = form.querySelector('[name="vendor-product-delivery"]').value;
+            const targetQuantity = Number(form.querySelector('[name="vendor-product-target"]').value || 10);
+            const imageInput = form.querySelector('[name="vendor-product-image"]');
+            const file = imageInput?.files?.[0] || null;
+            const templateInput = form.querySelector('[name="vendor-product-template"]');
+            const selectedTemplate = templateInput?.value || '';
+            const errors = [];
+            if (!title) errors.push('Product title is required.');
+            if (!description) errors.push('Description is required.');
+            if (!deadline) errors.push('Order deadline is required.');
+            if (!deliveryDate) errors.push('Delivery date is required.');
+            if (price <= 0) errors.push('Price must be greater than zero.');
+            if (targetQuantity < 5) errors.push('Target quantity must be at least 5.');
+            const deadlineDate = new Date(deadline);
+            const deliveryDateObj = new Date(deliveryDate);
+            if (deliveryDateObj <= deadlineDate) {
+                errors.push('Delivery date must be after the order deadline.');
+            }
+            if (errors.length) {
+                showFormMessage(form, errors[0]);
+                return;
+            }
+
+            const templateColors = {
+                gradient: ['#38bdf8', '#7c3aed'],
+                food: ['#f87171', '#fb923c'],
+                nature: ['#10b981', '#34d399'],
+                premium: ['#facc15', '#fbbf24']
+            };
+            const palette = ['#38bdf8', '#fb923c', '#facc15', '#a5b4fc', '#f87171', '#10b981'];
+            const templateColor = selectedTemplate && templateColors[selectedTemplate]
+                ? templateColors[selectedTemplate][0]
+                : palette[Math.floor(Math.random() * palette.length)];
+            
+            const finalize = (imageDataUrl) => {
+                let finalImage = imageDataUrl;
+                if (!finalImage && selectedTemplate && templateColors[selectedTemplate]) {
+                    finalImage = generateProductGraphic(title, templateColors[selectedTemplate][0]);
+                } else if (!finalImage) {
+                    finalImage = generateProductGraphic(title, templateColor);
+                }
+                
+                const newProduct = {
+                    id: Date.now(),
+                    title,
+                    price,
+                    region,
+                    description,
+                    deadline,
+                    deliveryDate,
+                    vendor: AppState.user.name,
+                    ownerEmail: AppState.user.email,
+                    targetQuantity,
+                    currentQuantity: 0,
+                    imageColor: templateColor,
+                    imageDataUrl: finalImage,
+                    createdAt: new Date().toISOString()
+                };
+                AppState.products.unshift(newProduct);
+                saveState();
+                saveProductsToBackend();
+                form.reset();
+                document.querySelectorAll('.svg-template-btn').forEach(btn => btn.classList.remove('selected'));
+                if (templateInput) templateInput.value = '';
+                showFormMessage(form, 'Product created! Share it with your community.', 'success');
+                showToast('Product published to the marketplace.', 'success');
+                triggerSuccessPulse();
+                renderGroupBuyList();
+                renderMarketplaceHighlights();
+                renderDashboard();
+            };
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = () => finalize(reader.result);
+                reader.onerror = () => {
+                    showFormMessage(form, 'Could not read the image file. Please try again.');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                finalize(null);
+            }
+        }
+
+        /**
+         * Dashboard
+         */
+        function renderDashboard() {
+            const title = document.getElementById('dashboard-title');
+            const subtitle = document.getElementById('dashboard-subtitle');
+            const content = document.getElementById('dashboard-content');
+            if (!AppState.user || !content) return;
+            refreshOrderStatuses();
+
+            title.textContent = `Welcome, ${AppState.user.name}`;
+            const roles = AppState.user.roles || [];
+            if (!roles.length) {
+                subtitle.textContent = 'Select a role to unlock personalized tools.';
+            } else if (roles.includes('helper')) {
+                subtitle.textContent = 'Track tasks, payouts, and requests in one place.';
+            } else if (roles.includes('vendor')) {
+                subtitle.textContent = 'Launch new group buys and manage customers.';
+            } else {
+                subtitle.textContent = 'Browse group buys, errands, and savings.';
+            }
+
+            const sections = [];
+            sections.push(renderAccountSummary(roles));
+
+            const hasCustomerData = roles.includes('customer')
+                || AppState.orders.some(order => order.customerEmail === AppState.user.email)
+                || AppState.errands.some(errand => errand.requesterEmail === AppState.user.email);
+            if (hasCustomerData) {
+                sections.push(renderCustomerDashboard());
+            }
+
+            const hasHelperData = roles.includes('helper')
+                || AppState.errands.some(errand => errand.assignedHelperEmail === AppState.user.email);
+            if (hasHelperData) {
+                sections.push(renderHelperDashboard());
+            }
+
+            const hasVendorData = roles.includes('vendor')
+                || AppState.products.some(product => product.ownerEmail === AppState.user.email)
+                || AppState.orders.some(order => order.vendorEmail === AppState.user.email);
+            if (hasVendorData) {
+                sections.push(renderVendorDashboard());
+            }
+
+            content.innerHTML = sections.join('') || '<p class="screen-subtitle">Select a role to unlock personalized dashboards.</p>';
+        }
+
+        function renderAccountSummary(roles) {
+            const roleBadges = roles.length
+                ? roles.map(role => `<span class="role-badge ${role === 'helper' ? 'helper' : ''}">${role.toUpperCase()}</span>`).join(' ')
+                : '<span class="pill">No roles selected</span>';
+            const helperStatus = roles.includes('helper')
+                ? `<p><strong>Helper status:</strong> ${AppState.user.helperVerified ? 'Verified ✅' : 'Pending verification'}</p>`
+                : '';
+            return `
+                <div class="view-content" style="margin-bottom:1.5rem;">
+                    <h3>Your account</h3>
+                    <p><strong>Roles:</strong> ${roleBadges}</p>
+                    ${helperStatus}
+                    <div class="view-actions" style="margin-top:1rem;">
+                        <button class="btn btn-primary" onclick="goToScreen('role')">Edit roles</button>
+                        ${roles.includes('helper') && !AppState.user.helperVerified ? '<button class="btn btn-secondary" onclick="goToScreen(\'helper\')">Finish helper verification</button>' : ''}
+                </div>
+                </div>
+            `;
+        }
+
+        function renderCustomerDashboard() {
+            const myOrders = AppState.orders.filter(order => order.customerEmail === AppState.user.email);
+            const myErrands = AppState.errands.filter(errand => errand.requesterEmail === AppState.user.email);
+
+            const ordersHtml = myOrders.length
+                ? myOrders.map(order => {
+                    const product = findProductById(order.productId);
+                    const canCancel = order.groupStatus === 'open' && order.fulfillmentStatus === 'pending';
+                    const deliveryInfo = product?.deliveryDate
+                        ? `<p style="font-size:0.85rem; color:#64748b; margin-top:0.25rem;">📦 Delivery: ${formatDate(product.deliveryDate)}</p>`
+                        : '';
+                    return `
+                        <div class="list-card">
+                            <div>
+                                <strong>${product?.title || 'Unknown product'}</strong>
+                                <p>${order.quantity} × ${formatCurrency(product?.price || 0)} — Ordered ${formatDate(order.createdAt)}</p>
+                                ${deliveryInfo}
+                                <div style="display:flex; flex-wrap:wrap; gap:0.35rem; margin-top:0.4rem;">
+                                    ${renderStatusBadge(order.groupStatus)}
+                                    ${renderStatusBadge(order.fulfillmentStatus)}
+                                </div>
+                            </div>
+                            <div style="display:flex; flex-direction:column; gap:0.35rem; align-items:flex-end;">
+                                <span class="badge info">${formatCurrency(order.total)}</span>
+                                ${canCancel ? `<button class="btn btn-ghost" onclick="cancelOrder(${order.id})">Cancel</button>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('')
+                : '<p class="screen-subtitle">You have not joined any group buys yet.</p>';
+
+            const errandsHtml = myErrands.length
+                ? myErrands.map(errand => {
+                    const canComplete = errand.status === 'in_progress';
+                    const helperChip = errand.assignedHelperName
+                        ? `<span class="badge info">Helper • ${errand.assignedHelperName}</span>`
+                        : '';
+                    const applications = AppState.applications.filter(app => app.errandId === errand.id);
+                    const pendingCount = applications.filter(app => app.status === 'pending').length;
+                    const hasApplications = pendingCount > 0 && errand.status === 'open';
+                    return `
+                        <div class="list-card" style="cursor:pointer;" onclick="openErrandDetail(${errand.id})" role="button" tabindex="0" onkeypress="handleCardKey(event, 'errand', ${errand.id})">
+                            <div style="flex:1;">
+                                <strong>${errand.title}</strong>
+                                <p>${errand.region} • ${formatDateTime(errand.preferredTime)}</p>
+                                <div style="display:flex; flex-wrap:wrap; gap:0.35rem; margin-top:0.4rem;">
+                                    ${renderStatusBadge(errand.status)}
+                                    ${helperChip}
+                                    ${hasApplications ? `<span class="badge info" style="background:#fef3c7; color:#b45309;">${pendingCount} application${pendingCount > 1 ? 's' : ''}</span>` : ''}
+                                </div>
+                            </div>
+                            <div style="display:flex; flex-direction:column; gap:0.35rem; align-items:flex-end;">
+                                ${canComplete ? `<button class="btn btn-primary" onclick="event.stopPropagation(); completeErrand(${errand.id})">Mark completed</button>` : ''}
+                                ${hasApplications ? `<button class="btn btn-secondary" onclick="event.stopPropagation(); openErrandDetail(${errand.id})">View applications</button>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('')
+                : '<p class="screen-subtitle">No errands posted yet. Use the form on the errand page to create one.</p>';
+
+            return `
+                <div class="view-content">
+                    <h3>My Group Buys</h3>
+                    ${ordersHtml}
+                </div>
+                <div class="view-content">
+                    <h3>My Errands</h3>
+                    ${errandsHtml}
+                </div>
+            `;
+        }
+
+        function renderHelperDashboard() {
+            const myApplications = AppState.applications.filter(app => app.helperEmail === AppState.user.email);
+            // Active tasks are derived from accepted/in_progress/completed applications
+            const activeTaskApplications = AppState.applications.filter(app =>
+                app.helperEmail === AppState.user.email &&
+                ['accepted', 'in_progress', 'completed'].includes(app.status)
+            );
+            const myTasks = activeTaskApplications
+                .map(app => AppState.errands.find(errand => errand.id === app.errandId))
+                .filter(Boolean);
+
+            const applicationsHtml = myApplications.length
+                ? myApplications.map(app => {
+                    const errand = AppState.errands.find(item => item.id === app.errandId);
+                    const canCancel = app.status === 'pending' && errand && errand.status === 'open';
+                    return `
+                        <div class="list-card" style="cursor:pointer;" onclick="openErrandDetail(${app.errandId})" role="button" tabindex="0" onkeypress="if(event.key==='Enter') openErrandDetail(${app.errandId})">
+                            <div style="flex:1;">
+                                <strong>${errand?.title || 'Errand removed'}</strong>
+                                <p>${formatDate(app.createdAt)} • Offer ${formatCurrency(app.offerAmount || 0)}</p>
+                                ${app.message ? `<p style="font-size:0.85rem; color:#64748b; margin-top:0.25rem;">${app.message.substring(0, 60)}${app.message.length > 60 ? '...' : ''}</p>` : ''}
+                            </div>
+                            <div style="display:flex; flex-direction:column; gap:0.35rem; align-items:flex-end;">
+                                ${renderStatusBadge(app.status)}
+                                ${canCancel ? `<button class="btn btn-ghost" onclick="event.stopPropagation(); cancelHelperApplication(${app.id})">Withdraw</button>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('')
+                : '<p class="screen-subtitle">Apply to errands to see updates here.</p>';
+
+            const tasksHtml = myTasks.length
+                ? myTasks.map(task => `
+                    <div class="list-card">
+                        <div>
+                            <strong>${task.title}</strong>
+                            <p>${task.region} • ${formatDateTime(task.preferredTime)}</p>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:0.35rem; align-items:flex-end;">
+                            ${renderStatusBadge(task.status)}
+                            ${task.status === 'matched'
+                                ? `<button class="btn btn-primary" onclick="markErrandInProgress(${task.id})">Start task</button>`
+                                : ''}
+                        </div>
+                    </div>
+                `).join('')
+                : '<p class="screen-subtitle">No active tasks. Apply to open errands to get assigned.</p>';
+
+            return `
+                <div class="view-content">
+                    <h3>My Applications</h3>
+                    ${applicationsHtml}
+                </div>
+                <div class="view-content">
+                    <h3>My Active Tasks</h3>
+                    ${tasksHtml}
+                </div>
+            `;
+        }
+
+        function renderVendorDashboard() {
+            const myProducts = AppState.products.filter(product => product.ownerEmail === AppState.user.email);
+            const myOrders = AppState.orders.filter(order => {
+                const product = findProductById(order.productId);
+                return product && product.ownerEmail === AppState.user.email;
+            });
+
+            const productsHtml = myProducts.length
+                ? myProducts.map(product => `
+                    <div class="list-card">
+                        <div>
+                            <strong>${product.title}</strong>
+                            <p>${product.region} • ${calculateProgress(product)}% funded</p>
+                        </div>
+                        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                            <button class="btn btn-secondary" onclick="openProductDetail(${product.id})">View</button>
+                            <button class="btn btn-ghost" onclick="openEditProductModal(${product.id})">Edit</button>
+                            <button class="btn reset-btn" onclick="openDeleteProductConfirm(${product.id})">Delete</button>
+                        </div>
+                    </div>
+                `).join('')
+                : '<p class="screen-subtitle">No products yet. Add one using the form.</p>';
+
+            const vendorOrdersAll = myOrders.filter(order => order.groupStatus !== 'cancelled');
+            const voFilters = AppState.filters.vendorOrders || { status: 'all', search: '' };
+            const searchLower = (voFilters.search || '').trim().toLowerCase();
+            const vendorOrders = vendorOrdersAll.filter(order => {
+                const statusMatch = voFilters.status === 'all' || order.fulfillmentStatus === voFilters.status;
+                const nameMatch = !searchLower || (order.customerName || '').toLowerCase().includes(searchLower);
+                return statusMatch && nameMatch;
+            });
+            const totalSales = vendorOrders.reduce((sum, order) => sum + (order.total || 0), 0);
+            const platformFee = totalSales * 0.15;
+            const netIncome = totalSales - platformFee;
+
+            const groupedOrders = vendorOrders.reduce((acc, order) => {
+                const key = order.productId;
+                if (!acc[key]) acc[key] = [];
+                acc[key].push(order);
+                return acc;
+            }, {});
+
+            const groupedHtml = Object.keys(groupedOrders).length
+                ? Object.entries(groupedOrders).map(([productId, orders]) => {
+                    const product = findProductById(productId);
+                    const orderRows = orders.map(order => {
+                        const options = FulfillmentStages.map(stage => `
+                            <option value="${stage}" ${order.fulfillmentStatus === stage ? 'selected' : ''}>${stage.replace(/_/g, ' ')}</option>
+                        `).join('');
+                        return `
+                            <div class="list-card">
+                                <div>
+                                    <strong>${order.customerName}</strong>
+                                    <p>${order.quantity} × ${formatCurrency(product?.price || 0)} — ${formatDate(order.createdAt)}</p>
+                                    <div style="display:flex; flex-wrap:wrap; gap:0.35rem; margin-top:0.35rem;">
+                                        ${renderStatusBadge(order.groupStatus)}
+                                        ${renderStatusBadge(order.fulfillmentStatus)}
+                                    </div>
+                                </div>
+                                <div>
+                                    <select class="form-select" onchange="updateFulfillmentStatus(${order.id}, this.value)">
+                                        ${options}
+                                    </select>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                    return `
+                        <div style="margin-bottom:1.25rem;">
+                            <h4>${product?.title || 'Product'}</h4>
+                            <div class="stacked-list">
+                                ${orderRows}
+                            </div>
+                        </div>
+                    `;
+                }).join('')
+                : '<p class="screen-subtitle">No orders yet. Share your group buy link to collect pledges.</p>';
+
+            return `
+                <div class="view-content">
+                    <h3>Revenue snapshot</h3>
+                    <p><strong>Total sales:</strong> ${formatCurrency(totalSales)}</p>
+                    <p><strong>Platform fee (15%):</strong> ${formatCurrency(platformFee)}</p>
+                    <p><strong>Income after fees:</strong> ${formatCurrency(netIncome)}</p>
+                </div>
+                <div class="view-content">
+                    <h3>My Products</h3>
+                    ${productsHtml}
+                </div>
+                <div class="view-content">
+                    <h3>Add Product</h3>
+                    <form onsubmit="handleAddProduct(event)">
+                        <div class="form-group">
+                            <label class="form-label">Title</label>
+                            <input class="form-input" name="vendor-product-title" required placeholder="e.g., Lunar New Year Snack Bundle" />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Region</label>
+                            <select class="form-select" name="vendor-product-region" required>
+                                <option value="Toronto">Toronto</option>
+                                <option value="Hamilton">Hamilton</option>
+                                <option value="Niagara">Niagara</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Price per unit ($)</label>
+                            <input type="number" class="form-input" name="vendor-product-price" required min="1" />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-textarea" name="vendor-product-description" rows="3" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Cover image (optional)</label>
+                            <input type="file" class="form-input" name="vendor-product-image" accept="image/*" aria-label="Upload product image" />
+                            <p class="screen-subtitle" style="margin-top:0.35rem;">Upload a photo or choose a template below.</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Or choose a template</label>
+                            <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(100px,1fr)); gap:0.75rem; margin-top:0.5rem;">
+                                <button type="button" class="svg-template-btn" data-template="gradient" onclick="selectSvgTemplate(this, 'gradient')" aria-label="Select gradient template">
+                                    <div style="width:100%; height:60px; background:linear-gradient(135deg,#38bdf8,#7c3aed); border-radius:8px;"></div>
+                                    <span style="font-size:0.75rem; margin-top:0.25rem;">Gradient</span>
+                                </button>
+                                <button type="button" class="svg-template-btn" data-template="food" onclick="selectSvgTemplate(this, 'food')" aria-label="Select food template">
+                                    <div style="width:100%; height:60px; background:linear-gradient(135deg,#f87171,#fb923c); border-radius:8px;"></div>
+                                    <span style="font-size:0.75rem; margin-top:0.25rem;">Food</span>
+                                </button>
+                                <button type="button" class="svg-template-btn" data-template="nature" onclick="selectSvgTemplate(this, 'nature')" aria-label="Select nature template">
+                                    <div style="width:100%; height:60px; background:linear-gradient(135deg,#10b981,#34d399); border-radius:8px;"></div>
+                                    <span style="font-size:0.75rem; margin-top:0.25rem;">Nature</span>
+                                </button>
+                                <button type="button" class="svg-template-btn" data-template="premium" onclick="selectSvgTemplate(this, 'premium')" aria-label="Select premium template">
+                                    <div style="width:100%; height:60px; background:linear-gradient(135deg,#facc15,#fbbf24); border-radius:8px;"></div>
+                                    <span style="font-size:0.75rem; margin-top:0.25rem;">Premium</span>
+                                </button>
+                            </div>
+                            <input type="hidden" name="vendor-product-template" id="vendor-product-template" value="" />
+                        </div>
+                        <div class="form-group" style="display:flex; gap:1rem; flex-wrap:wrap;">
+                            <div style="flex:1; min-width:180px;">
+                                <label class="form-label">Order deadline</label>
+                                <input type="date" class="form-input" name="vendor-product-deadline" required />
+                            </div>
+                            <div style="flex:1; min-width:180px;">
+                                <label class="form-label">Delivery date</label>
+                                <input type="date" class="form-input" name="vendor-product-delivery" required />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Target quantity</label>
+                            <input type="number" class="form-input" name="vendor-product-target" min="5" value="20" required />
+                        </div>
+                        <button class="primary-cta" style="width:100%;">Create group buy</button>
+                    </form>
+                </div>
+                <div class="view-content">
+                    <div class="view-header">
+                        <h3>My Orders</h3>
+                        <div class="filter-bar" style="margin-bottom:0;">
+                            <select id="vendor-order-status" class="form-select" onchange="handleVendorOrderStatus(event)">
+                                <option value="all">All statuses</option>
+                                <option value="pending">Pending</option>
+                                <option value="confirmed">Confirmed</option>
+                                <option value="prepared">Prepared</option>
+                                <option value="delivered">Delivered</option>
+                            </select>
+                            <input id="vendor-order-search" class="form-input" type="text" placeholder="Search by customer name" oninput="handleVendorOrderSearch(event)" />
+                        </div>
+                    </div>
+                    ${groupedHtml}
+                </div>
+            `;
+        }
+
+        /**
+         * Logout
+         */
+        function logout() {
+            (async () => {
+                try {
+                    if (supabaseClient) {
+                        await supabaseClient.auth.signOut();
+                    }
+                } catch (e) {
+                    console.error('Supabase sign-out error', e);
+                }
+            AppState.user = null;
+                AppState.loginMethod = null;
+            AppState.selectedRoles = new Set();
+            AppState.helperStepIndex = 0;
+                AppState.helperData = createHelperData();
+                saveState();
+            updateNavbar();
+            goToScreen('start');
+            })();
+        }
+
+        /**
+         * Global exposure for inline handlers
+         */
+        window.goToScreen = goToScreen;
+        window.handleEmailSignUp = handleEmailSignUp;
+        window.skipLoginForTesting = skipLoginForTesting;
+        window.toggleRole = toggleRole;
+        window.continueAfterRole = continueAfterRole;
+        window.saveHelperName = saveHelperName;
+        window.handlePhotoUpload = handlePhotoUpload;
+        window.saveHelperAddress = saveHelperAddress;
+        window.sendVerificationCode = sendVerificationCode;
+        window.verifySmsCode = verifySmsCode;
+        window.completeHelperVerification = completeHelperVerification;
+        window.handleGroupBuySearch = handleGroupBuySearch;
+        window.handleGroupBuyRegion = handleGroupBuyRegion;
+        window.handleGroupBuySort = handleGroupBuySort;
+        window.openProductDetail = openProductDetail;
+        window.openJoinGroupBuyModal = openJoinGroupBuyModal;
+        window.submitJoinGroupBuy = submitJoinGroupBuy;
+        window.openProductMessagesModal = openProductMessagesModal;
+        window.submitProductMessage = submitProductMessage;
+        window.handleCreateErrand = handleCreateErrand;
+        window.handleErrandRegion = handleErrandRegion;
+        window.handleErrandStatus = handleErrandStatus;
+        window.handleErrandSort = handleErrandSort;
+        window.openErrandDetail = openErrandDetail;
+        window.openHelperApplyModal = openHelperApplyModal;
+        window.submitHelperApplication = submitHelperApplication;
+        window.acceptHelperApplication = acceptHelperApplication;
+        window.declineHelperApplication = declineHelperApplication;
+        window.cancelHelperApplication = cancelHelperApplication;
+        window.markErrandInProgress = markErrandInProgress;
+        window.completeErrand = completeErrand;
+        window.handleAddProduct = handleAddProduct;
+        window.selectSvgTemplate = selectSvgTemplate;
+        window.cancelOrder = cancelOrder;
+        window.updateFulfillmentStatus = updateFulfillmentStatus;
+        window.resetApp = resetApp;
+        window.confirmResetApp = confirmResetApp;
+        window.closeModal = closeModal;
+        window.handleCardKey = handleCardKey;
+        window.logout = logout;
+
+        document.addEventListener('DOMContentLoaded', () => { initApp(); });
+    </script>
+</body>
+</html>
+
