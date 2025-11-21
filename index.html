@@ -193,6 +193,232 @@
             transform: scale(0.95);
         }
 
+        .fab-menu {
+            position: fixed;
+            bottom: 160px;
+            right: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            padding: 8px;
+            z-index: 999;
+            display: none;
+            min-width: 200px;
+        }
+
+        .fab-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            text-align: left;
+        }
+
+        .fab-menu-item:hover {
+            background-color: #f3f4f6;
+        }
+
+        .fab-menu-icon {
+            font-size: 1.25rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .fab-menu-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        /* Profile Page Styles */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 24px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border-radius: 12px;
+            color: white;
+            margin-bottom: 24px;
+        }
+
+        .profile-avatar {
+            flex-shrink: 0;
+        }
+
+        .avatar-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .profile-info h3 {
+            margin: 0 0 8px 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .profile-email {
+            margin: 0 0 12px 0;
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        .profile-roles {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .role-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .role-badge.role-customer {
+            background: rgba(16, 185, 129, 0.2);
+            color: #059669;
+        }
+
+        .role-badge.role-vendor {
+            background: rgba(245, 158, 11, 0.2);
+            color: #d97706;
+        }
+
+        .role-badge.role-helper {
+            background: rgba(139, 92, 246, 0.2);
+            color: #7c3aed;
+        }
+
+        .verification-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: rgba(34, 197, 94, 0.2);
+            color: #16a34a;
+        }
+
+        .settings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            background: #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background: white;
+            gap: 16px;
+        }
+
+        .setting-info {
+            flex: 1;
+        }
+
+        .setting-title {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+
+        .setting-description {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .helper-profile-card {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .helper-status {
+            margin-bottom: 16px;
+        }
+
+        .status-indicator {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .status-indicator.verified {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-indicator.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .helper-details {
+            margin-bottom: 16px;
+        }
+
+        .helper-details p {
+            margin: 8px 0;
+            color: #374151;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 16px;
+            }
+
+            .avatar-circle {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+
+            .profile-info h3 {
+                font-size: 1.25rem;
+            }
+
+            .setting-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+
         /* Touch-friendly form elements */
         .form-input,
         .form-select,
@@ -2016,8 +2242,8 @@
                 <div class="bottom-nav-icon" aria-hidden="true">🏠</div>
                 <span data-i18n="nav.home">Home</span>
             </a>
-            <a href="#" class="bottom-nav-item" onclick="goToScreen('group-buys'); return false;" 
-               data-screen="group-buys" role="menuitem" aria-label="Go to group buys">
+            <a href="#" class="bottom-nav-item" onclick="goToScreen('groupbuys'); return false;" 
+               data-screen="groupbuys" role="menuitem" aria-label="Go to group buys">
                 <div class="bottom-nav-icon" aria-hidden="true">🛒</div>
                 <span data-i18n="nav.groupbuys">Group Buys</span>
             </a>
@@ -2026,8 +2252,8 @@
                 <div class="bottom-nav-icon" aria-hidden="true">🤝</div>
                 <span data-i18n="nav.errands">Errands</span>
             </a>
-            <a href="#" class="bottom-nav-item" onclick="goToScreen('dashboard'); return false;" 
-               data-screen="dashboard" role="menuitem" aria-label="Go to dashboard">
+            <a href="#" class="bottom-nav-item" onclick="goToScreen('profile'); return false;" 
+               data-screen="profile" role="menuitem" aria-label="Go to profile">
                 <div class="bottom-nav-icon" aria-hidden="true">👤</div>
                 <span data-i18n="nav.profile">Profile</span>
             </a>
@@ -2042,8 +2268,8 @@
     </button>
 
     <!-- Version Info -->
-    <div class="version-info" title="Multi-User Platform v2.5.0 - Data Analytics & Insights Dashboards">
-        v2.5.0
+    <div class="version-info" title="Multi-User Platform v3.0.0 - Complete Feature Set with Analytics & Mobile Optimization">
+        v3.0.0
     </div>
 
     <main class="app-shell">
@@ -2473,6 +2699,17 @@
                 <!-- Populated by JS -->
             </div>
         </section>
+
+        <!-- Screen: Profile -->
+        <section class="screen" id="screen-profile">
+            <div class="screen-header">
+                <h2 class="screen-heading">My Profile</h2>
+                <p class="screen-subtitle">Manage your account and preferences</p>
+            </div>
+            <div id="profile-content" class="profile-content">
+                <!-- Populated by JS -->
+            </div>
+        </section>
     </main>
 
     <div class="modal-overlay" id="modal-root">
@@ -2646,6 +2883,7 @@
         const translations = {
             en: {
                 // Navigation
+                'nav.brand': 'Korean Community Commerce',
                 'nav.home': 'Home',
                 'nav.groupbuys': 'Group Buys',
                 'nav.errands': 'Errands',
@@ -2726,6 +2964,7 @@
             },
             ko: {
                 // Navigation
+                'nav.brand': '한인 커뮤니티 커머스',
                 'nav.home': '홈',
                 'nav.groupbuys': '공동구매',
                 'nav.errands': '심부름',
@@ -4468,6 +4707,8 @@
                 renderHelperStep();
             } else if (name === 'dashboard') {
                 renderDashboard();
+            } else if (name === 'profile') {
+                renderProfile();
             } else if (name === 'browse') {
                 renderMarketplaceHighlights();
             } else if (name === 'groupbuys') {
@@ -4571,7 +4812,8 @@
                     const screen = item.dataset.screen;
                     if (screen === AppState.currentScreen || 
                         (screen === 'browse' && AppState.currentScreen === 'start') ||
-                        (screen === 'group-buys' && AppState.currentScreen === 'groupbuys')) {
+                        (screen === 'groupbuys' && AppState.currentScreen === 'groupbuys') ||
+                        (screen === 'profile' && AppState.currentScreen === 'profile')) {
                         item.classList.add('active');
                     } else {
                         item.classList.remove('active');
@@ -4616,30 +4858,119 @@
             if (!AppState.user) return;
             
             const roles = AppState.user.roles || [];
+            const fabMenu = document.getElementById('fab-menu');
             
-            // Determine action based on current screen and user roles
-            if (AppState.currentScreen === 'errands' && roles.includes('customer')) {
-                // Scroll to create errand form
-                const createForm = document.getElementById('create-errand-form');
-                if (createForm) {
-                    createForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    const titleInput = document.getElementById('errand-title');
-                    if (titleInput) titleInput.focus();
-                }
-            } else if ((AppState.currentScreen === 'groupbuys' || AppState.currentScreen === 'browse') && roles.includes('vendor')) {
-                // Go to dashboard and scroll to create product form
-                goToScreen('dashboard');
-                setTimeout(() => {
-                    const createForm = document.querySelector('[onsubmit="handleAddProduct(event)"]');
-                    if (createForm) {
-                        createForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        const titleInput = createForm.querySelector('[name="vendor-product-title"]');
-                        if (titleInput) titleInput.focus();
+            // Toggle menu visibility
+            if (fabMenu && fabMenu.style.display === 'block') {
+                hideFabMenu();
+                return;
+            }
+            
+            // Show context-sensitive actions
+            showFabMenu();
+        }
+
+        function showFabMenu() {
+            const roles = AppState.user.roles || [];
+            let actions = [];
+            
+            // Add actions based on user roles
+            if (roles.includes('vendor')) {
+                actions.push({
+                    icon: '🏪',
+                    label: 'Create Group Buy',
+                    action: () => {
+                        goToScreen('dashboard');
+                        setTimeout(() => {
+                            const createForm = document.querySelector('[onsubmit="handleAddProduct(event)"]');
+                            if (createForm) {
+                                createForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                const titleInput = document.querySelector('[name="vendor-product-title"]');
+                                if (titleInput) titleInput.focus();
+                            }
+                        }, 100);
+                        hideFabMenu();
                     }
-                }, 100);
-            } else {
-                // Default: go to dashboard
-                goToScreen('dashboard');
+                });
+            }
+            
+            if (roles.includes('customer')) {
+                actions.push({
+                    icon: '🤝',
+                    label: 'Post Errand',
+                    action: () => {
+                        goToScreen('errands');
+                        setTimeout(() => {
+                            const createForm = document.getElementById('create-errand-form');
+                            if (createForm) {
+                                createForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                const titleInput = document.getElementById('errand-title');
+                                if (titleInput) titleInput.focus();
+                            }
+                        }, 100);
+                        hideFabMenu();
+                    }
+                });
+            }
+            
+            if (roles.includes('helper')) {
+                actions.push({
+                    icon: '🔍',
+                    label: 'Browse Errands',
+                    action: () => {
+                        goToScreen('errands');
+                        hideFabMenu();
+                    }
+                });
+            }
+            
+            // Always show browse option
+            actions.push({
+                icon: '🛒',
+                label: 'Browse Group Buys',
+                action: () => {
+                    goToScreen('groupbuys');
+                    hideFabMenu();
+                }
+            });
+            
+            // Create or update menu
+            let fabMenu = document.getElementById('fab-menu');
+            if (!fabMenu) {
+                fabMenu = document.createElement('div');
+                fabMenu.id = 'fab-menu';
+                fabMenu.className = 'fab-menu';
+                document.body.appendChild(fabMenu);
+            }
+            
+            fabMenu.innerHTML = actions.map(action => `
+                <button class="fab-menu-item" onclick="(${action.action.toString()})()">
+                    <span class="fab-menu-icon">${action.icon}</span>
+                    <span class="fab-menu-label">${action.label}</span>
+                </button>
+            `).join('');
+            
+            fabMenu.style.display = 'block';
+            
+            // Close menu when clicking outside
+            setTimeout(() => {
+                document.addEventListener('click', closeFabMenuOnOutsideClick, { once: true });
+            }, 0);
+        }
+
+        function hideFabMenu() {
+            const fabMenu = document.getElementById('fab-menu');
+            if (fabMenu) {
+                fabMenu.style.display = 'none';
+            }
+        }
+
+        function closeFabMenuOnOutsideClick(event) {
+            const fabMenu = document.getElementById('fab-menu');
+            const fab = document.getElementById('fab');
+            
+            if (fabMenu && !fabMenu.contains(event.target) && !fab.contains(event.target)) {
+                hideFabMenu();
             }
         }
 
@@ -7055,6 +7386,166 @@
             `;
         }
 
+        function renderProfile() {
+            const profileContent = document.getElementById('profile-content');
+            if (!profileContent || !AppState.user) return;
+
+            const user = AppState.user;
+            const roles = user.roles || [];
+            
+            profileContent.innerHTML = `
+                <div class="view-content">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <div class="avatar-circle">
+                                ${user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                            </div>
+                        </div>
+                        <div class="profile-info">
+                            <h3>${user.name || 'User'}</h3>
+                            <p class="profile-email">${user.email}</p>
+                            <div class="profile-roles">
+                                ${roles.map(role => `<span class="role-badge role-${role.toLowerCase()}">${role}</span>`).join('')}
+                                ${user.helperVerified ? '<span class="verification-badge">Verified ✓</span>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="view-content">
+                    <h3>Account Settings</h3>
+                    <div class="settings-list">
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">Display Name</div>
+                                <div class="setting-description">${user.name || 'Not set'}</div>
+                            </div>
+                            <button class="btn btn-ghost" onclick="editDisplayName()">Edit</button>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">Email Address</div>
+                                <div class="setting-description">${user.email}</div>
+                            </div>
+                            <button class="btn btn-ghost" onclick="editEmail()">Change</button>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">User Roles</div>
+                                <div class="setting-description">${roles.join(', ')}</div>
+                            </div>
+                            <button class="btn btn-ghost" onclick="editRoles()">Manage</button>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">Language</div>
+                                <div class="setting-description">${currentLanguage === 'ko' ? '한국어 (Korean)' : 'English'}</div>
+                            </div>
+                            <button class="btn btn-ghost" onclick="toggleLanguage()">Switch</button>
+                        </div>
+                    </div>
+                </div>
+
+                ${roles.includes('helper') ? `
+                <div class="view-content">
+                    <h3>Helper Profile</h3>
+                    <div class="helper-profile-card">
+                        <div class="helper-status">
+                            <span class="status-indicator ${user.helperVerified ? 'verified' : 'pending'}">
+                                ${user.helperVerified ? '✓ Verified' : '⏳ Pending Verification'}
+                            </span>
+                        </div>
+                        ${user.helperData ? `
+                            <div class="helper-details">
+                                <p><strong>Phone:</strong> ${user.helperData.phone || 'Not provided'}</p>
+                                <p><strong>Address:</strong> ${user.helperData.address || 'Not provided'}</p>
+                                <p><strong>ID Verified:</strong> ${user.helperData.idVerified ? 'Yes' : 'No'}</p>
+                            </div>
+                        ` : ''}
+                        <button class="btn btn-primary" onclick="goToScreen('helper')">Update Helper Profile</button>
+                    </div>
+                </div>
+                ` : ''}
+
+                <div class="view-content">
+                    <h3>Privacy & Security</h3>
+                    <div class="settings-list">
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">Password</div>
+                                <div class="setting-description">Change your account password</div>
+                            </div>
+                            <button class="btn btn-ghost" onclick="changePassword()">Change</button>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">Data Export</div>
+                                <div class="setting-description">Download your account data</div>
+                            </div>
+                            <button class="btn btn-ghost" onclick="exportData()">Export</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="view-content">
+                    <h3>Account Actions</h3>
+                    <div class="action-buttons">
+                        <button class="btn reset-btn" onclick="resetApp()">Reset App Data</button>
+                        <button class="btn btn-danger" onclick="logout()">Sign Out</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Profile action functions
+        function editDisplayName() {
+            const newName = prompt('Enter your display name:', AppState.user.name || '');
+            if (newName && newName.trim()) {
+                AppState.user.name = newName.trim();
+                persistUser(AppState.user);
+                renderProfile();
+                showToast('Display name updated successfully');
+            }
+        }
+
+        function editEmail() {
+            showToast('Email changes require re-authentication. Please sign out and create a new account with your preferred email.');
+        }
+
+        function editRoles() {
+            goToScreen('role');
+        }
+
+        function changePassword() {
+            showToast('Password changes are handled through your authentication provider. Please sign out and use "Forgot Password" if needed.');
+        }
+
+        function exportData() {
+            const data = {
+                user: AppState.user,
+                orders: AppState.orders.filter(o => o.customerEmail === AppState.user.email),
+                errands: AppState.errands.filter(e => e.requesterEmail === AppState.user.email),
+                applications: AppState.applications.filter(a => a.helperEmail === AppState.user.email),
+                products: AppState.products.filter(p => p.ownerEmail === AppState.user.email)
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `korean-commerce-data-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast('Data exported successfully');
+        }
+
         function renderVendorDashboard() {
             const metrics = AnalyticsEngine.getVendorMetrics(AppState.user.email);
             const myProducts = AppState.products.filter(product => product.ownerEmail === AppState.user.email);
@@ -7358,3 +7849,4 @@
 </body>
 </html>
 
+Non‑functional buttons/features
