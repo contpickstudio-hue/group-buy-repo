@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Korean Community Commerce</title>
+    <meta name="description" content="Korean Community Commerce platform for group buying and local errands in Canada">
+    <meta name="keywords" content="Korean, community, group buy, errands, Canada, 한인, 커뮤니티, 공동구매">
+    <title>Korean Community Commerce | 한인 커뮤니티 커머스</title>
     <!-- 
         ===========================================
         GOOGLE SIGN-IN SETUP INSTRUCTIONS:
@@ -108,6 +110,1064 @@
             z-index: 1000;
             user-select: none;
             pointer-events: none;
+        }
+
+        /* ============================================
+           MOBILE BOTTOM NAVIGATION
+           ============================================ */
+        .bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+            z-index: 300;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .bottom-nav-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 12px;
+            text-decoration: none;
+            color: #6b7280;
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: color 0.2s ease;
+            cursor: pointer;
+            min-width: 60px;
+        }
+
+        .bottom-nav-item.active {
+            color: #3b82f6;
+        }
+
+        .bottom-nav-item:hover {
+            color: #3b82f6;
+        }
+
+        .bottom-nav-icon {
+            font-size: 1.25rem;
+            margin-bottom: 2px;
+        }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: #3b82f6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+            cursor: pointer;
+            z-index: 250;
+            transition: all 0.3s ease;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5);
+        }
+
+        .fab:active {
+            transform: scale(0.95);
+        }
+
+        /* Touch-friendly form elements */
+        .form-input,
+        .form-select,
+        select,
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="number"],
+        input[type="date"],
+        input[type="datetime-local"],
+        textarea {
+            min-height: 44px;
+            font-size: 16px; /* Prevents zoom on iOS */
+            padding: 12px 16px;
+        }
+
+        .btn,
+        button {
+            min-height: 44px;
+            padding: 12px 20px;
+            font-size: 16px;
+        }
+
+        .primary-cta {
+            min-height: 48px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        /* Touch-friendly checkboxes and radio buttons */
+        .role-option {
+            min-height: 60px;
+            padding: 16px;
+        }
+
+        .role-icon {
+            width: 3rem;
+            height: 3rem;
+            font-size: 1.75rem;
+        }
+
+        /* Mobile-specific adjustments */
+        @media (max-width: 768px) {
+            /* Show bottom navigation */
+            .bottom-nav {
+                display: block;
+            }
+
+            /* Hide desktop navigation on mobile */
+            .navbar-links {
+                display: none;
+            }
+
+            /* Add bottom padding to main content */
+            main {
+                padding-bottom: 80px;
+            }
+
+            /* Adjust version info position */
+            .version-info {
+                bottom: 90px;
+                right: 20px;
+                z-index: 200;
+            }
+
+            /* Make dropdowns touch-friendly */
+            select {
+                appearance: none;
+                background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+                background-repeat: no-repeat;
+                background-position: right 12px center;
+                background-size: 16px;
+                padding-right: 40px;
+            }
+
+            /* Larger touch targets for list items */
+            .list-card,
+            .product-card,
+            .errand-card {
+                padding: 20px;
+                margin-bottom: 12px;
+            }
+
+            /* Sticky primary actions */
+            .screen-actions {
+                position: sticky;
+                bottom: 20px;
+                background: white;
+                padding: 16px 0;
+                margin-top: 20px;
+                border-top: 1px solid #e5e7eb;
+            }
+
+            /* Form improvements */
+            .form-group {
+                margin-bottom: 20px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            /* Modal adjustments */
+            .modal-content {
+                margin: 20px;
+                max-height: calc(100vh - 40px);
+                overflow-y: auto;
+            }
+
+            /* Card grid responsive */
+            .card-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            /* Navigation adjustments */
+            .navbar {
+                padding: 12px 0;
+            }
+
+            .navbar-container {
+                padding: 0 20px;
+            }
+
+            /* Thumb-friendly spacing */
+            .stacked-list .list-item {
+                padding: 16px 20px;
+            }
+
+            /* Better button spacing */
+            .btn + .btn {
+                margin-left: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            /* Extra small screens */
+            .fab {
+                bottom: 100px;
+                right: 16px;
+                width: 52px;
+                height: 52px;
+            }
+
+            .bottom-nav-item {
+                padding: 6px 8px;
+                min-width: 50px;
+            }
+
+            .bottom-nav-icon {
+                font-size: 1.1rem;
+            }
+
+            /* Compact form elements */
+            .form-input,
+            .btn {
+                min-height: 42px;
+            }
+
+            .primary-cta {
+                min-height: 46px;
+            }
+        }
+
+        /* ============================================
+           ACCESSIBILITY & LANGUAGE SUPPORT
+           ============================================ */
+        
+        /* High Contrast & Accessible Colors */
+        :root {
+            --primary-blue: #1d4ed8;
+            --primary-blue-hover: #1e40af;
+            --primary-blue-light: #dbeafe;
+            --success-green: #059669;
+            --success-green-light: #d1fae5;
+            --warning-orange: #d97706;
+            --warning-orange-light: #fed7aa;
+            --error-red: #dc2626;
+            --error-red-light: #fecaca;
+            --neutral-50: #f9fafb;
+            --neutral-100: #f3f4f6;
+            --neutral-200: #e5e7eb;
+            --neutral-300: #d1d5db;
+            --neutral-400: #9ca3af;
+            --neutral-500: #6b7280;
+            --neutral-600: #4b5563;
+            --neutral-700: #374151;
+            --neutral-800: #1f2937;
+            --neutral-900: #111827;
+        }
+
+        /* Language Toggle */
+        .language-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: white;
+            border: 2px solid var(--neutral-200);
+            border-radius: 8px;
+            padding: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .language-btn {
+            background: none;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            color: var(--neutral-600);
+        }
+
+        .language-btn:hover {
+            background: var(--neutral-100);
+            color: var(--neutral-800);
+        }
+
+        .language-btn.active {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .language-btn:focus {
+            outline: 2px solid var(--primary-blue);
+            outline-offset: 2px;
+        }
+
+        /* Screen Reader Only Content */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* Skip Links */
+        .skip-links {
+            position: absolute;
+            top: -40px;
+            left: 6px;
+            background: var(--primary-blue);
+            color: white;
+            padding: 8px;
+            text-decoration: none;
+            border-radius: 0 0 4px 4px;
+            z-index: 1000;
+            transition: top 0.3s;
+        }
+
+        .skip-links:focus {
+            top: 0;
+        }
+
+        /* Focus Indicators */
+        *:focus {
+            outline: 2px solid var(--primary-blue);
+            outline-offset: 2px;
+        }
+
+        button:focus,
+        input:focus,
+        select:focus,
+        textarea:focus,
+        a:focus {
+            outline: 2px solid var(--primary-blue);
+            outline-offset: 2px;
+        }
+
+        /* High Contrast Mode Support */
+        @media (prefers-contrast: high) {
+            :root {
+                --primary-blue: #0000ff;
+                --success-green: #008000;
+                --warning-orange: #ff8c00;
+                --error-red: #ff0000;
+                --neutral-800: #000000;
+                --neutral-600: #333333;
+            }
+            
+            .btn, .primary-cta {
+                border: 2px solid currentColor;
+            }
+        }
+
+        /* Reduced Motion Support */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+
+        /* Dark Mode Support */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --neutral-50: #1f2937;
+                --neutral-100: #374151;
+                --neutral-200: #4b5563;
+                --neutral-800: #f9fafb;
+                --neutral-900: #ffffff;
+            }
+            
+            body {
+                background-color: var(--neutral-50);
+                color: var(--neutral-900);
+            }
+            
+            .navbar, .search-filters, .modal-content {
+                background-color: var(--neutral-100);
+                border-color: var(--neutral-200);
+            }
+        }
+
+        /* Improved Color Contrast */
+        .primary-cta {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+        }
+
+        .primary-cta:hover {
+            background-color: var(--primary-blue-hover);
+        }
+
+        .btn-secondary {
+            background-color: white;
+            color: var(--neutral-700);
+            border: 2px solid var(--neutral-300);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--neutral-50);
+            border-color: var(--neutral-400);
+        }
+
+        .success-message {
+            background-color: var(--success-green-light);
+            color: var(--success-green);
+            border: 1px solid var(--success-green);
+        }
+
+        .warning-message {
+            background-color: var(--warning-orange-light);
+            color: var(--warning-orange);
+            border: 1px solid var(--warning-orange);
+        }
+
+        .error-message {
+            background-color: var(--error-red-light);
+            color: var(--error-red);
+            border: 1px solid var(--error-red);
+        }
+
+        /* Accessible Form Elements */
+        .form-input:invalid {
+            border-color: var(--error-red);
+            box-shadow: 0 0 0 3px var(--error-red-light);
+        }
+
+        .form-input:valid {
+            border-color: var(--success-green);
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--neutral-700);
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .form-error {
+            color: var(--error-red);
+            font-size: 0.875rem;
+            margin-top: 4px;
+            display: block;
+        }
+
+        /* Accessible Navigation */
+        .navbar-links a[aria-current="page"] {
+            background-color: var(--primary-blue-light);
+            color: var(--primary-blue);
+            font-weight: 600;
+        }
+
+        .bottom-nav-item[aria-current="page"] {
+            color: var(--primary-blue);
+            background-color: var(--primary-blue-light);
+        }
+
+        /* Accessible Toast Notifications */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            animation: slideInRight 0.3s ease;
+        }
+
+        .toast-info {
+            background-color: var(--primary-blue);
+        }
+
+        .toast-success {
+            background-color: var(--success-green);
+        }
+
+        .toast-warning {
+            background-color: var(--warning-orange);
+        }
+
+        .toast-error {
+            background-color: var(--error-red);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Improved fieldset styling */
+        fieldset {
+            border: 2px solid var(--neutral-200);
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+
+        legend {
+            padding: 0 8px;
+            font-weight: 600;
+            color: var(--neutral-700);
+        }
+
+        /* ============================================
+           ANALYTICS & INSIGHTS DASHBOARDS
+           ============================================ */
+        
+        .analytics-dashboard {
+            display: grid;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .metric-card {
+            background: white;
+            border: 1px solid var(--neutral-200);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .metric-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .metric-label {
+            font-size: 0.875rem;
+            color: var(--neutral-600);
+            font-weight: 500;
+        }
+
+        .metric-change {
+            font-size: 0.75rem;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        .metric-change.positive {
+            color: var(--success-green);
+        }
+
+        .metric-change.negative {
+            color: var(--error-red);
+        }
+
+        .metric-change.neutral {
+            color: var(--neutral-500);
+        }
+
+        .chart-container {
+            background: white;
+            border: 1px solid var(--neutral-200);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--neutral-800);
+        }
+
+        .chart-period {
+            font-size: 0.875rem;
+            color: var(--neutral-500);
+        }
+
+        .simple-bar-chart {
+            display: flex;
+            align-items: end;
+            gap: 8px;
+            height: 200px;
+            padding: 20px 0;
+        }
+
+        .bar {
+            flex: 1;
+            background: linear-gradient(to top, var(--primary-blue), var(--primary-blue-light));
+            border-radius: 4px 4px 0 0;
+            min-height: 4px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .bar:hover {
+            filter: brightness(1.1);
+        }
+
+        .bar-label {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            color: var(--neutral-600);
+            white-space: nowrap;
+        }
+
+        .bar-value {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--neutral-700);
+            background: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .bar:hover .bar-value {
+            opacity: 1;
+        }
+
+        .category-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+        }
+
+        .category-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: var(--neutral-50);
+            border-radius: 8px;
+        }
+
+        .category-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .category-name {
+            font-size: 0.875rem;
+            color: var(--neutral-700);
+            flex: 1;
+        }
+
+        .category-value {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--neutral-800);
+        }
+
+        .insights-list {
+            background: white;
+            border: 1px solid var(--neutral-200);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .insight-item {
+            display: flex;
+            align-items: start;
+            gap: 12px;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--neutral-100);
+        }
+
+        .insight-item:last-child {
+            border-bottom: none;
+        }
+
+        .insight-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .insight-icon.success {
+            background: var(--success-green-light);
+            color: var(--success-green);
+        }
+
+        .insight-icon.warning {
+            background: var(--warning-orange-light);
+            color: var(--warning-orange);
+        }
+
+        .insight-icon.info {
+            background: var(--primary-blue-light);
+            color: var(--primary-blue);
+        }
+
+        .insight-content {
+            flex: 1;
+        }
+
+        .insight-title {
+            font-weight: 600;
+            color: var(--neutral-800);
+            margin-bottom: 4px;
+        }
+
+        .insight-description {
+            font-size: 0.875rem;
+            color: var(--neutral-600);
+            line-height: 1.4;
+        }
+
+        .top-items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .top-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--neutral-50);
+            border-radius: 8px;
+        }
+
+        .top-item-rank {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--primary-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .top-item-info {
+            flex: 1;
+        }
+
+        .top-item-name {
+            font-weight: 500;
+            color: var(--neutral-800);
+            margin-bottom: 2px;
+        }
+
+        .top-item-meta {
+            font-size: 0.75rem;
+            color: var(--neutral-500);
+        }
+
+        .top-item-value {
+            font-weight: 600;
+            color: var(--primary-blue);
+        }
+
+        @media (max-width: 768px) {
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .metric-card {
+                padding: 16px;
+            }
+
+            .metric-value {
+                font-size: 1.5rem;
+            }
+
+            .chart-container {
+                padding: 16px;
+            }
+
+            .simple-bar-chart {
+                height: 150px;
+            }
+
+            .category-breakdown {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ============================================
+           ENHANCED SEARCH & FILTERS
+           ============================================ */
+        .search-filters {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .search-bar {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px 12px 44px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+            font-size: 1.1rem;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .filter-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .filter-select {
+            padding: 10px 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.2s ease;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .filter-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .filter-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-chip:hover {
+            background: #dbeafe;
+        }
+
+        .filter-chip.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .filter-chip .remove-icon {
+            font-size: 0.75rem;
+            opacity: 0.7;
+        }
+
+        .filter-chip .remove-icon:hover {
+            opacity: 1;
+        }
+
+        .quick-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .quick-filter {
+            padding: 8px 16px;
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .quick-filter:hover {
+            background: #e5e7eb;
+        }
+
+        .quick-filter.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .results-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding: 12px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .results-count {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .sort-dropdown {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.875rem;
+        }
+
+        .category-icon {
+            font-size: 1.1rem;
+            margin-right: 6px;
+        }
+
+        .popularity-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.75rem;
+            color: #f59e0b;
+            font-weight: 500;
+        }
+
+        .trending-badge {
+            background: linear-gradient(45deg, #f59e0b, #d97706);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .filter-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .search-filters {
+                padding: 16px;
+                margin-bottom: 16px;
+            }
+
+            .quick-filters {
+                justify-content: center;
+            }
+
+            .results-summary {
+                flex-direction: column;
+                gap: 8px;
+                align-items: flex-start;
+            }
         }
 
         .profile-pill {
@@ -229,6 +1289,97 @@
         .auth-options {
             max-width: 420px;
             margin: 0 auto;
+        }
+
+        /* Streamlined Form Layout */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .optional-text {
+            font-size: 0.85rem;
+            color: #6b7280;
+            font-weight: normal;
+        }
+
+        /* Compact Role Selection */
+        .role-selection-compact {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .role-checkbox {
+            cursor: pointer;
+            display: block;
+        }
+
+        .role-checkbox input[type="checkbox"] {
+            display: none;
+        }
+
+        .role-option {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            background: white;
+        }
+
+        .role-checkbox:hover .role-option {
+            border-color: #3b82f6;
+            background: #f8faff;
+        }
+
+        .role-checkbox input[type="checkbox"]:checked + .role-option {
+            border-color: #3b82f6;
+            background: #eff6ff;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .role-icon {
+            font-size: 1.5rem;
+            width: 2.5rem;
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f3f4f6;
+            border-radius: 6px;
+            flex-shrink: 0;
+        }
+
+        .role-checkbox input[type="checkbox"]:checked + .role-option .role-icon {
+            background: #dbeafe;
+        }
+
+        .role-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .role-info strong {
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .role-info span {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        @media (max-width: 480px) {
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
         }
 
         .view-content {
@@ -833,20 +1984,66 @@
     </style>
 </head>
 <body>
+    <!-- Skip Links for Accessibility -->
+    <a href="#main-content" class="skip-links">Skip to main content</a>
+    
+    <!-- Language Toggle -->
+    <div class="language-toggle" role="group" aria-label="Language selection">
+        <button class="language-btn active" onclick="setLanguage('en')" aria-label="Switch to English">
+            EN
+        </button>
+        <button class="language-btn" onclick="setLanguage('ko')" aria-label="한국어로 변경">
+            한국어
+        </button>
+    </div>
+
     <!-- Navigation Bar -->
-    <nav class="navbar">
+    <nav class="navbar" role="navigation" aria-label="Main navigation">
         <div class="navbar-container">
-            <a href="#" class="navbar-brand" onclick="goToScreen('start'); return false;">Korean Community Commerce</a>
-            <div class="navbar-links" id="navbar-links"></div>
+            <a href="#" class="navbar-brand" onclick="goToScreen('start'); return false;" data-i18n="nav.brand">Korean Community Commerce</a>
+            <div class="navbar-links" id="navbar-links" role="menubar"></div>
             <div class="navbar-actions" id="navbar-actions">
                 <!-- Populated by JS -->
             </div>
         </div>
     </nav>
 
+    <!-- Mobile Bottom Navigation -->
+    <nav class="bottom-nav" id="bottom-nav" role="navigation" aria-label="Mobile navigation">
+        <div class="bottom-nav-container">
+            <a href="#" class="bottom-nav-item" onclick="goToScreen('browse'); return false;" 
+               data-screen="browse" role="menuitem" aria-label="Go to home page">
+                <div class="bottom-nav-icon" aria-hidden="true">🏠</div>
+                <span data-i18n="nav.home">Home</span>
+            </a>
+            <a href="#" class="bottom-nav-item" onclick="goToScreen('group-buys'); return false;" 
+               data-screen="group-buys" role="menuitem" aria-label="Go to group buys">
+                <div class="bottom-nav-icon" aria-hidden="true">🛒</div>
+                <span data-i18n="nav.groupbuys">Group Buys</span>
+            </a>
+            <a href="#" class="bottom-nav-item" onclick="goToScreen('errands'); return false;" 
+               data-screen="errands" role="menuitem" aria-label="Go to errands">
+                <div class="bottom-nav-icon" aria-hidden="true">🤝</div>
+                <span data-i18n="nav.errands">Errands</span>
+            </a>
+            <a href="#" class="bottom-nav-item" onclick="goToScreen('dashboard'); return false;" 
+               data-screen="dashboard" role="menuitem" aria-label="Go to dashboard">
+                <div class="bottom-nav-icon" aria-hidden="true">👤</div>
+                <span data-i18n="nav.profile">Profile</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Floating Action Button -->
+    <button class="fab" id="fab" onclick="handleFabClick()" 
+            data-i18n-title="common.create" title="Quick Action"
+            aria-label="Quick action button">
+        <span aria-hidden="true">➕</span>
+    </button>
+
     <!-- Version Info -->
-    <div class="version-info" title="Multi-User Platform v2.0.0 - Supabase Integration">
-        v2.0.0
+    <div class="version-info" title="Multi-User Platform v2.5.0 - Data Analytics & Insights Dashboards">
+        v2.5.0
     </div>
 
     <main class="app-shell">
@@ -869,32 +2066,79 @@
         <!-- Screen: Authentication -->
         <section class="screen" id="screen-auth">
             <div class="screen-header">
-                <p class="screen-subtitle">Step 1 of 3</p>
-                <h2 class="screen-heading">Create your account</h2>
-                <p class="screen-subtitle">Choose Google login or continue with your email</p>
+                <h2 class="screen-heading">Join Korean Community Commerce</h2>
+                <p class="screen-subtitle">Connect with your community through group buys and local errands</p>
             </div>
+            
+            <!-- Quick Sign-in Options -->
             <div class="auth-options">
                 <div class="google-signin-container" style="text-align:center; margin-bottom: 1.5rem;">
                     <div id="google-signin-button"></div>
                 </div>
-                <div class="divider"><span>or</span></div>
-                <form id="email-auth-form" onsubmit="handleEmailSignUp(event)">
-                    <div class="form-group" id="full-name-group">
-                        <label class="form-label" for="full-name">Full Name</label>
-                        <input id="full-name" class="form-input" type="text" placeholder="e.g., Soo Jin Park" required>
+                <div class="divider"><span>or continue with email</span></div>
+                
+                <!-- Streamlined Form -->
+                <form id="email-auth-form" onsubmit="handleStreamlinedSignUp(event)">
+                    <div class="form-row">
+                        <div class="form-group" id="full-name-group">
+                            <label class="form-label" for="full-name">Name</label>
+                            <input id="full-name" class="form-input" type="text" placeholder="Your name" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="email-address">Email</label>
-                        <input id="email-address" class="form-input" type="email" placeholder="name@email.com" required>
+                            <input id="email-address" class="form-input" type="email" placeholder="your@email.com" required>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="password-input">Password</label>
-                        <input id="password-input" class="form-input" type="password" placeholder="Minimum 6 characters" minlength="6" required>
+                        <input id="password-input" class="form-input" type="password" placeholder="6+ characters" minlength="6" required>
                     </div>
+                    
+                    <!-- Integrated Role Selection -->
+                    <div class="form-group">
+                        <label class="form-label">How will you participate? <span class="optional-text">(Select all that apply)</span></label>
+                        <div class="role-selection-compact">
+                            <label class="role-checkbox">
+                                <input type="checkbox" name="roles" value="customer" id="role-customer">
+                                <div class="role-option">
+                                    <div class="role-icon">🛒</div>
+                                    <div class="role-info">
+                                        <strong>Customer</strong>
+                                        <span>Join group buys & request errands</span>
+                                    </div>
+                                </div>
+                            </label>
+                            <label class="role-checkbox">
+                                <input type="checkbox" name="roles" value="vendor" id="role-vendor">
+                                <div class="role-option">
+                                    <div class="role-icon">🏪</div>
+                                    <div class="role-info">
+                                        <strong>Vendor</strong>
+                                        <span>Create group buys & sell products</span>
+                                    </div>
+                                </div>
+                            </label>
+                            <label class="role-checkbox">
+                                <input type="checkbox" name="roles" value="helper" id="role-helper">
+                                <div class="role-option">
+                                    <div class="role-icon">🤝</div>
+                                    <div class="role-info">
+                                        <strong>Helper</strong>
+                                        <span>Run errands & earn money</span>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
                     <div id="verification-message" class="screen-subtitle" style="display:none; margin-bottom: 1rem; color:#059669;">
                         We sent you a verification email. Please check your inbox.
                     </div>
-                    <button type="submit" class="primary-cta" style="width:100%;" id="auth-submit-btn">Continue</button>
+                    
+                    <button type="submit" class="primary-cta" style="width:100%;" id="auth-submit-btn">
+                        Get Started
+                    </button>
+                    
                     <div style="text-align: center; margin-top: 1rem;">
                         <button type="button" class="btn btn-secondary" onclick="toggleAuthMode()" id="auth-mode-toggle">
                             Already have an account? Sign in
@@ -971,31 +2215,107 @@
             <div class="screen-header">
                 <p class="screen-subtitle">Community bulk orders</p>
                 <h2 class="screen-heading">Group Buy Marketplace</h2>
-                <p class="screen-subtitle">Filter by region, compare deals, and join with confidence.</p>
+                <p class="screen-subtitle">Find deals by category, price, and popularity</p>
             </div>
-            <div class="filter-bar">
-                <input id="groupbuy-search" class="form-input" type="text" placeholder="Search products..." oninput="handleGroupBuySearch(event)">
-                <select id="groupbuy-region" class="form-select" onchange="handleGroupBuyRegion(event)">
+            
+            <!-- Enhanced Search & Filters -->
+            <div class="search-filters">
+                <div class="search-bar">
+                    <div class="search-icon">🔍</div>
+                    <input id="groupbuy-search" class="search-input" type="text" placeholder="Search products, brands, or descriptions..." oninput="handleGroupBuySearch(event)">
+                </div>
+                
+                <!-- Quick Category Filters -->
+                <div class="quick-filters">
+                    <div class="quick-filter active" onclick="handleCategoryFilter('all')">
+                        📦 All Categories
+                    </div>
+                    <div class="quick-filter" onclick="handleCategoryFilter('food')">
+                        🍜 Food & Beverages
+                    </div>
+                    <div class="quick-filter" onclick="handleCategoryFilter('household')">
+                        🏠 Household
+                    </div>
+                    <div class="quick-filter" onclick="handleCategoryFilter('beauty')">
+                        💄 Beauty
+                    </div>
+                    <div class="quick-filter" onclick="handleCategoryFilter('electronics')">
+                        📱 Electronics
+                    </div>
+                </div>
+                
+                <!-- Detailed Filters -->
+                <div class="filter-grid">
+                    <div class="filter-group">
+                        <label class="filter-label">Category</label>
+                        <select id="groupbuy-category" class="filter-select" onchange="handleGroupBuyCategory(event)">
+                            <option value="all">All Categories</option>
+                            <option value="food">🍜 Food & Beverages</option>
+                            <option value="household">🏠 Household Items</option>
+                            <option value="beauty">💄 Beauty & Personal Care</option>
+                            <option value="electronics">📱 Electronics</option>
+                            <option value="clothing">👕 Clothing & Accessories</option>
+                            <option value="books">📚 Books & Media</option>
+                            <option value="health">💊 Health & Wellness</option>
+                            <option value="baby">🍼 Baby & Kids</option>
+                            <option value="sports">⚽ Sports & Outdoors</option>
+                            <option value="other">📦 Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">Price Range</label>
+                        <select id="groupbuy-price" class="filter-select" onchange="handleGroupBuyPrice(event)">
+                            <option value="all">Any Price</option>
+                            <option value="under-25">Under $25</option>
+                            <option value="25-50">$25 - $50</option>
+                            <option value="50-100">$50 - $100</option>
+                            <option value="100-200">$100 - $200</option>
+                            <option value="over-200">Over $200</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">Region</label>
+                        <select id="groupbuy-region" class="filter-select" onchange="handleGroupBuyRegion(event)">
                     <option value="All">All Regions</option>
                     <option value="Toronto">Toronto</option>
                     <option value="Hamilton">Hamilton</option>
                     <option value="Niagara">Niagara</option>
                 </select>
-                <select id="groupbuy-vendor" class="form-select" onchange="handleGroupBuyVendor(event)">
-                    <option value="All">All Vendors</option>
-                    <option value="Soo Fresh Imports">Soo Fresh Imports</option>
-                    <option value="Han Market">Han Market</option>
-                    <option value="Island Co-op">Island Co-op</option>
-                    <option value="Harbor Foods">Harbor Foods</option>
-                    <option value="Taste of Seou">Taste of Seou</option>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">Status</label>
+                        <select id="groupbuy-status" class="filter-select" onchange="handleGroupBuyStatus(event)">
+                            <option value="all">All Status</option>
+                            <option value="open">🟢 Open</option>
+                            <option value="closing-soon">⏰ Closing Soon</option>
+                            <option value="almost-full">🔥 Almost Full</option>
+                            <option value="new">✨ New This Week</option>
                 </select>
-                <select id="groupbuy-sort" class="form-select" onchange="handleGroupBuySort(event)">
-                    <option value="deadline">Sort by Deadline</option>
-                    <option value="priceLow">Price: Low to High</option>
-                    <option value="priceHigh">Price: High to Low</option>
-                    <option value="progress">Progress</option>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Results Summary & Sort -->
+            <div class="results-summary">
+                <div class="results-count" id="groupbuy-results-count">
+                    Loading products...
+                </div>
+                <div class="sort-dropdown">
+                    <label>Sort by:</label>
+                    <select id="groupbuy-sort" class="filter-select" onchange="handleGroupBuySort(event)">
+                        <option value="popularity">🔥 Popularity</option>
+                        <option value="deadline">⏰ Deadline</option>
+                        <option value="priceLow">💰 Price: Low to High</option>
+                        <option value="priceHigh">💰 Price: High to Low</option>
+                        <option value="progress">📊 Progress</option>
+                        <option value="newest">✨ Newest</option>
                 </select>
             </div>
+            </div>
+            
             <div class="card-grid" id="groupbuy-list"></div>
         </section>
 
@@ -1045,25 +2365,100 @@
                     <button class="primary-cta" style="width:100%;">Post Errand</button>
                 </form>
             </div>
-            <div class="filter-bar">
-                <select id="errand-region-filter" class="form-select" onchange="handleErrandRegion(event)">
-                    <option value="All">All Regions</option>
-                    <option value="Toronto">Toronto</option>
-                    <option value="Hamilton">Hamilton</option>
-                    <option value="Niagara">Niagara</option>
-                </select>
-                <select id="errand-status-filter" class="form-select" onchange="handleErrandStatus(event)">
-                    <option value="open">Open errands</option>
-                    <option value="matched">Matched</option>
-                    <option value="in_progress">In progress</option>
-                    <option value="completed">Completed</option>
-                    <option value="all">All statuses</option>
-                </select>
-                <select id="errand-sort" class="form-select" onchange="handleErrandSort(event)">
-                    <option value="newest">Newest first</option>
-                    <option value="budgetHigh">Budget high → low</option>
-                    <option value="budgetLow">Budget low → high</option>
-                </select>
+            <!-- Enhanced Errand Filters -->
+            <div class="search-filters">
+                <div class="search-bar">
+                    <div class="search-icon">🔍</div>
+                    <input id="errand-search" class="search-input" type="text" placeholder="Search errands, locations, or descriptions..." oninput="handleErrandSearch(event)">
+                </div>
+                
+                <!-- Quick Category Filters -->
+                <div class="quick-filters">
+                    <div class="quick-filter active" onclick="handleErrandCategoryFilter('all')">
+                        🤝 All Tasks
+                    </div>
+                    <div class="quick-filter" onclick="handleErrandCategoryFilter('shopping')">
+                        🛒 Shopping
+                    </div>
+                    <div class="quick-filter" onclick="handleErrandCategoryFilter('delivery')">
+                        🚚 Delivery
+                    </div>
+                    <div class="quick-filter" onclick="handleErrandCategoryFilter('cleaning')">
+                        🧹 Cleaning
+                    </div>
+                    <div class="quick-filter" onclick="handleErrandCategoryFilter('tech')">
+                        💻 Tech Help
+                    </div>
+                </div>
+                
+                <!-- Detailed Filters -->
+                <div class="filter-grid">
+                    <div class="filter-group">
+                        <label class="filter-label">Category</label>
+                        <select id="errand-category" class="filter-select" onchange="handleErrandCategory(event)">
+                            <option value="all">All Categories</option>
+                            <option value="shopping">🛒 Shopping & Pickup</option>
+                            <option value="delivery">🚚 Delivery</option>
+                            <option value="cleaning">🧹 Cleaning</option>
+                            <option value="moving">📦 Moving & Transport</option>
+                            <option value="pet">🐕 Pet Care</option>
+                            <option value="tech">💻 Tech Support</option>
+                            <option value="handyman">🔧 Handyman</option>
+                            <option value="tutoring">📖 Tutoring & Teaching</option>
+                            <option value="other">🤝 Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">Budget Range</label>
+                        <select id="errand-price" class="filter-select" onchange="handleErrandPrice(event)">
+                            <option value="all">Any Budget</option>
+                            <option value="under-25">Under $25</option>
+                            <option value="25-50">$25 - $50</option>
+                            <option value="50-100">$50 - $100</option>
+                            <option value="100-200">$100 - $200</option>
+                            <option value="over-200">Over $200</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">Region</label>
+                        <select id="errand-region-filter" class="filter-select" onchange="handleErrandRegion(event)">
+                            <option value="All">All Regions</option>
+                            <option value="Toronto">Toronto</option>
+                            <option value="Hamilton">Hamilton</option>
+                            <option value="Niagara">Niagara</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">Status</label>
+                        <select id="errand-status-filter" class="filter-select" onchange="handleErrandStatus(event)">
+                            <option value="open">🟢 Open</option>
+                            <option value="matched">🤝 Matched</option>
+                            <option value="in_progress">⏳ In Progress</option>
+                            <option value="completed">✅ Completed</option>
+                            <option value="all">📋 All Statuses</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Results Summary & Sort -->
+            <div class="results-summary">
+                <div class="results-count" id="errand-results-count">
+                    Loading errands...
+                </div>
+                <div class="sort-dropdown">
+                    <label>Sort by:</label>
+                    <select id="errand-sort" class="filter-select" onchange="handleErrandSort(event)">
+                        <option value="newest">✨ Newest First</option>
+                        <option value="budgetHigh">💰 Budget: High to Low</option>
+                        <option value="budgetLow">💰 Budget: Low to High</option>
+                        <option value="deadline">⏰ Deadline</option>
+                        <option value="popularity">🔥 Most Applications</option>
+                    </select>
+                </div>
             </div>
             <div class="card-grid" id="errand-list"></div>
         </section>
@@ -1193,18 +2588,895 @@
                 search: '',
                 region: 'All',
                 sort: 'deadline',
-                vendor: 'All'
+                vendor: 'All',
+                category: 'all',
+                priceRange: 'all',
+                status: 'all'
             },
             errands: {
                 region: 'All',
                 status: 'open',
-                sort: 'newest'
+                sort: 'newest',
+                priceRange: 'all',
+                category: 'all',
+                search: ''
             },
             vendorOrders: {
                 status: 'all',
                 search: ''
             }
         });
+
+        const ProductCategories = {
+            'food': { name: 'Food & Beverages', icon: '🍜' },
+            'household': { name: 'Household Items', icon: '🏠' },
+            'beauty': { name: 'Beauty & Personal Care', icon: '💄' },
+            'electronics': { name: 'Electronics', icon: '📱' },
+            'clothing': { name: 'Clothing & Accessories', icon: '👕' },
+            'books': { name: 'Books & Media', icon: '📚' },
+            'health': { name: 'Health & Wellness', icon: '💊' },
+            'baby': { name: 'Baby & Kids', icon: '🍼' },
+            'sports': { name: 'Sports & Outdoors', icon: '⚽' },
+            'other': { name: 'Other', icon: '📦' }
+        };
+
+        const ErrandCategories = {
+            'shopping': { name: 'Shopping & Pickup', icon: '🛒' },
+            'delivery': { name: 'Delivery', icon: '🚚' },
+            'cleaning': { name: 'Cleaning', icon: '🧹' },
+            'moving': { name: 'Moving & Transport', icon: '📦' },
+            'pet': { name: 'Pet Care', icon: '🐕' },
+            'tech': { name: 'Tech Support', icon: '💻' },
+            'handyman': { name: 'Handyman', icon: '🔧' },
+            'tutoring': { name: 'Tutoring & Teaching', icon: '📖' },
+            'other': { name: 'Other', icon: '🤝' }
+        };
+
+        const PriceRanges = {
+            'under-25': { name: 'Under $25', min: 0, max: 25 },
+            '25-50': { name: '$25 - $50', min: 25, max: 50 },
+            '50-100': { name: '$50 - $100', min: 50, max: 100 },
+            '100-200': { name: '$100 - $200', min: 100, max: 200 },
+            'over-200': { name: 'Over $200', min: 200, max: Infinity }
+        };
+
+        // Language Support
+        let currentLanguage = localStorage.getItem('preferred-language') || 'en';
+
+        const translations = {
+            en: {
+                // Navigation
+                'nav.home': 'Home',
+                'nav.groupbuys': 'Group Buys',
+                'nav.errands': 'Errands',
+                'nav.dashboard': 'Dashboard',
+                'nav.profile': 'Profile',
+                
+                // Authentication
+                'auth.title': 'Join Korean Community Commerce',
+                'auth.subtitle': 'Connect with your community through group buys and local errands',
+                'auth.google': 'Continue with Google',
+                'auth.or': 'or continue with email',
+                'auth.name': 'Name',
+                'auth.email': 'Email',
+                'auth.password': 'Password',
+                'auth.signup': 'Get Started',
+                'auth.signin': 'Sign In',
+                'auth.toggle.signin': 'Already have an account? Sign in',
+                'auth.toggle.signup': "Don't have an account? Sign up",
+                'auth.roles.title': 'How will you participate?',
+                'auth.roles.subtitle': '(Select all that apply)',
+                
+                // Roles
+                'role.customer': 'Customer',
+                'role.customer.desc': 'Join group buys & request errands',
+                'role.vendor': 'Vendor',
+                'role.vendor.desc': 'Create group buys & sell products',
+                'role.helper': 'Helper',
+                'role.helper.desc': 'Run errands & earn money',
+                
+                // Categories
+                'category.food': 'Food & Beverages',
+                'category.household': 'Household Items',
+                'category.beauty': 'Beauty & Personal Care',
+                'category.electronics': 'Electronics',
+                'category.clothing': 'Clothing & Accessories',
+                'category.books': 'Books & Media',
+                'category.health': 'Health & Wellness',
+                'category.baby': 'Baby & Kids',
+                'category.sports': 'Sports & Outdoors',
+                'category.other': 'Other',
+                
+                // Errand Categories
+                'errand.shopping': 'Shopping & Pickup',
+                'errand.delivery': 'Delivery',
+                'errand.cleaning': 'Cleaning',
+                'errand.moving': 'Moving & Transport',
+                'errand.pet': 'Pet Care',
+                'errand.tech': 'Tech Support',
+                'errand.handyman': 'Handyman',
+                'errand.tutoring': 'Tutoring & Teaching',
+                
+                // Common
+                'common.search': 'Search',
+                'common.filter': 'Filter',
+                'common.sort': 'Sort by',
+                'common.all': 'All',
+                'common.loading': 'Loading...',
+                'common.cancel': 'Cancel',
+                'common.save': 'Save',
+                'common.delete': 'Delete',
+                'common.edit': 'Edit',
+                'common.view': 'View',
+                'common.create': 'Create',
+                'common.join': 'Join',
+                'common.apply': 'Apply',
+                'common.close': 'Close',
+                
+                // Accessibility
+                'a11y.menu': 'Main menu',
+                'a11y.search': 'Search products and errands',
+                'a11y.filter': 'Filter results',
+                'a11y.sort': 'Sort results',
+                'a11y.language': 'Change language',
+                'a11y.profile': 'User profile menu',
+                'a11y.close': 'Close dialog',
+                'a11y.expand': 'Expand section',
+                'a11y.collapse': 'Collapse section'
+            },
+            ko: {
+                // Navigation
+                'nav.home': '홈',
+                'nav.groupbuys': '공동구매',
+                'nav.errands': '심부름',
+                'nav.dashboard': '대시보드',
+                'nav.profile': '프로필',
+                
+                // Authentication
+                'auth.title': '한인 커뮤니티 커머스 가입',
+                'auth.subtitle': '공동구매와 지역 심부름을 통해 커뮤니티와 연결하세요',
+                'auth.google': 'Google로 계속하기',
+                'auth.or': '또는 이메일로 계속하기',
+                'auth.name': '이름',
+                'auth.email': '이메일',
+                'auth.password': '비밀번호',
+                'auth.signup': '시작하기',
+                'auth.signin': '로그인',
+                'auth.toggle.signin': '이미 계정이 있으신가요? 로그인',
+                'auth.toggle.signup': '계정이 없으신가요? 가입하기',
+                'auth.roles.title': '어떻게 참여하시겠어요?',
+                'auth.roles.subtitle': '(해당하는 모든 항목 선택)',
+                
+                // Roles
+                'role.customer': '구매자',
+                'role.customer.desc': '공동구매 참여 & 심부름 요청',
+                'role.vendor': '판매자',
+                'role.vendor.desc': '공동구매 생성 & 상품 판매',
+                'role.helper': '도우미',
+                'role.helper.desc': '심부름 수행 & 수익 창출',
+                
+                // Categories
+                'category.food': '식품 & 음료',
+                'category.household': '생활용품',
+                'category.beauty': '뷰티 & 개인관리',
+                'category.electronics': '전자제품',
+                'category.clothing': '의류 & 액세서리',
+                'category.books': '도서 & 미디어',
+                'category.health': '건강 & 웰니스',
+                'category.baby': '유아 & 아동',
+                'category.sports': '스포츠 & 아웃도어',
+                'category.other': '기타',
+                
+                // Errand Categories
+                'errand.shopping': '쇼핑 & 픽업',
+                'errand.delivery': '배달',
+                'errand.cleaning': '청소',
+                'errand.moving': '이사 & 운송',
+                'errand.pet': '펫케어',
+                'errand.tech': '기술 지원',
+                'errand.handyman': '수리',
+                'errand.tutoring': '과외 & 교육',
+                
+                // Common
+                'common.search': '검색',
+                'common.filter': '필터',
+                'common.sort': '정렬',
+                'common.all': '전체',
+                'common.loading': '로딩 중...',
+                'common.cancel': '취소',
+                'common.save': '저장',
+                'common.delete': '삭제',
+                'common.edit': '수정',
+                'common.view': '보기',
+                'common.create': '생성',
+                'common.join': '참여',
+                'common.apply': '신청',
+                'common.close': '닫기',
+                
+                // Accessibility
+                'a11y.menu': '메인 메뉴',
+                'a11y.search': '상품 및 심부름 검색',
+                'a11y.filter': '결과 필터링',
+                'a11y.sort': '결과 정렬',
+                'a11y.language': '언어 변경',
+                'a11y.profile': '사용자 프로필 메뉴',
+                'a11y.close': '대화상자 닫기',
+                'a11y.expand': '섹션 펼치기',
+                'a11y.collapse': '섹션 접기'
+            }
+        };
+
+        function t(key, fallback = key) {
+            return translations[currentLanguage]?.[key] || translations.en[key] || fallback;
+        }
+
+        function setLanguage(lang) {
+            if (translations[lang]) {
+                currentLanguage = lang;
+                localStorage.setItem('preferred-language', lang);
+                document.documentElement.lang = lang;
+                updateUILanguage();
+            }
+        }
+
+        function updateUILanguage() {
+            // Update all elements with data-i18n attribute
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                element.textContent = t(key);
+            });
+            
+            // Update placeholders
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+                const key = element.getAttribute('data-i18n-placeholder');
+                element.placeholder = t(key);
+            });
+            
+            // Update aria-labels
+            document.querySelectorAll('[data-i18n-aria]').forEach(element => {
+                const key = element.getAttribute('data-i18n-aria');
+                element.setAttribute('aria-label', t(key));
+            });
+            
+            // Update titles
+            document.querySelectorAll('[data-i18n-title]').forEach(element => {
+                const key = element.getAttribute('data-i18n-title');
+                element.title = t(key);
+            });
+        }
+
+        // Analytics & Insights System
+        const AnalyticsEngine = {
+            // Vendor Analytics
+            getVendorMetrics(vendorEmail) {
+                const vendorProducts = AppState.products.filter(p => p.ownerEmail === vendorEmail);
+                const vendorOrders = AppState.orders.filter(o => {
+                    const product = AppState.products.find(p => p.id === o.productId);
+                    return product && product.ownerEmail === vendorEmail;
+                });
+                
+                const totalRevenue = vendorOrders.reduce((sum, order) => sum + (order.totalPrice || order.total || 0), 0);
+                const totalProducts = vendorProducts.length;
+                const totalOrders = vendorOrders.length;
+                const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+                
+                // Conversion metrics
+                const productViews = vendorProducts.reduce((sum, p) => sum + (p.views || 0), 0);
+                const conversionRate = productViews > 0 ? (totalOrders / productViews) * 100 : 0;
+                
+                // Success rate (products that reached target)
+                const successfulProducts = vendorProducts.filter(p => {
+                    const progress = (p.currentQuantity / p.targetQuantity) * 100;
+                    return progress >= 100;
+                }).length;
+                const successRate = totalProducts > 0 ? (successfulProducts / totalProducts) * 100 : 0;
+                
+                // Time-based metrics
+                const last30Days = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+                const recentOrders = vendorOrders.filter(o => new Date(o.createdAt) > last30Days);
+                const monthlyRevenue = recentOrders.reduce((sum, order) => sum + (order.totalPrice || order.total || 0), 0);
+                
+                return {
+                    totalRevenue,
+                    monthlyRevenue,
+                    totalProducts,
+                    totalOrders,
+                    avgOrderValue,
+                    conversionRate,
+                    successRate,
+                    recentOrders: recentOrders.length,
+                    topProducts: this.getTopProducts(vendorProducts),
+                    revenueByCategory: this.getRevenueByCategory(vendorProducts, vendorOrders),
+                    monthlyTrend: this.getMonthlyTrend(vendorOrders)
+                };
+            },
+            
+            // Helper Analytics
+            getHelperMetrics(helperEmail) {
+                const helperApplications = AppState.applications.filter(a => a.helperEmail === helperEmail);
+                const acceptedApplications = helperApplications.filter(a => a.status === 'accepted');
+                const completedErrands = AppState.errands.filter(e => 
+                    e.assignedHelperEmail === helperEmail && e.status === 'completed'
+                );
+                
+                const totalEarnings = completedErrands.reduce((sum, errand) => {
+                    const application = helperApplications.find(a => a.errandId === errand.id);
+                    return sum + (application?.offerAmount || errand.budget || 0);
+                }, 0);
+                
+                const totalApplications = helperApplications.length;
+                const acceptanceRate = totalApplications > 0 ? (acceptedApplications.length / totalApplications) * 100 : 0;
+                const completionRate = acceptedApplications.length > 0 ? (completedErrands.length / acceptedApplications.length) * 100 : 0;
+                
+                // Time-based metrics
+                const last30Days = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+                const recentErrands = completedErrands.filter(e => new Date(e.createdAt) > last30Days);
+                const monthlyEarnings = recentErrands.reduce((sum, errand) => {
+                    const application = helperApplications.find(a => a.errandId === errand.id);
+                    return sum + (application?.offerAmount || errand.budget || 0);
+                }, 0);
+                
+                const avgEarningsPerErrand = completedErrands.length > 0 ? totalEarnings / completedErrands.length : 0;
+                
+                return {
+                    totalEarnings,
+                    monthlyEarnings,
+                    totalApplications,
+                    acceptedApplications: acceptedApplications.length,
+                    completedErrands: completedErrands.length,
+                    acceptanceRate,
+                    completionRate,
+                    avgEarningsPerErrand,
+                    categoryBreakdown: this.getHelperCategoryBreakdown(completedErrands),
+                    earningsTrend: this.getHelperEarningsTrend(completedErrands, helperApplications)
+                };
+            },
+            
+            // Customer Analytics
+            getCustomerMetrics(customerEmail) {
+                const customerOrders = AppState.orders.filter(o => o.customerEmail === customerEmail);
+                const customerErrands = AppState.errands.filter(e => e.requesterEmail === customerEmail);
+                
+                const totalSpent = customerOrders.reduce((sum, order) => sum + (order.totalPrice || order.total || 0), 0);
+                const totalSavings = this.calculateGroupBuySavings(customerOrders);
+                const totalOrders = customerOrders.length;
+                const totalErrands = customerErrands.length;
+                
+                // Group buy participation
+                const groupBuyOrders = customerOrders.filter(o => {
+                    const product = AppState.products.find(p => p.id === o.productId);
+                    return product && product.currentQuantity > 1;
+                });
+                const groupBuyParticipation = totalOrders > 0 ? (groupBuyOrders.length / totalOrders) * 100 : 0;
+                
+                // Time-based metrics
+                const last30Days = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+                const recentOrders = customerOrders.filter(o => new Date(o.createdAt) > last30Days);
+                const monthlySpent = recentOrders.reduce((sum, order) => sum + (order.totalPrice || order.total || 0), 0);
+                
+                return {
+                    totalSpent,
+                    totalSavings,
+                    monthlySpent,
+                    totalOrders,
+                    totalErrands,
+                    groupBuyParticipation,
+                    avgOrderValue: totalOrders > 0 ? totalSpent / totalOrders : 0,
+                    savingsRate: totalSpent > 0 ? (totalSavings / (totalSpent + totalSavings)) * 100 : 0,
+                    categorySpending: this.getCustomerCategorySpending(customerOrders),
+                    spendingTrend: this.getCustomerSpendingTrend(customerOrders)
+                };
+            },
+            
+            // Helper methods
+            getTopProducts(products) {
+                return products
+                    .map(p => ({
+                        ...p,
+                        orderCount: AppState.orders.filter(o => o.productId === p.id).length,
+                        revenue: AppState.orders
+                            .filter(o => o.productId === p.id)
+                            .reduce((sum, o) => sum + (o.totalPrice || o.total || 0), 0)
+                    }))
+                    .sort((a, b) => b.revenue - a.revenue)
+                    .slice(0, 5);
+            },
+            
+            getRevenueByCategory(products, orders) {
+                const categoryRevenue = {};
+                orders.forEach(order => {
+                    const product = products.find(p => p.id === order.productId);
+                    if (product) {
+                        const category = product.category || 'other';
+                        categoryRevenue[category] = (categoryRevenue[category] || 0) + (order.totalPrice || order.total || 0);
+                    }
+                });
+                return categoryRevenue;
+            },
+            
+            getMonthlyTrend(orders) {
+                const monthlyData = {};
+                orders.forEach(order => {
+                    const month = new Date(order.createdAt).toISOString().slice(0, 7); // YYYY-MM
+                    monthlyData[month] = (monthlyData[month] || 0) + (order.totalPrice || order.total || 0);
+                });
+                return Object.entries(monthlyData)
+                    .sort(([a], [b]) => a.localeCompare(b))
+                    .slice(-6); // Last 6 months
+            },
+            
+            calculateGroupBuySavings(orders) {
+                // Estimate savings based on group buy participation
+                // Assume 10-20% savings on group buys vs individual purchases
+                return orders.reduce((savings, order) => {
+                    const product = AppState.products.find(p => p.id === order.productId);
+                    if (product && product.currentQuantity > 1) {
+                        const estimatedSavings = (order.totalPrice || order.total || 0) * 0.15; // 15% avg savings
+                        return savings + estimatedSavings;
+                    }
+                    return savings;
+                }, 0);
+            },
+            
+            getHelperCategoryBreakdown(errands) {
+                const categoryCount = {};
+                errands.forEach(errand => {
+                    const category = errand.category || 'other';
+                    categoryCount[category] = (categoryCount[category] || 0) + 1;
+                });
+                return categoryCount;
+            },
+            
+            getHelperEarningsTrend(errands, applications) {
+                const monthlyEarnings = {};
+                errands.forEach(errand => {
+                    const application = applications.find(a => a.errandId === errand.id);
+                    const earnings = application?.offerAmount || errand.budget || 0;
+                    const month = new Date(errand.createdAt).toISOString().slice(0, 7);
+                    monthlyEarnings[month] = (monthlyEarnings[month] || 0) + earnings;
+                });
+                return Object.entries(monthlyEarnings)
+                    .sort(([a], [b]) => a.localeCompare(b))
+                    .slice(-6);
+            },
+            
+            getCustomerCategorySpending(orders) {
+                const categorySpending = {};
+                orders.forEach(order => {
+                    const product = AppState.products.find(p => p.id === order.productId);
+                    if (product) {
+                        const category = product.category || 'other';
+                        categorySpending[category] = (categorySpending[category] || 0) + (order.totalPrice || order.total || 0);
+                    }
+                });
+                return categorySpending;
+            },
+            
+            getCustomerSpendingTrend(orders) {
+                const monthlySpending = {};
+                orders.forEach(order => {
+                    const month = new Date(order.createdAt).toISOString().slice(0, 7);
+                    monthlySpending[month] = (monthlySpending[month] || 0) + (order.totalPrice || order.total || 0);
+                });
+                return Object.entries(monthlySpending)
+                    .sort(([a], [b]) => a.localeCompare(b))
+                    .slice(-6);
+            }
+        };
+
+        // Chart rendering functions for analytics
+        function renderRevenueChart(monthlyTrend) {
+            if (!monthlyTrend || monthlyTrend.length === 0) {
+                return `
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Revenue Trend</h3>
+                            <span class="chart-period">Last 6 months</span>
+                        </div>
+                        <p class="screen-subtitle">No revenue data available yet.</p>
+                    </div>
+                `;
+            }
+
+            const maxValue = Math.max(...monthlyTrend.map(([, value]) => value));
+            const bars = monthlyTrend.map(([month, value]) => {
+                const height = maxValue > 0 ? (value / maxValue) * 100 : 0;
+                return `
+                    <div class="bar" style="height: ${height}%">
+                        <div class="bar-label">${month.slice(-2)}</div>
+                        <div class="bar-value">$${value.toFixed(0)}</div>
+                    </div>
+                `;
+            }).join('');
+
+            return `
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Revenue Trend</h3>
+                        <span class="chart-period">Last 6 months</span>
+                    </div>
+                    <div class="simple-bar-chart">
+                        ${bars}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderTopProductsChart(topProducts) {
+            if (!topProducts || topProducts.length === 0) {
+                return `
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Top Products</h3>
+                        </div>
+                        <p class="screen-subtitle">No products available yet.</p>
+                    </div>
+                `;
+            }
+
+            const topItems = topProducts.slice(0, 5).map((product, index) => `
+                <div class="top-item">
+                    <div class="top-item-rank">${index + 1}</div>
+                    <div class="top-item-info">
+                        <div class="top-item-name">${product.title}</div>
+                        <div class="top-item-meta">${product.orderCount} orders</div>
+                    </div>
+                    <div class="top-item-value">$${product.revenue.toFixed(2)}</div>
+                </div>
+            `).join('');
+
+            return `
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Top Products</h3>
+                        <span class="chart-period">By revenue</span>
+                    </div>
+                    <div class="top-items-list">
+                        ${topItems}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderVendorInsights(metrics) {
+            const insights = [];
+            
+            if (metrics.conversionRate > 15) {
+                insights.push({
+                    type: 'success',
+                    icon: '✓',
+                    title: 'Great Conversion Rate',
+                    description: `Your ${metrics.conversionRate.toFixed(1)}% conversion rate is above average. Keep up the great work!`
+                });
+            } else if (metrics.conversionRate < 5) {
+                insights.push({
+                    type: 'warning',
+                    icon: '⚠',
+                    title: 'Low Conversion Rate',
+                    description: 'Consider improving product descriptions and images to boost conversions.'
+                });
+            }
+
+            if (metrics.successRate > 80) {
+                insights.push({
+                    type: 'success',
+                    icon: '🎯',
+                    title: 'High Success Rate',
+                    description: `${metrics.successRate.toFixed(1)}% of your products reach their target. Excellent planning!`
+                });
+            }
+
+            if (metrics.monthlyRevenue > metrics.totalRevenue * 0.3) {
+                insights.push({
+                    type: 'info',
+                    icon: '📈',
+                    title: 'Strong Recent Performance',
+                    description: 'Your recent sales are trending upward. Consider launching more products.'
+                });
+            }
+
+            if (insights.length === 0) {
+                insights.push({
+                    type: 'info',
+                    icon: 'ℹ',
+                    title: 'Getting Started',
+                    description: 'Create more products and gather orders to see personalized insights here.'
+                });
+            }
+
+            const insightItems = insights.map(insight => `
+                <div class="insight-item">
+                    <div class="insight-icon ${insight.type}">
+                        ${insight.icon}
+                    </div>
+                    <div class="insight-content">
+                        <div class="insight-title">${insight.title}</div>
+                        <div class="insight-description">${insight.description}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            return `
+                <div class="insights-list">
+                    <h3 class="chart-title" style="margin-bottom: 16px;">Insights & Recommendations</h3>
+                    ${insightItems}
+                </div>
+            `;
+        }
+
+        function renderHelperEarningsChart(earningsTrend) {
+            if (!earningsTrend || earningsTrend.length === 0) {
+                return `
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Earnings Trend</h3>
+                            <span class="chart-period">Last 6 months</span>
+                        </div>
+                        <p class="screen-subtitle">No earnings data available yet.</p>
+                    </div>
+                `;
+            }
+
+            const maxValue = Math.max(...earningsTrend.map(([, value]) => value));
+            const bars = earningsTrend.map(([month, value]) => {
+                const height = maxValue > 0 ? (value / maxValue) * 100 : 0;
+                return `
+                    <div class="bar" style="height: ${height}%">
+                        <div class="bar-label">${month.slice(-2)}</div>
+                        <div class="bar-value">$${value.toFixed(0)}</div>
+                    </div>
+                `;
+            }).join('');
+
+            return `
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Earnings Trend</h3>
+                        <span class="chart-period">Last 6 months</span>
+                    </div>
+                    <div class="simple-bar-chart">
+                        ${bars}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderHelperCategoryChart(categoryBreakdown) {
+            if (!categoryBreakdown || Object.keys(categoryBreakdown).length === 0) {
+                return `
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Category Breakdown</h3>
+                        </div>
+                        <p class="screen-subtitle">Complete more errands to see category insights.</p>
+                    </div>
+                `;
+            }
+
+            const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
+            const categories = Object.entries(categoryBreakdown).map(([category, count], index) => `
+                <div class="category-item">
+                    <div class="category-color" style="background-color: ${colors[index % colors.length]}"></div>
+                    <div class="category-name">${category.charAt(0).toUpperCase() + category.slice(1)}</div>
+                    <div class="category-value">${count}</div>
+                </div>
+            `).join('');
+
+            return `
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Category Breakdown</h3>
+                        <span class="chart-period">Completed errands</span>
+                    </div>
+                    <div class="category-breakdown">
+                        ${categories}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderHelperInsights(metrics) {
+            const insights = [];
+            
+            if (metrics.acceptanceRate > 70) {
+                insights.push({
+                    type: 'success',
+                    icon: '✓',
+                    title: 'High Acceptance Rate',
+                    description: `${metrics.acceptanceRate.toFixed(1)}% of your applications are accepted. Great profile!`
+                });
+            } else if (metrics.acceptanceRate < 30) {
+                insights.push({
+                    type: 'warning',
+                    icon: '⚠',
+                    title: 'Low Acceptance Rate',
+                    description: 'Consider improving your profile and application messages to increase acceptance.'
+                });
+            }
+
+            if (metrics.completionRate === 100 && metrics.completedErrands > 0) {
+                insights.push({
+                    type: 'success',
+                    icon: '🏆',
+                    title: 'Perfect Completion Rate',
+                    description: 'You complete all accepted tasks. Customers love reliable helpers!'
+                });
+            }
+
+            if (metrics.avgEarningsPerErrand > 25) {
+                insights.push({
+                    type: 'info',
+                    icon: '💰',
+                    title: 'Above Average Earnings',
+                    description: `You earn $${metrics.avgEarningsPerErrand.toFixed(2)} per errand on average. Well done!`
+                });
+            }
+
+            if (insights.length === 0) {
+                insights.push({
+                    type: 'info',
+                    icon: 'ℹ',
+                    title: 'Getting Started',
+                    description: 'Apply to more errands and complete tasks to see personalized insights here.'
+                });
+            }
+
+            const insightItems = insights.map(insight => `
+                <div class="insight-item">
+                    <div class="insight-icon ${insight.type}">
+                        ${insight.icon}
+                    </div>
+                    <div class="insight-content">
+                        <div class="insight-title">${insight.title}</div>
+                        <div class="insight-description">${insight.description}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            return `
+                <div class="insights-list">
+                    <h3 class="chart-title" style="margin-bottom: 16px;">Insights & Recommendations</h3>
+                    ${insightItems}
+                </div>
+            `;
+        }
+
+        function renderCustomerSpendingChart(spendingTrend) {
+            if (!spendingTrend || spendingTrend.length === 0) {
+                return `
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Spending Trend</h3>
+                            <span class="chart-period">Last 6 months</span>
+                        </div>
+                        <p class="screen-subtitle">No spending data available yet.</p>
+                    </div>
+                `;
+            }
+
+            const maxValue = Math.max(...spendingTrend.map(([, value]) => value));
+            const bars = spendingTrend.map(([month, value]) => {
+                const height = maxValue > 0 ? (value / maxValue) * 100 : 0;
+                return `
+                    <div class="bar" style="height: ${height}%">
+                        <div class="bar-label">${month.slice(-2)}</div>
+                        <div class="bar-value">$${value.toFixed(0)}</div>
+                    </div>
+                `;
+            }).join('');
+
+            return `
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Spending Trend</h3>
+                        <span class="chart-period">Last 6 months</span>
+                    </div>
+                    <div class="simple-bar-chart">
+                        ${bars}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderCustomerCategoryChart(categorySpending) {
+            if (!categorySpending || Object.keys(categorySpending).length === 0) {
+                return `
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Spending by Category</h3>
+                        </div>
+                        <p class="screen-subtitle">Make some purchases to see category breakdown.</p>
+                    </div>
+                `;
+            }
+
+            const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
+            const categories = Object.entries(categorySpending).map(([category, amount], index) => `
+                <div class="category-item">
+                    <div class="category-color" style="background-color: ${colors[index % colors.length]}"></div>
+                    <div class="category-name">${category.charAt(0).toUpperCase() + category.slice(1)}</div>
+                    <div class="category-value">$${amount.toFixed(2)}</div>
+                </div>
+            `).join('');
+
+            return `
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Spending by Category</h3>
+                        <span class="chart-period">All time</span>
+                    </div>
+                    <div class="category-breakdown">
+                        ${categories}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderCustomerInsights(metrics) {
+            const insights = [];
+            
+            if (metrics.savingsRate > 20) {
+                insights.push({
+                    type: 'success',
+                    icon: '💰',
+                    title: 'Great Savings!',
+                    description: `You're saving ${metrics.savingsRate.toFixed(1)}% through group buys. Keep it up!`
+                });
+            }
+
+            if (metrics.groupBuyParticipation > 80) {
+                insights.push({
+                    type: 'success',
+                    icon: '👥',
+                    title: 'Group Buy Champion',
+                    description: `${metrics.groupBuyParticipation.toFixed(1)}% of your purchases are group buys. You're maximizing savings!`
+                });
+            } else if (metrics.groupBuyParticipation < 30) {
+                insights.push({
+                    type: 'info',
+                    icon: '💡',
+                    title: 'More Savings Available',
+                    description: 'Join more group buys to increase your savings potential.'
+                });
+            }
+
+            if (metrics.totalSavings > 100) {
+                insights.push({
+                    type: 'success',
+                    icon: '🎉',
+                    title: 'Savings Milestone',
+                    description: `You've saved over $${metrics.totalSavings.toFixed(2)} through group buying!`
+                });
+            }
+
+            if (insights.length === 0) {
+                insights.push({
+                    type: 'info',
+                    icon: 'ℹ',
+                    title: 'Start Saving',
+                    description: 'Join group buys and complete errands to see personalized insights here.'
+                });
+            }
+
+            const insightItems = insights.map(insight => `
+                <div class="insight-item">
+                    <div class="insight-icon ${insight.type}">
+                        ${insight.icon}
+                    </div>
+                    <div class="insight-content">
+                        <div class="insight-title">${insight.title}</div>
+                        <div class="insight-description">${insight.description}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            return `
+                <div class="insights-list">
+                    <h3 class="chart-title" style="margin-bottom: 16px;">Insights & Recommendations</h3>
+                    ${insightItems}
+                </div>
+            `;
+        }
 
         function createHelperData() {
             return { ...HelperDefaults };
@@ -1789,7 +4061,7 @@
         async function persistUser() {
             if (!supabaseClient || !AppState.user?.id) {
                 // Fallback to localStorage for non-Supabase users
-                saveState();
+            saveState();
                 return;
             }
 
@@ -1937,7 +4209,7 @@
                             .single();
 
                         if (!profileError && profileData) {
-                            AppState.user = {
+                        AppState.user = {
                                 id: u.id,
                                 name: profileData.full_name || u.user_metadata?.full_name || u.email,
                                 email: u.email,
@@ -1982,6 +4254,10 @@
          */
         async function initApp() {
             setLoading(true);
+            
+            // Initialize language and accessibility
+            initializeAccessibility();
+            
             await loadState();
             
             // Load data from backend
@@ -2008,6 +4284,157 @@
                 initializeGoogleSignIn();
             }
             setLoading(false);
+        }
+
+        function initializeAccessibility() {
+            // Set initial language
+            const savedLang = localStorage.getItem('preferred-language') || 'en';
+            setLanguage(savedLang);
+            
+            // Add keyboard navigation support
+            document.addEventListener('keydown', handleKeyboardNavigation);
+            
+            // Add focus management
+            setupFocusManagement();
+            
+            // Add screen reader announcements
+            setupScreenReaderSupport();
+            
+            // Update language toggle buttons
+            updateLanguageToggle();
+        }
+
+        function handleKeyboardNavigation(event) {
+            // Escape key closes modals
+            if (event.key === 'Escape') {
+                const modal = document.querySelector('.modal.active');
+                if (modal) {
+                    closeModal();
+                    event.preventDefault();
+                }
+            }
+            
+            // Tab navigation for bottom nav on mobile
+            if (event.key === 'Tab' && window.innerWidth <= 768) {
+                const bottomNav = document.getElementById('bottom-nav');
+                if (bottomNav && bottomNav.style.display !== 'none') {
+                    const navItems = bottomNav.querySelectorAll('.bottom-nav-item');
+                    const currentFocus = document.activeElement;
+                    const currentIndex = Array.from(navItems).indexOf(currentFocus);
+                    
+                    if (event.shiftKey && currentIndex === 0) {
+                        // Shift+Tab from first item, focus last item
+                        navItems[navItems.length - 1].focus();
+                        event.preventDefault();
+                    } else if (!event.shiftKey && currentIndex === navItems.length - 1) {
+                        // Tab from last item, focus first item
+                        navItems[0].focus();
+                        event.preventDefault();
+                    }
+                }
+            }
+        }
+
+        function setupFocusManagement() {
+            // Trap focus in modals
+            document.addEventListener('focusin', (event) => {
+                const modal = document.querySelector('.modal.active');
+                if (modal && !modal.contains(event.target)) {
+                    const focusableElements = modal.querySelectorAll(
+                        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+                    );
+                    if (focusableElements.length > 0) {
+                        focusableElements[0].focus();
+                    }
+                }
+            });
+        }
+
+        function setupScreenReaderSupport() {
+            // Create live region for announcements
+            const liveRegion = document.createElement('div');
+            liveRegion.id = 'live-region';
+            liveRegion.setAttribute('aria-live', 'polite');
+            liveRegion.setAttribute('aria-atomic', 'true');
+            liveRegion.className = 'sr-only';
+            document.body.appendChild(liveRegion);
+        }
+
+        function announceToScreenReader(message) {
+            const liveRegion = document.getElementById('live-region');
+            if (liveRegion) {
+                liveRegion.textContent = message;
+                // Clear after announcement
+                setTimeout(() => {
+                    liveRegion.textContent = '';
+                }, 1000);
+            }
+        }
+
+        function updateLanguageToggle() {
+            const buttons = document.querySelectorAll('.language-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+                if ((btn.textContent.includes('EN') && currentLanguage === 'en') ||
+                    (btn.textContent.includes('한국어') && currentLanguage === 'ko')) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // Enhanced showToast with accessibility
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.setAttribute('role', 'alert');
+            toast.setAttribute('aria-live', 'assertive');
+            toast.textContent = message;
+            
+            // Add to page
+            document.body.appendChild(toast);
+            
+            // Announce to screen readers
+            announceToScreenReader(message);
+            
+            // Auto-remove
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 5000);
+        }
+
+        // Enhanced form validation with accessibility
+        function validateForm(formElement) {
+            const inputs = formElement.querySelectorAll('input[required], select[required], textarea[required]');
+            let isValid = true;
+            let firstInvalidField = null;
+            
+            inputs.forEach(input => {
+                const errorElement = document.getElementById(input.id + '-error');
+                
+                if (!input.value.trim()) {
+                    isValid = false;
+                    if (errorElement) {
+                        errorElement.textContent = t('validation.required', 'This field is required');
+                    }
+                    input.setAttribute('aria-invalid', 'true');
+                    if (!firstInvalidField) firstInvalidField = input;
+                } else {
+                    if (errorElement) {
+                        errorElement.textContent = '';
+                    }
+                    input.setAttribute('aria-invalid', 'false');
+                }
+            });
+            
+            // Focus first invalid field
+            if (firstInvalidField) {
+                firstInvalidField.focus();
+                announceToScreenReader(t('validation.errors', 'Please correct the errors in the form'));
+            }
+            
+            return isValid;
         }
 
         function determineInitialScreen() {
@@ -2093,6 +4520,7 @@
                     </button>
                     ${resetButton}
                 `;
+                updateBottomNav();
                 return;
             }
 
@@ -2121,6 +4549,98 @@
                 <button class="btn btn-secondary" onclick="logout()">Logout</button>
                 </div>
             `;
+            
+            updateBottomNav();
+            updateFab();
+        }
+
+        function updateBottomNav() {
+            const bottomNav = document.getElementById('bottom-nav');
+            const fab = document.getElementById('fab');
+            
+            if (!bottomNav) return;
+            
+            // Show/hide bottom nav based on user state
+            if (AppState.user) {
+                bottomNav.style.display = 'block';
+                if (fab) fab.style.display = 'flex';
+                
+                // Update active state
+                const navItems = bottomNav.querySelectorAll('.bottom-nav-item');
+                navItems.forEach(item => {
+                    const screen = item.dataset.screen;
+                    if (screen === AppState.currentScreen || 
+                        (screen === 'browse' && AppState.currentScreen === 'start') ||
+                        (screen === 'group-buys' && AppState.currentScreen === 'groupbuys')) {
+                        item.classList.add('active');
+                    } else {
+                        item.classList.remove('active');
+                    }
+                });
+            } else {
+                bottomNav.style.display = 'none';
+                if (fab) fab.style.display = 'none';
+            }
+        }
+
+        function updateFab() {
+            const fab = document.getElementById('fab');
+            if (!fab || !AppState.user) return;
+            
+            // Change FAB icon and action based on current screen and user roles
+            const roles = AppState.user.roles || [];
+            let icon = '➕';
+            let title = 'Quick Action';
+            
+            if (AppState.currentScreen === 'errands' && roles.includes('customer')) {
+                icon = '📝';
+                title = 'Post Errand';
+            } else if ((AppState.currentScreen === 'groupbuys' || AppState.currentScreen === 'browse') && roles.includes('vendor')) {
+                icon = '🏪';
+                title = 'Create Group Buy';
+            } else if (AppState.currentScreen === 'browse') {
+                if (roles.includes('vendor')) {
+                    icon = '🏪';
+                    title = 'Create Group Buy';
+                } else if (roles.includes('customer')) {
+                    icon = '📝';
+                    title = 'Post Errand';
+                }
+            }
+            
+            fab.innerHTML = icon;
+            fab.title = title;
+        }
+
+        function handleFabClick() {
+            if (!AppState.user) return;
+            
+            const roles = AppState.user.roles || [];
+            
+            // Determine action based on current screen and user roles
+            if (AppState.currentScreen === 'errands' && roles.includes('customer')) {
+                // Scroll to create errand form
+                const createForm = document.getElementById('create-errand-form');
+                if (createForm) {
+                    createForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    const titleInput = document.getElementById('errand-title');
+                    if (titleInput) titleInput.focus();
+                }
+            } else if ((AppState.currentScreen === 'groupbuys' || AppState.currentScreen === 'browse') && roles.includes('vendor')) {
+                // Go to dashboard and scroll to create product form
+                goToScreen('dashboard');
+                setTimeout(() => {
+                    const createForm = document.querySelector('[onsubmit="handleAddProduct(event)"]');
+                    if (createForm) {
+                        createForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        const titleInput = createForm.querySelector('[name="vendor-product-title"]');
+                        if (titleInput) titleInput.focus();
+                    }
+                }, 100);
+            } else {
+                // Default: go to dashboard
+                goToScreen('dashboard');
+            }
         }
 
         function getInitials(name = '') {
@@ -2155,7 +4675,7 @@
                 if (isSignInMode) {
                     // Sign in existing user
                     const { data, error } = await supabaseClient.auth.signInWithPassword({
-                        email,
+                email,
                         password
                     });
 
@@ -2203,6 +4723,140 @@
             }
         }
 
+        // New streamlined sign-up handler with integrated role selection
+        async function handleStreamlinedSignUp(event) {
+            event.preventDefault();
+            const fullName = document.getElementById('full-name').value.trim();
+            const email = document.getElementById('email-address').value.trim();
+            const password = document.getElementById('password-input').value;
+
+            if (!email || password.length < 6) {
+                showToast('Please provide a valid email and password (6+ chars).', 'warning');
+                return;
+            }
+
+            if (!isSignInMode && !fullName) {
+                showToast('Please provide your name.', 'warning');
+                return;
+            }
+
+            // Get selected roles
+            const selectedRoles = [];
+            document.querySelectorAll('input[name="roles"]:checked').forEach(checkbox => {
+                selectedRoles.push(checkbox.value);
+            });
+
+            if (!isSignInMode && selectedRoles.length === 0) {
+                showToast('Please select at least one way to participate.', 'warning');
+                return;
+            }
+
+            if (!supabaseClient) {
+                showToast('Authentication service not available.', 'error');
+                return;
+            }
+
+            try {
+                if (isSignInMode) {
+                    // Sign in existing user
+                    const { data, error } = await supabaseClient.auth.signInWithPassword({
+                        email,
+                        password
+                    });
+
+                    if (error) {
+                        console.error('Supabase sign-in error', error);
+                        showToast(error.message || 'Invalid email or password.', 'error');
+                        return;
+                    }
+
+                    if (data?.user) {
+                        await handleSuccessfulAuth(data.user);
+                    }
+                } else {
+                    // Sign up new user with roles
+                    const { data, error } = await supabaseClient.auth.signUp({
+                        email,
+                        password,
+                        options: {
+                            data: {
+                                full_name: fullName,
+                                roles: selectedRoles
+                            }
+                        }
+                    });
+
+                    if (error) {
+                        console.error('Supabase sign-up error', error);
+                        showToast(error.message || 'Failed to create account.', 'error');
+                        return;
+                    }
+
+                    if (data?.user) {
+                        if (data.user.email_confirmed_at) {
+                            // User is immediately confirmed - set roles and continue
+                            await handleSuccessfulAuthWithRoles(data.user, fullName, selectedRoles);
+                        } else {
+                            // Email confirmation required
+                            document.getElementById('verification-message').style.display = 'block';
+                            showToast('Please check your email for verification link.', 'info');
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error('Authentication error', e);
+                showToast('Authentication failed. Please try again.', 'error');
+            }
+        }
+
+        async function handleSuccessfulAuthWithRoles(supabaseUser, displayName = null, roles = []) {
+            // Create or update user profile in our users table
+            const userData = {
+                id: supabaseUser.id,
+                email: supabaseUser.email,
+                full_name: displayName || supabaseUser.user_metadata?.full_name || supabaseUser.email,
+                photo_url: supabaseUser.user_metadata?.avatar_url || '',
+                roles: roles,
+                primary_role: roles[0] || null,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
+
+            // Upsert user profile
+            const { error: profileError } = await supabaseClient
+                .from('user_profiles')
+                .upsert(userData, { onConflict: 'id' });
+
+            if (profileError) {
+                console.error('Error creating user profile', profileError);
+            }
+
+            // Set AppState user
+            AppState.user = {
+                id: supabaseUser.id,
+                name: userData.full_name,
+                email: supabaseUser.email,
+                photoUrl: userData.photo_url,
+                roles: roles,
+                role: roles[0] || null,
+                helperVerified: false
+            };
+            AppState.loginMethod = 'supabase';
+            AppState.selectedRoles = new Set(roles);
+            
+            updateNavbar();
+            
+            // Skip role selection and go directly to helper setup or browse
+            if (roles.includes('helper')) {
+                goToScreen('helper-setup');
+            } else {
+                renderDashboard();
+                goToScreen('browse');
+            }
+            
+            showToast(`Welcome, ${userData.full_name}!`, 'success');
+        }
+
         async function handleSuccessfulAuth(supabaseUser, displayName = null) {
             // Create or update user profile in our users table
             const userData = {
@@ -2234,9 +4888,9 @@
                 helperVerified: false
             };
             AppState.loginMethod = 'supabase';
-            
-            updateNavbar();
-            goToScreen('role');
+
+                updateNavbar();
+                goToScreen('role');
             showToast(`Welcome, ${userData.full_name}!`, 'success');
         }
 
@@ -2248,16 +4902,26 @@
             const submitBtn = document.getElementById('auth-submit-btn');
             const toggleBtn = document.getElementById('auth-mode-toggle');
             const fullNameInput = document.getElementById('full-name');
+            const roleSelection = document.querySelector('.role-selection-compact');
+            const formRow = document.querySelector('.form-row');
             
             if (isSignInMode) {
-                fullNameGroup.style.display = 'none';
-                fullNameInput.required = false;
+                // Sign-in mode: hide name field and role selection
+                if (fullNameGroup) fullNameGroup.style.display = 'none';
+                if (fullNameInput) fullNameInput.required = false;
+                if (roleSelection) roleSelection.style.display = 'none';
+                if (formRow) formRow.style.gridTemplateColumns = '1fr';
+                
                 submitBtn.textContent = 'Sign In';
                 toggleBtn.textContent = "Don't have an account? Sign up";
             } else {
-                fullNameGroup.style.display = 'block';
-                fullNameInput.required = true;
-                submitBtn.textContent = 'Continue';
+                // Sign-up mode: show name field and role selection
+                if (fullNameGroup) fullNameGroup.style.display = 'block';
+                if (fullNameInput) fullNameInput.required = true;
+                if (roleSelection) roleSelection.style.display = 'flex';
+                if (formRow) formRow.style.gridTemplateColumns = '1fr 1fr';
+                
+                submitBtn.textContent = 'Get Started';
                 toggleBtn.textContent = 'Already have an account? Sign in';
             }
         }
@@ -2845,50 +5509,111 @@
             if (!container) return;
             refreshOrderStatuses();
 
+            // Update form values to match current filters
             const searchInput = document.getElementById('groupbuy-search');
             if (searchInput && searchInput.value !== AppState.filters.groupbuys.search) {
                 searchInput.value = AppState.filters.groupbuys.search;
             }
+            
+            const categorySelect = document.getElementById('groupbuy-category');
+            if (categorySelect) categorySelect.value = AppState.filters.groupbuys.category;
+            
+            const priceSelect = document.getElementById('groupbuy-price');
+            if (priceSelect) priceSelect.value = AppState.filters.groupbuys.priceRange;
+            
             const regionSelect = document.getElementById('groupbuy-region');
-            if (regionSelect) {
-                regionSelect.value = AppState.filters.groupbuys.region;
-            }
-            const vendorSelect = document.getElementById('groupbuy-vendor');
-            if (vendorSelect) {
-                vendorSelect.value = AppState.filters.groupbuys.vendor;
-            }
+            if (regionSelect) regionSelect.value = AppState.filters.groupbuys.region;
+            
+            const statusSelect = document.getElementById('groupbuy-status');
+            if (statusSelect) statusSelect.value = AppState.filters.groupbuys.status;
+            
             const sortSelect = document.getElementById('groupbuy-sort');
-            if (sortSelect) {
-                sortSelect.value = AppState.filters.groupbuys.sort;
-            }
+            if (sortSelect) sortSelect.value = AppState.filters.groupbuys.sort;
 
-            const { search, region, sort, vendor } = AppState.filters.groupbuys;
-            let products = [...AppState.products];
-            if (search.trim()) {
-                const query = search.trim().toLowerCase();
-                products = products.filter(product =>
-                    product.title.toLowerCase().includes(query) ||
-                    product.description.toLowerCase().includes(query)
-                );
-            }
-            if (region !== 'All') {
-                products = products.filter(product => product.region === region);
-            }
-            if (vendor !== 'All') {
-                products = products.filter(product => (product.vendor || '').toLowerCase() === vendor.toLowerCase());
-            }
-
+            // Get filtered products
+            let products = getFilteredProducts();
+            
+            // Apply sorting
+            const { sort } = AppState.filters.groupbuys;
             const sorters = {
+                popularity: (a, b) => {
+                    const aOrders = AppState.orders.filter(o => o.productId === a.id).length;
+                    const bOrders = AppState.orders.filter(o => o.productId === b.id).length;
+                    return bOrders - aOrders;
+                },
                 deadline: (a, b) => new Date(a.deadline) - new Date(b.deadline),
                 priceLow: (a, b) => a.price - b.price,
                 priceHigh: (a, b) => b.price - a.price,
-                progress: (a, b) => calculateProgress(b) - calculateProgress(a)
+                progress: (a, b) => calculateProgress(b) - calculateProgress(a),
+                newest: (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
             };
-            products.sort(sorters[sort] || sorters.deadline);
+            products.sort(sorters[sort] || sorters.popularity);
 
-            container.innerHTML = products.length
-                ? products.map(renderGroupBuyCard).join('')
-                : '<p class="screen-subtitle">No group buys match your filters. Try changing the region or search.</p>';
+            // Add popularity indicators and trending badges
+            const enhancedProducts = products.map(product => {
+                const orderCount = AppState.orders.filter(o => o.productId === product.id).length;
+                const progress = calculateProgress(product);
+                const daysLeft = Math.ceil((new Date(product.deadline) - new Date()) / (1000 * 60 * 60 * 24));
+                
+                return {
+                    ...product,
+                    orderCount,
+                    progress,
+                    daysLeft,
+                    isPopular: orderCount >= 5,
+                    isTrending: orderCount >= 3 && daysLeft <= 7,
+                    isClosingSoon: daysLeft <= 3 && daysLeft > 0
+                };
+            });
+
+            container.innerHTML = enhancedProducts.length
+                ? enhancedProducts.map(renderEnhancedGroupBuyCard).join('')
+                : '<p class="screen-subtitle">No group buys match your filters. Try adjusting your search criteria.</p>';
+                
+            updateResultsCount('groupbuy');
+        }
+
+        function renderEnhancedGroupBuyCard(product) {
+            const status = computeGroupStatus(product);
+            const progress = calculateProgress(product);
+            const category = ProductCategories[product.category] || ProductCategories.other;
+            
+            let badges = '';
+            if (product.isTrending) badges += '<span class="trending-badge">🔥 Trending</span>';
+            if (product.isClosingSoon) badges += '<span class="trending-badge">⏰ Closing Soon</span>';
+            
+            let popularityIndicator = '';
+            if (product.orderCount > 0) {
+                popularityIndicator = `<div class="popularity-indicator">👥 ${product.orderCount} joined</div>`;
+            }
+
+            return `
+                <div class="product-card" onclick="openProductDetail(${product.id})">
+                    <div class="product-image" style="background: ${product.imageColor || '#3b82f6'};">
+                        ${product.imageDataUrl ? `<img src="${product.imageDataUrl}" alt="${product.title}">` : ''}
+                        <div class="category-icon">${category.icon}</div>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-header">
+                            <h4 class="product-title">${product.title}</h4>
+                            ${badges}
+                        </div>
+                        <p class="product-description">${product.description}</p>
+                        <div class="product-meta">
+                            <span class="product-region">${product.region}</span>
+                            <span class="product-price">$${product.price}</span>
+                            <span class="product-deadline">Deadline • ${formatDate(product.deadline)}</span>
+                        </div>
+                        <div class="product-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progress}%"></div>
+                            </div>
+                            <span class="progress-text">${product.currentQuantity}/${product.targetQuantity} committed • ${Math.round(progress)}% funded</span>
+                        </div>
+                        ${popularityIndicator}
+                    </div>
+                </div>
+            `;
         }
 
         function renderGroupBuyCard(product) {
@@ -2916,21 +5641,215 @@
         function handleGroupBuySearch(event) {
             AppState.filters.groupbuys.search = event.target.value;
             renderGroupBuyList();
+            updateResultsCount('groupbuy');
         }
 
         function handleGroupBuyRegion(event) {
             AppState.filters.groupbuys.region = event.target.value;
             renderGroupBuyList();
+            updateResultsCount('groupbuy');
         }
 
         function handleGroupBuyVendor(event) {
             AppState.filters.groupbuys.vendor = event.target.value;
             renderGroupBuyList();
+            updateResultsCount('groupbuy');
         }
 
         function handleGroupBuySort(event) {
             AppState.filters.groupbuys.sort = event.target.value;
             renderGroupBuyList();
+        }
+
+        function handleGroupBuyCategory(event) {
+            AppState.filters.groupbuys.category = event.target.value;
+            renderGroupBuyList();
+            updateResultsCount('groupbuy');
+            updateQuickFilters('groupbuy', event.target.value);
+        }
+
+        function handleGroupBuyPrice(event) {
+            AppState.filters.groupbuys.priceRange = event.target.value;
+            renderGroupBuyList();
+            updateResultsCount('groupbuy');
+        }
+
+        function handleGroupBuyStatus(event) {
+            AppState.filters.groupbuys.status = event.target.value;
+            renderGroupBuyList();
+            updateResultsCount('groupbuy');
+        }
+
+        function handleCategoryFilter(category) {
+            AppState.filters.groupbuys.category = category;
+            const categorySelect = document.getElementById('groupbuy-category');
+            if (categorySelect) categorySelect.value = category;
+            renderGroupBuyList();
+            updateResultsCount('groupbuy');
+            updateQuickFilters('groupbuy', category);
+        }
+
+        function handleErrandSearch(event) {
+            AppState.filters.errands.search = event.target.value;
+            renderErrandList();
+            updateResultsCount('errand');
+        }
+
+        function handleErrandCategory(event) {
+            AppState.filters.errands.category = event.target.value;
+            renderErrandList();
+            updateResultsCount('errand');
+            updateQuickFilters('errand', event.target.value);
+        }
+
+        function handleErrandPrice(event) {
+            AppState.filters.errands.priceRange = event.target.value;
+            renderErrandList();
+            updateResultsCount('errand');
+        }
+
+        function handleErrandCategoryFilter(category) {
+            AppState.filters.errands.category = category;
+            const categorySelect = document.getElementById('errand-category');
+            if (categorySelect) categorySelect.value = category;
+            renderErrandList();
+            updateResultsCount('errand');
+            updateQuickFilters('errand', category);
+        }
+
+        function updateQuickFilters(type, activeCategory) {
+            const container = document.querySelector(`#screen-${type === 'groupbuy' ? 'groupbuys' : 'errands'} .quick-filters`);
+            if (!container) return;
+            
+            const filters = container.querySelectorAll('.quick-filter');
+            filters.forEach(filter => {
+                filter.classList.remove('active');
+                const filterCategory = filter.onclick.toString().match(/'([^']+)'/)?.[1];
+                if (filterCategory === activeCategory) {
+                    filter.classList.add('active');
+                }
+            });
+        }
+
+        function updateResultsCount(type) {
+            const countElement = document.getElementById(`${type}-results-count`);
+            if (!countElement) return;
+            
+            let items, filteredItems;
+            
+            if (type === 'groupbuy') {
+                items = AppState.products;
+                filteredItems = getFilteredProducts();
+            } else {
+                items = AppState.errands;
+                filteredItems = getFilteredErrands();
+            }
+            
+            const total = items.length;
+            const filtered = filteredItems.length;
+            
+            if (filtered === total) {
+                countElement.textContent = `${total} ${type === 'groupbuy' ? 'products' : 'errands'} available`;
+            } else {
+                countElement.textContent = `${filtered} of ${total} ${type === 'groupbuy' ? 'products' : 'errands'} shown`;
+            }
+        }
+
+        function getFilteredProducts() {
+            let products = [...AppState.products];
+            const filters = AppState.filters.groupbuys;
+            
+            // Search filter
+            if (filters.search) {
+                const searchTerm = filters.search.toLowerCase();
+                products = products.filter(p => 
+                    p.title.toLowerCase().includes(searchTerm) ||
+                    p.description.toLowerCase().includes(searchTerm) ||
+                    p.vendor.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            // Category filter
+            if (filters.category && filters.category !== 'all') {
+                products = products.filter(p => p.category === filters.category);
+            }
+            
+            // Price range filter
+            if (filters.priceRange && filters.priceRange !== 'all') {
+                const range = PriceRanges[filters.priceRange];
+                if (range) {
+                    products = products.filter(p => p.price >= range.min && p.price <= range.max);
+                }
+            }
+            
+            // Region filter
+            if (filters.region && filters.region !== 'All') {
+                products = products.filter(p => p.region === filters.region);
+            }
+            
+            // Status filter
+            if (filters.status && filters.status !== 'all') {
+                products = products.filter(p => {
+                    const status = computeGroupStatus(p);
+                    switch (filters.status) {
+                        case 'open': return status === 'open';
+                        case 'closing-soon': 
+                            const daysLeft = Math.ceil((new Date(p.deadline) - new Date()) / (1000 * 60 * 60 * 24));
+                            return status === 'open' && daysLeft <= 3;
+                        case 'almost-full':
+                            return status === 'open' && (p.currentQuantity / p.targetQuantity) >= 0.8;
+                        case 'new':
+                            const daysSinceCreated = Math.ceil((new Date() - new Date(p.createdAt)) / (1000 * 60 * 60 * 24));
+                            return daysSinceCreated <= 7;
+                        default: return true;
+                    }
+                });
+            }
+            
+            return products;
+        }
+
+        function getFilteredErrands() {
+            let errands = [...AppState.errands];
+            const filters = AppState.filters.errands;
+            
+            // Search filter
+            if (filters.search) {
+                const searchTerm = filters.search.toLowerCase();
+                errands = errands.filter(e => 
+                    e.title.toLowerCase().includes(searchTerm) ||
+                    e.description.toLowerCase().includes(searchTerm) ||
+                    e.region.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            // Category filter
+            if (filters.category && filters.category !== 'all') {
+                errands = errands.filter(e => e.category === filters.category);
+            }
+            
+            // Price range filter
+            if (filters.priceRange && filters.priceRange !== 'all') {
+                const range = PriceRanges[filters.priceRange];
+                if (range) {
+                    errands = errands.filter(e => {
+                        const budget = e.budget || e.budgetMax || 0;
+                        return budget >= range.min && budget <= range.max;
+                    });
+                }
+            }
+            
+            // Region filter
+            if (filters.region && filters.region !== 'All') {
+                errands = errands.filter(e => e.region === filters.region);
+            }
+            
+            // Status filter
+            if (filters.status && filters.status !== 'all') {
+                errands = errands.filter(e => e.status === filters.status);
+            }
+            
+            return errands;
         }
 
         function findProductById(productId) {
@@ -3917,6 +6836,7 @@
         }
 
         function renderCustomerDashboard() {
+            const metrics = AnalyticsEngine.getCustomerMetrics(AppState.user.email);
             const myOrders = AppState.orders.filter(order => order.customerEmail === AppState.user.email);
             const myErrands = AppState.errands.filter(errand => errand.requesterEmail === AppState.user.email);
 
@@ -3976,7 +6896,51 @@
                 }).join('')
                 : '<p class="screen-subtitle">No errands posted yet. Use the form on the errand page to create one.</p>';
 
-            return `
+            // Analytics Dashboard
+            const analyticsHtml = `
+                <div class="analytics-dashboard">
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Your Savings & Activity</h3>
+                            <span class="chart-period">Your performance</span>
+                        </div>
+                        <div class="metrics-grid">
+                            <div class="metric-card">
+                                <span class="metric-value">$${metrics.totalSavings.toFixed(2)}</span>
+                                <div class="metric-label">Total Savings</div>
+                                <div class="metric-change positive">
+                                    ${metrics.savingsRate.toFixed(1)}% savings rate
+                                </div>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-value">$${metrics.totalSpent.toFixed(2)}</span>
+                                <div class="metric-label">Total Spent</div>
+                                <div class="metric-change neutral">
+                                    $${metrics.monthlySpent.toFixed(2)} this month
+                                </div>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-value">${metrics.totalOrders}</span>
+                                <div class="metric-label">Group Buy Orders</div>
+                                <div class="metric-change neutral">
+                                    $${metrics.avgOrderValue.toFixed(2)} avg order
+                                </div>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-value">${metrics.groupBuyParticipation.toFixed(1)}%</span>
+                                <div class="metric-label">Group Buy Rate</div>
+                                <div class="metric-change neutral">vs individual purchases</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${renderCustomerSpendingChart(metrics.spendingTrend)}
+                    ${renderCustomerCategoryChart(metrics.categorySpending)}
+                    ${renderCustomerInsights(metrics)}
+                </div>
+            `;
+
+            return analyticsHtml + `
                 <div class="view-content">
                     <h3>My Group Buys</h3>
                     ${ordersHtml}
@@ -3989,6 +6953,7 @@
         }
 
         function renderHelperDashboard() {
+            const metrics = AnalyticsEngine.getHelperMetrics(AppState.user.email);
             const myApplications = AppState.applications.filter(app => app.helperEmail === AppState.user.email);
             // Active tasks are derived from accepted/in_progress/completed applications
             const activeTaskApplications = AppState.applications.filter(app =>
@@ -4036,7 +7001,49 @@
                 `).join('')
                 : '<p class="screen-subtitle">No active tasks. Apply to open errands to get assigned.</p>';
 
-            return `
+            // Analytics Dashboard
+            const analyticsHtml = `
+                <div class="analytics-dashboard">
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Helper Performance Overview</h3>
+                            <span class="chart-period">Your statistics</span>
+                        </div>
+                        <div class="metrics-grid">
+                            <div class="metric-card">
+                                <span class="metric-value">$${metrics.totalEarnings.toFixed(2)}</span>
+                                <div class="metric-label">Total Earnings</div>
+                                <div class="metric-change ${metrics.monthlyEarnings > 0 ? 'positive' : 'neutral'}">
+                                    $${metrics.monthlyEarnings.toFixed(2)} this month
+                                </div>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-value">${metrics.completedErrands}</span>
+                                <div class="metric-label">Completed Errands</div>
+                                <div class="metric-change neutral">
+                                    $${metrics.avgEarningsPerErrand.toFixed(2)} avg per errand
+                                </div>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-value">${metrics.acceptanceRate.toFixed(1)}%</span>
+                                <div class="metric-label">Acceptance Rate</div>
+                                <div class="metric-change neutral">${metrics.acceptedApplications}/${metrics.totalApplications} applications</div>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-value">${metrics.completionRate.toFixed(1)}%</span>
+                                <div class="metric-label">Completion Rate</div>
+                                <div class="metric-change neutral">Tasks completed successfully</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${renderHelperEarningsChart(metrics.earningsTrend)}
+                    ${renderHelperCategoryChart(metrics.categoryBreakdown)}
+                    ${renderHelperInsights(metrics)}
+                </div>
+            `;
+
+            return analyticsHtml + `
                 <div class="view-content">
                     <h3>My Applications</h3>
                     ${applicationsHtml}
@@ -4049,6 +7056,7 @@
         }
 
         function renderVendorDashboard() {
+            const metrics = AnalyticsEngine.getVendorMetrics(AppState.user.email);
             const myProducts = AppState.products.filter(product => product.ownerEmail === AppState.user.email);
             const myOrders = AppState.orders.filter(order => {
                 const product = findProductById(order.productId);
@@ -4126,7 +7134,49 @@
                 }).join('')
                 : '<p class="screen-subtitle">No orders yet. Share your group buy link to collect pledges.</p>';
 
-            return `
+            // Analytics Dashboard
+            const analyticsHtml = `
+                <div class="analytics-dashboard">
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Vendor Analytics Overview</h3>
+                            <span class="chart-period">Performance metrics</span>
+                        </div>
+                        <div class="metrics-grid">
+                            <div class="metric-card">
+                                <span class="metric-value">$${metrics.totalRevenue.toFixed(2)}</span>
+                                <div class="metric-label">Total Revenue</div>
+                                <div class="metric-change ${metrics.monthlyRevenue > 0 ? 'positive' : 'neutral'}">
+                                    ${metrics.monthlyRevenue > 0 ? '+' : ''}$${metrics.monthlyRevenue.toFixed(2)} this month
+                                </div>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-value">${metrics.totalOrders}</span>
+                                <div class="metric-label">Total Orders</div>
+                                <div class="metric-change ${metrics.recentOrders > 0 ? 'positive' : 'neutral'}">
+                                    ${metrics.recentOrders} recent orders
+                                </div>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-value">${metrics.conversionRate.toFixed(1)}%</span>
+                                <div class="metric-label">Conversion Rate</div>
+                                <div class="metric-change neutral">Views to orders</div>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-value">${metrics.successRate.toFixed(1)}%</span>
+                                <div class="metric-label">Success Rate</div>
+                                <div class="metric-change neutral">Products reaching target</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${renderRevenueChart(metrics.monthlyTrend)}
+                    ${renderTopProductsChart(metrics.topProducts)}
+                    ${renderVendorInsights(metrics)}
+                </div>
+            `;
+
+            return analyticsHtml + `
                 <div class="view-content">
                     <h3>Revenue snapshot</h3>
                     <p><strong>Total sales:</strong> ${formatCurrency(totalSales)}</p>
@@ -4251,8 +7301,20 @@
          */
         window.goToScreen = goToScreen;
         window.handleEmailSignUp = handleEmailSignUp;
+        window.handleStreamlinedSignUp = handleStreamlinedSignUp;
         window.toggleAuthMode = toggleAuthMode;
         window.skipLoginForTesting = skipLoginForTesting;
+        window.handleFabClick = handleFabClick;
+        window.handleCategoryFilter = handleCategoryFilter;
+        window.handleGroupBuyCategory = handleGroupBuyCategory;
+        window.handleGroupBuyPrice = handleGroupBuyPrice;
+        window.handleGroupBuyStatus = handleGroupBuyStatus;
+        window.handleErrandSearch = handleErrandSearch;
+        window.handleErrandCategory = handleErrandCategory;
+        window.handleErrandPrice = handleErrandPrice;
+        window.handleErrandCategoryFilter = handleErrandCategoryFilter;
+        window.setLanguage = setLanguage;
+        window.t = t;
         window.toggleRole = toggleRole;
         window.continueAfterRole = continueAfterRole;
         window.saveHelperName = saveHelperName;
