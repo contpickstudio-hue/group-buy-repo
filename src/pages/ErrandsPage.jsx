@@ -113,19 +113,23 @@ const ErrandsPage = () => {
     }, [errands, search, region, sort]);
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="text-center mb-8">
-                <p className="text-gray-600 mb-2">Community assistance</p>
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+            {/* Header - Mobile optimized */}
+            <div className="text-center mb-6 sm:mb-8 animate-fade-in">
+                <div className="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold mb-3">
+                    <span className="w-2 h-2 bg-green-600 rounded-full mr-2 animate-pulse-slow"></span>
+                    Community assistance
+                </div>
+                <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight">
                     Errands & Tasks
-                </h2>
-                <p className="text-gray-600">
+                </h1>
+                <p className="text-gray-600 text-base sm:text-lg">
                     Help neighbors or get help with your tasks
                 </p>
             </div>
 
-            {/* Search and Filters */}
-            <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+            {/* Search and Filters - Mobile optimized */}
+            <div className="card mb-6 sm:mb-8">
                 <div className="flex flex-col md:flex-row gap-4">
                     <div className="flex-1">
                         <input
@@ -149,9 +153,9 @@ const ErrandsPage = () => {
                 </div>
             </div>
 
-            {/* Create Errand Form */}
-            <div className="bg-white rounded-lg shadow-md p-6 mb-8" data-testid="create-errand-form">
-                <h3 className="text-xl font-semibold mb-4">Post a New Errand</h3>
+            {/* Create Errand Form - Mobile optimized */}
+            <div className="card mb-6 sm:mb-8" data-testid="create-errand-form">
+                <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-gray-900">Post a New Errand</h3>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -250,22 +254,44 @@ const ErrandsPage = () => {
                 </div>
 
                 {filteredErrands.length > 0 ? (
-                    <div className="space-y-4">
-                        {filteredErrands.map(errand => (
-                            <div key={errand.id} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-                                <div className="flex justify-between items-start mb-3">
-                                    <div className="flex-1">
-                                        <h3 className="font-semibold text-lg mb-2">{errand.title}</h3>
-                                        <p className="text-gray-600 mb-3">{errand.description}</p>
-                                        <div className="flex flex-wrap gap-4 text-sm text-gray-500">
-                                            <span>📍 {errand.region || 'Unknown'}</span>
-                                            <span>💰 ${errand.budget || 0}</span>
+                    <div className="space-y-4 sm:space-y-6">
+                        {filteredErrands.map((errand, index) => (
+                            <div 
+                                key={errand.id} 
+                                className="card card-hover animate-scale-in"
+                                style={{ animationDelay: `${index * 0.05}s` }}
+                            >
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className="flex-1 pr-3">
+                                        <div className="flex items-start gap-3 mb-3">
+                                            <div className="text-3xl sm:text-4xl flex-shrink-0">🤝</div>
+                                            <div className="flex-1">
+                                                <h3 className="font-bold text-lg sm:text-xl mb-2 text-gray-900 line-clamp-2">
+                                                    {errand.title}
+                                                </h3>
+                                                <p className="text-gray-600 text-sm sm:text-base mb-4 line-clamp-3">
+                                                    {errand.description}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-wrap gap-3 sm:gap-4 text-sm">
+                                            <div className="flex items-center gap-1.5 text-gray-600">
+                                                <span>📍</span>
+                                                <span className="font-medium">{errand.region || 'Unknown'}</span>
+                                            </div>
+                                            <div className="flex items-center gap-1.5 text-green-600 font-semibold">
+                                                <span>💰</span>
+                                                <span>${errand.budget || 0}</span>
+                                            </div>
                                             {errand.deadline && (
-                                                <span>⏰ {new Date(errand.deadline).toLocaleDateString()}</span>
+                                                <div className="flex items-center gap-1.5 text-gray-600">
+                                                    <span>⏰</span>
+                                                    <span>{new Date(errand.deadline).toLocaleDateString()}</span>
+                                                </div>
                                             )}
                                         </div>
                                     </div>
-                                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                    <span className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap flex-shrink-0 ${
                                         errand.status === 'open' ? 'bg-green-100 text-green-800' :
                                         errand.status === 'matched' ? 'bg-yellow-100 text-yellow-800' :
                                         errand.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
@@ -274,12 +300,12 @@ const ErrandsPage = () => {
                                         {errand.status}
                                     </span>
                                 </div>
-                                <div className="flex justify-end space-x-3">
-                                    <button className="px-4 py-2 text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 transition-colors">
+                                <div className="flex flex-col sm:flex-row gap-2 sm:justify-end pt-4 border-t border-gray-100">
+                                    <button className="btn-secondary text-sm sm:text-base py-2.5 w-full sm:w-auto">
                                         View Details
                                     </button>
                                     {errand.status === 'open' && (
-                                        <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                                        <button className="btn-primary text-sm sm:text-base py-2.5 w-full sm:w-auto">
                                             Apply to Help
                                         </button>
                                     )}
@@ -288,9 +314,14 @@ const ErrandsPage = () => {
                         ))}
                     </div>
                 ) : (
-                    <div className="text-center py-12">
-                        <p className="text-gray-500 mb-4">No errands available.</p>
-                        <p className="text-gray-400">Be the first to post one!</p>
+                    <div className="card-empty text-center animate-fade-in">
+                        <div className="text-6xl mb-4">🤝</div>
+                        <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                            No errands available
+                        </h3>
+                        <p className="text-gray-500 text-sm sm:text-base">
+                            Be the first to post one!
+                        </p>
                     </div>
                 )}
             </div>

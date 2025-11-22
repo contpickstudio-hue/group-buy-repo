@@ -142,12 +142,12 @@ function AppContent() {
                 Skip to main content
             </a>
 
-            {/* Language toggle (placeholder for now) */}
-            <div className="fixed top-4 right-4 z-40 flex space-x-2">
-                <button className="px-2 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50">
+            {/* Language toggle - Mobile optimized */}
+            <div className="fixed top-16 sm:top-4 right-3 sm:right-4 z-40 flex space-x-1 sm:space-x-2">
+                <button className="px-2.5 py-1.5 text-xs sm:text-sm bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg hover:bg-white hover:shadow-sm transition-all font-medium min-h-[36px] min-w-[36px]">
                     EN
                 </button>
-                <button className="px-2 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50">
+                <button className="px-2.5 py-1.5 text-xs sm:text-sm bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg hover:bg-white hover:shadow-sm transition-all font-medium min-h-[36px] min-w-[36px]">
                     한국어
                 </button>
             </div>
@@ -157,8 +157,8 @@ function AppContent() {
                 <Navbar />
             </SectionErrorBoundary>
 
-            {/* Main content */}
-            <main id="main-content" className="pb-20 md:pb-8">
+            {/* Main content - Mobile optimized spacing */}
+            <main id="main-content" className="pb-24 md:pb-8 min-h-screen">
                 <SectionErrorBoundary section="Main Content">
                     {renderCurrentScreen()}
                 </SectionErrorBoundary>

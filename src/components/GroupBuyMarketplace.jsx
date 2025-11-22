@@ -230,42 +230,66 @@ const GroupBuyMarketplace = ({
                 </select>
             </div>
 
-            {/* Products Grid */}
+            {/* Products Grid - Mobile optimized */}
             {filteredProducts.length > 0 ? (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6" data-testid="products-grid">
-                    {filteredProducts.filter(p => p && p.id).map(product => (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6" data-testid="products-grid">
+                    {filteredProducts.filter(p => p && p.id).map((product, index) => (
                         <div 
                             key={product.id} 
-                            className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+                            className="card-product animate-scale-in"
+                            style={{ animationDelay: `${index * 0.05}s` }}
                             data-testid={`product-card-${product.id}`}
                         >
-                            <div className="h-48 bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
-                                <span className="text-white text-4xl">🛒</span>
+                            {/* Product Image */}
+                            <div className="h-40 sm:h-48 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 flex items-center justify-center relative overflow-hidden">
+                                <div className="absolute inset-0 bg-black/5"></div>
+                                <span className="text-white text-5xl sm:text-6xl relative z-10">🛒</span>
+                                <div className="absolute top-3 right-3 bg-white/20 backdrop-blur-sm px-2.5 py-1 rounded-full">
+                                    <span className="text-white text-xs font-bold">{product.region || 'Unknown'}</span>
+                                </div>
                             </div>
-                            <div className="p-6">
-                                <h3 className="font-semibold text-lg mb-2">{product.title || 'Untitled Product'}</h3>
-                                <p className="text-gray-600 text-sm mb-4">{product.description || ''}</p>
-                                <div className="flex justify-between items-center text-sm text-gray-500 mb-4">
-                                    <span>{product.region || 'Unknown'}</span>
-                                    <span className="font-semibold text-lg text-gray-900">${product.price || 0}</span>
+                            
+                            {/* Product Info */}
+                            <div className="p-5 sm:p-6">
+                                <h3 className="font-bold text-lg sm:text-xl mb-2 text-gray-900 line-clamp-1">
+                                    {product.title || 'Untitled Product'}
+                                </h3>
+                                <p className="text-gray-600 text-sm mb-4 line-clamp-2 min-h-[40px]">
+                                    {product.description || ''}
+                                </p>
+                                
+                                {/* Price */}
+                                <div className="flex items-baseline gap-2 mb-4">
+                                    <span className="text-2xl sm:text-3xl font-bold text-gray-900">
+                                        ${product.price || 0}
+                                    </span>
+                                    <span className="text-sm text-gray-500">per unit</span>
                                 </div>
-                                <div className="w-full bg-gray-200 rounded-full h-2 mb-3">
-                                    <div 
-                                        className="bg-blue-600 h-2 rounded-full" 
-                                        style={{ width: `${Math.min(((product.currentQuantity || 0) / (product.targetQuantity || 1)) * 100, 100)}%` }}
-                                    ></div>
+                                
+                                {/* Progress Bar */}
+                                <div className="mb-3">
+                                    <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                                        <div 
+                                            className="bg-gradient-to-r from-blue-500 to-blue-600 h-2.5 rounded-full transition-all duration-500" 
+                                            style={{ width: `${Math.min(((product.currentQuantity || 0) / (product.targetQuantity || 1)) * 100, 100)}%` }}
+                                        ></div>
+                                    </div>
                                 </div>
-                                <div className="flex justify-between items-center mb-4">
-                                    <span className="text-sm text-gray-600">
+                                
+                                {/* Stats */}
+                                <div className="flex justify-between items-center text-sm mb-4">
+                                    <span className="text-gray-600 font-medium">
                                         {product.currentQuantity || 0}/{product.targetQuantity || 0} committed
                                     </span>
-                                    <span className="text-sm font-medium text-blue-600">
+                                    <span className="text-blue-600 font-bold">
                                         {Math.round(((product.currentQuantity || 0) / (product.targetQuantity || 1)) * 100)}% funded
                                     </span>
                                 </div>
+                                
+                                {/* CTA Button */}
                                 <button 
                                     onClick={() => handleJoinClick(product)}
-                                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+                                    className="w-full btn-primary text-sm sm:text-base py-3"
                                     data-testid={`join-button-${product.id}`}
                                 >
                                     Join Group Buy
@@ -275,9 +299,14 @@ const GroupBuyMarketplace = ({
                     ))}
                 </div>
             ) : (
-                <div className="text-center py-12" data-testid="empty-state">
-                    <p className="text-gray-500 mb-4">No group buys match your filters.</p>
-                    <p className="text-gray-400">Try adjusting your search criteria.</p>
+                <div className="card-empty text-center animate-fade-in" data-testid="empty-state">
+                    <div className="text-6xl mb-4">🔍</div>
+                    <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                        No group buys match your filters
+                    </h3>
+                    <p className="text-gray-500 text-sm sm:text-base">
+                        Try adjusting your search criteria.
+                    </p>
                 </div>
             )}
         </>

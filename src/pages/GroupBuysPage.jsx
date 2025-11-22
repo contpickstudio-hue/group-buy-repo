@@ -107,13 +107,17 @@ const GroupBuysPage = () => {
     };
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="text-center mb-8">
-                <p className="text-gray-600 mb-2">Community bulk orders</p>
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+            {/* Header - Mobile optimized */}
+            <div className="text-center mb-6 sm:mb-8 animate-fade-in">
+                <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold mb-3">
+                    <span className="w-2 h-2 bg-blue-600 rounded-full mr-2 animate-pulse-slow"></span>
+                    Community bulk orders
+                </div>
+                <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight">
                     Group Buy Marketplace
-                </h2>
-                <p className="text-gray-600">
+                </h1>
+                <p className="text-gray-600 text-base sm:text-lg">
                     Find deals by category, price, and popularity
                 </p>
             </div>
