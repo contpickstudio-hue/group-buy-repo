@@ -82,11 +82,11 @@ const Navbar = () => {
                                             {user.roles?.map(role => (
                                                 <span
                                                     key={role}
-                                                    className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                                                        role === 'customer' ? 'bg-green-100 text-green-800' :
-                                                        role === 'vendor' ? 'bg-yellow-100 text-yellow-800' :
-                                                        role === 'helper' ? 'bg-purple-100 text-purple-800' :
-                                                        'bg-gray-100 text-gray-800'
+                                                    className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium text-white ${
+                                                        role === 'customer' ? 'bg-blue-600' :
+                                                        role === 'vendor' ? 'bg-purple-600' :
+                                                        role === 'helper' ? 'bg-green-600' :
+                                                        'bg-gray-600'
                                                     }`}
                                                 >
                                                     {role.toUpperCase()}
@@ -129,24 +129,8 @@ const Navbar = () => {
                 </div>
             </div>
 
-            {/* Mobile Navigation Menu */}
-            <div className="md:hidden border-t border-gray-200">
-                <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                    {navItems.map(item => (
-                        <button
-                            key={item.key}
-                            onClick={() => handleNavigation(item.screen)}
-                            className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                                currentScreen === item.screen
-                                    ? 'text-blue-600 bg-blue-50'
-                                    : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
-                            }`}
-                        >
-                            {item.label}
-                        </button>
-                    ))}
-                </div>
-            </div>
+            {/* Mobile Navigation Menu - Hidden by default, shown only when menu is toggled */}
+            {/* Note: Mobile navigation is handled by BottomNavigation component */}
         </nav>
     );
 };

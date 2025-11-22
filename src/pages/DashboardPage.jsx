@@ -1,9 +1,12 @@
 import React from 'react';
-import { useApp } from '../contexts/AppContext';
+import { useUser, useProducts, useOrders, useErrands } from '../stores';
 
 const DashboardPage = () => {
-    const { state } = useApp();
-    const { user } = state;
+    try {
+        const user = useUser();
+        const products = useProducts() || [];
+        const orders = useOrders() || [];
+        const errands = useErrands() || [];
 
     if (!user) {
         return (
@@ -159,6 +162,27 @@ const DashboardPage = () => {
             </div>
         </div>
     );
+    } catch (error) {
+        console.error('DashboardPage error:', error);
+        return (
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+                    <h3 className="text-lg font-semibold text-red-800 mb-2">
+                        Unable to Load Dashboard
+                    </h3>
+                    <p className="text-red-600 mb-4">
+                        There was an error loading your dashboard. Please try refreshing the page.
+                    </p>
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
+                    >
+                        Refresh Page
+                    </button>
+                </div>
+            </div>
+        );
+    }
 };
 
 export default DashboardPage;

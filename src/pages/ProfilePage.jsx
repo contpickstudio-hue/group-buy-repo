@@ -1,10 +1,14 @@
 import React from 'react';
-import { useApp } from '../contexts/AppContext';
-import { signOut } from '../services/supabaseService';
+import { useUser, useSignOut, useSetCurrentScreen, useSetUser, useAppStore } from '../stores';
+import { signOut as supabaseSignOut } from '../services/supabaseService';
 
 const ProfilePage = () => {
-    const { state, actions } = useApp();
-    const { user } = state;
+    try {
+        const user = useUser();
+        const signOutAction = useSignOut();
+        const setCurrentScreen = useSetCurrentScreen();
+        const setUser = useSetUser();
+        const resetStore = useAppStore((state) => state.resetStore);
 
     if (!user) {
         return (
@@ -18,9 +22,9 @@ const ProfilePage = () => {
 
     const handleLogout = async () => {
         try {
-            await signOut();
-            actions.setUser(null);
-            actions.setCurrentScreen('start');
+            await supabaseSignOut();
+            setUser(null);
+            setCurrentScreen('start');
         } catch (error) {
             console.error('Logout error:', error);
         }
@@ -28,7 +32,7 @@ const ProfilePage = () => {
 
     const handleResetApp = () => {
         if (confirm('Are you sure you want to reset all app data? This cannot be undone.')) {
-            actions.resetState();
+            resetStore();
             window.location.reload();
         }
     };
@@ -193,6 +197,27 @@ const ProfilePage = () => {
             </div>
         </div>
     );
+    } catch (error) {
+        console.error('ProfilePage error:', error);
+        return (
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+                    <h3 className="text-lg font-semibold text-red-800 mb-2">
+                        Unable to Load Profile
+                    </h3>
+                    <p className="text-red-600 mb-4">
+                        There was an error loading your profile. Please try refreshing the page.
+                    </p>
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
+                    >
+                        Refresh Page
+                    </button>
+                </div>
+            </div>
+        );
+    }
 };
 
 export default ProfilePage;
