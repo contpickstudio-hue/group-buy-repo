@@ -1,12 +1,12 @@
 import React from 'react';
-import { useUser, useProducts, useOrders, useErrands } from '../stores';
+import { useUser } from '../stores';
+import CreateGroupBuyForm from '../components/CreateGroupBuyForm';
+import useAccountSummary from '../hooks/useAccountSummary';
 
 const DashboardPage = () => {
     try {
         const user = useUser();
-        const products = useProducts() || [];
-        const orders = useOrders() || [];
-        const errands = useErrands() || [];
+        const accountSummary = useAccountSummary();
 
     if (!user) {
         return (
@@ -47,110 +47,36 @@ const DashboardPage = () => {
                 </div>
             </div>
 
-            {/* Analytics Placeholder */}
+            {/* Account Summary */}
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <div className="bg-white rounded-lg shadow-md p-6 text-center">
-                    <div className="text-2xl font-bold text-blue-600 mb-2">$0.00</div>
+                    <div className="text-2xl font-bold text-blue-600 mb-2">
+                        ${accountSummary.totalSavings.toFixed(2)}
+                    </div>
                     <div className="text-gray-600">Total Savings</div>
                 </div>
                 <div className="bg-white rounded-lg shadow-md p-6 text-center">
-                    <div className="text-2xl font-bold text-green-600 mb-2">$0.00</div>
+                    <div className="text-2xl font-bold text-green-600 mb-2">
+                        ${accountSummary.totalEarnings.toFixed(2)}
+                    </div>
                     <div className="text-gray-600">Total Earnings</div>
                 </div>
                 <div className="bg-white rounded-lg shadow-md p-6 text-center">
-                    <div className="text-2xl font-bold text-purple-600 mb-2">0</div>
+                    <div className="text-2xl font-bold text-purple-600 mb-2">
+                        {accountSummary.groupBuysJoined}
+                    </div>
                     <div className="text-gray-600">Group Buys Joined</div>
                 </div>
                 <div className="bg-white rounded-lg shadow-md p-6 text-center">
-                    <div className="text-2xl font-bold text-orange-600 mb-2">0</div>
+                    <div className="text-2xl font-bold text-orange-600 mb-2">
+                        {accountSummary.errandsCompleted}
+                    </div>
                     <div className="text-gray-600">Errands Completed</div>
                 </div>
             </div>
 
             {/* Role-specific sections */}
-            {roles.includes('vendor') && (
-                <div className="bg-white rounded-lg shadow-md p-6 mb-8" data-testid="create-product-form">
-                    <h3 className="text-xl font-semibold mb-4">Create Group Buy</h3>
-                    <form className="space-y-4">
-                        <div className="grid md:grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Product Title
-                                </label>
-                                <input
-                                    type="text"
-                                    name="title"
-                                    placeholder="e.g., Premium Korean Strawberries"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Price per Unit ($)
-                                </label>
-                                <input
-                                    type="number"
-                                    name="price"
-                                    min="1"
-                                    placeholder="38"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                            </div>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Description
-                            </label>
-                            <textarea
-                                name="description"
-                                rows={3}
-                                placeholder="Describe your product..."
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                        </div>
-                        <div className="grid md:grid-cols-3 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Region
-                                </label>
-                                <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                    <option>Toronto</option>
-                                    <option>Hamilton</option>
-                                    <option>Niagara</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Target Quantity
-                                </label>
-                                <input
-                                    type="number"
-                                    name="targetQuantity"
-                                    min="5"
-                                    defaultValue="20"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Deadline
-                                </label>
-                                <input
-                                    type="date"
-                                    name="deadline"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                            </div>
-                        </div>
-                        <button
-                            type="submit"
-                            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
-                        >
-                            Create Group Buy
-                        </button>
-                    </form>
-                </div>
-            )}
+            {roles.includes('vendor') && <CreateGroupBuyForm />}
 
             {/* Recent Activity */}
             <div className="bg-white rounded-lg shadow-md p-6">

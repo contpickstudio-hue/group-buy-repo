@@ -32,6 +32,7 @@ Object.defineProperty(navigator, 'clipboard', {
     readText: vi.fn().mockResolvedValue(''),
   },
   writable: true,
+  configurable: true,
 });
 
 // Mock navigator.onLine

@@ -110,19 +110,28 @@ export const useAppStore = create()(
     )
 );
 
-// Selectors for optimized component subscriptions
-export const useUser = () => useAppStore((state) => state.user);
-// Individual user action hooks for React 19 compatibility
-export const useCheckAuthStatus = () => useAppStore((state) => state.checkAuthStatus);
-export const useSignUp = () => useAppStore((state) => state.signUp);
-export const useSignIn = () => useAppStore((state) => state.signIn);
-export const useSignInWithGoogle = () => useAppStore((state) => state.signInWithGoogle);
-export const useSignOut = () => useAppStore((state) => state.signOut);
-export const useSetDemoUser = () => useAppStore((state) => state.setDemoUser);
-export const useSetUser = () => useAppStore((state) => state.setUser);
-export const useUpdateUser = () => useAppStore((state) => state.updateUser);
-export const useClearUser = () => useAppStore((state) => state.clearUser);
-export const useSetSelectedRoles = () => useAppStore((state) => state.setSelectedRoles);
+// Re-export auth store hooks for backward compatibility and convenience
+export { 
+    useAuthStore, 
+    useAuth, 
+    useAuthActions, 
+    useUserRoles 
+} from './authStore';
+
+// Legacy selectors - now using authStore
+export const useUser = () => useAuthStore((state) => state.user);
+export const useCheckAuthStatus = () => useAuthStore((state) => state.checkAuthStatus);
+export const useSignUp = () => useAuthStore((state) => state.signUp);
+export const useSignIn = () => useAuthStore((state) => state.signIn);
+export const useSignInWithGoogle = () => useAuthStore((state) => state.signInWithGoogle);
+export const useSignOut = () => useAuthStore((state) => state.signOut);
+export const useSetDemoUser = () => useAuthStore((state) => state.setDemoUser);
+export const useSetUser = () => useAuthStore((state) => state.setUser);
+export const useUpdateUser = () => useAuthStore((state) => state.updateUser);
+export const useClearUser = () => useAuthStore((state) => state.clearUser);
+export const useSetSelectedRoles = () => useAuthStore((state) => state.setSelectedRoles);
+
+// Helper-specific hooks (still in userSlice for now)
 export const useUpdateHelperData = () => useAppStore((state) => state.updateHelperData);
 export const useSetHelperStep = () => useAppStore((state) => state.setHelperStep);
 
@@ -136,6 +145,7 @@ export const useAddProduct = () => useAppStore((state) => state.addProduct);
 export const useUpdateProduct = () => useAppStore((state) => state.updateProduct);
 export const useDeleteProduct = () => useAppStore((state) => state.deleteProduct);
 export const useSetProducts = () => useAppStore((state) => state.setProducts);
+export const useCreateProduct = () => useAppStore((state) => state.createProduct);
 export const useJoinGroupBuy = () => useAppStore((state) => state.joinGroupBuy);
 // Backward compatibility hook removed - use individual hooks instead
 // export const useProductActions = () => useAppStore((state) => ({...}), shallow);
