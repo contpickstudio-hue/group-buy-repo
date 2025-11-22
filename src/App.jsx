@@ -68,9 +68,9 @@ const NotificationContainer = () => {
 const VersionInfo = () => (
     <div 
         className="fixed bottom-4 right-4 bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs z-10 hidden md:block"
-        title="Multi-User Platform v3.0.0 - Complete Feature Set with Analytics & Mobile Optimization"
+        title="Korean Community Commerce v3.1.0 - Modern Mobile-First UI Design"
     >
-        v3.0.0
+        v3.1.0
     </div>
 );
 
