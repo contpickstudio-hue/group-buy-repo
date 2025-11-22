@@ -23,10 +23,10 @@ import { handleFormSubmission } from '../services/errorService';
 export const useAuthStore = create()(
     devtools(
         immer((set, get) => ({
-                // Authentication state
-                user: null,
-                loginMethod: null,
-                selectedRoles: new Set(['customer']),
+            // Authentication state
+            user: null,
+            loginMethod: null,
+            selectedRoles: new Set(['customer']),
                 
                 // Loading and error states
                 authLoading: false,
@@ -311,15 +311,14 @@ export const useAuthStore = create()(
                  * Check if user is authenticated
                  * @returns {boolean} - True if user is authenticated
                  */
-                isAuthenticated: () => {
-                    const { user } = get();
-                    return user !== null;
-                }
-            })),
-            {
-                name: 'auth-store'
+            isAuthenticated: () => {
+                const { user } = get();
+                return user !== null;
             }
-        )
+        })),
+        {
+            name: 'auth-store'
+        }
     )
 );
 
