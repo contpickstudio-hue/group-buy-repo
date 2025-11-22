@@ -110,13 +110,21 @@ export const useAppStore = create()(
     )
 );
 
+// Import auth store first to avoid circular dependency
+import { 
+    useAuthStore, 
+    useAuth, 
+    useAuthActions, 
+    useUserRoles 
+} from './authStore';
+
 // Re-export auth store hooks for backward compatibility and convenience
 export { 
     useAuthStore, 
     useAuth, 
     useAuthActions, 
     useUserRoles 
-} from './authStore';
+};
 
 // Legacy selectors - now using authStore
 export const useUser = () => useAuthStore((state) => state.user);
