@@ -10,7 +10,7 @@ const FloatingActionButton = () => {
     const menuRef = useRef(null);
     const fabRef = useRef(null);
 
-    // Close menu when clicking outside
+    // Close menu when clicking outside (handles both mouse and touch events)
     useEffect(() => {
         function handleClickOutside(event) {
             if (
@@ -24,8 +24,13 @@ const FloatingActionButton = () => {
         }
 
         if (isMenuOpen) {
+            // Handle both mouse and touch events for better mobile support
             document.addEventListener('mousedown', handleClickOutside);
-            return () => document.removeEventListener('mousedown', handleClickOutside);
+            document.addEventListener('touchstart', handleClickOutside);
+            return () => {
+                document.removeEventListener('mousedown', handleClickOutside);
+                document.removeEventListener('touchstart', handleClickOutside);
+            };
         }
     }, [isMenuOpen]);
 

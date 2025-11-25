@@ -137,13 +137,13 @@ const ErrandsPage = () => {
                             placeholder="Search errands..."
                             value={search}
                             onChange={(e) => updateErrandFilters({ search: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                         />
                     </div>
                     <select 
                         value={region}
                         onChange={(e) => updateErrandFilters({ region: e.target.value })}
-                        className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                     >
                         <option value="all">All Regions</option>
                         <option value="Toronto">Toronto</option>
@@ -168,7 +168,7 @@ const ErrandsPage = () => {
                             onChange={handleInputChange}
                             placeholder="e.g., Weekly H-Mart Grocery Run"
                             required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                         />
                     </div>
                     <div>
@@ -182,7 +182,7 @@ const ErrandsPage = () => {
                             rows={3}
                             placeholder="Describe what you need help with..."
                             required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                         />
                     </div>
                     <div className="grid md:grid-cols-3 gap-4">
@@ -194,7 +194,7 @@ const ErrandsPage = () => {
                                 name="region"
                                 value={formData.region}
                                 onChange={handleInputChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                             >
                                 <option value="Toronto">Toronto</option>
                                 <option value="Hamilton">Hamilton</option>
@@ -212,6 +212,7 @@ const ErrandsPage = () => {
                                 onChange={handleInputChange}
                                 min="1"
                                 placeholder="25"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>

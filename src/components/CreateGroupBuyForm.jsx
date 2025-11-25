@@ -1,94 +1,17 @@
-import React, { useState } from 'react';
-import { useUser, useCreateProduct } from '../stores';
+import React from 'react';
+import { useUser } from '../stores';
+import useCreateGroupBuyForm from '../hooks/useCreateGroupBuyForm';
 
 const CreateGroupBuyForm = () => {
     const user = useUser();
-    const createProduct = useCreateProduct();
-    
-    const [formData, setFormData] = useState({
-        title: '',
-        price: '',
-        description: '',
-        region: 'Toronto',
-        targetQuantity: 20,
-        deadline: ''
-    });
-    
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [error, setError] = useState(null);
-
-    // Check if form is valid (required fields: title, price, region)
-    const isFormValid = formData.title.trim() !== '' && 
-                       formData.price !== '' && 
-                       formData.price > 0 && 
-                       formData.region !== '';
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: name === 'targetQuantity' || name === 'price' ? parseFloat(value) || '' : value
-        }));
-        // Clear error when user starts typing
-        if (error) setError(null);
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError(null);
-        setIsSubmitting(true);
-
-        // Validation
-        if (!formData.title.trim()) {
-            setError('Product title is required');
-            setIsSubmitting(false);
-            return;
-        }
-        if (!formData.price || formData.price <= 0) {
-            setError('Price must be greater than 0');
-            setIsSubmitting(false);
-            return;
-        }
-        if (!formData.deadline) {
-            setError('Deadline is required');
-            setIsSubmitting(false);
-            return;
-        }
-        if (formData.targetQuantity < 5) {
-            setError('Target quantity must be at least 5');
-            setIsSubmitting(false);
-            return;
-        }
-
-        try {
-            const result = await createProduct({
-                title: formData.title.trim(),
-                price: formData.price,
-                description: formData.description.trim(),
-                region: formData.region,
-                targetQuantity: formData.targetQuantity,
-                deadline: formData.deadline
-            });
-
-            if (result.success) {
-                // Reset form on success
-                setFormData({
-                    title: '',
-                    price: '',
-                    description: '',
-                    region: 'Toronto',
-                    targetQuantity: 20,
-                    deadline: ''
-                });
-            } else {
-                setError(result.error || 'Failed to create group buy');
-            }
-        } catch (err) {
-            setError(err.message || 'An unexpected error occurred');
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
+    const {
+        formData,
+        isSubmitting,
+        error,
+        isFormValid,
+        handleChange,
+        handleSubmit
+    } = useCreateGroupBuyForm();
 
     if (!user || !user.roles?.includes('vendor')) {
         return null;
@@ -115,7 +38,7 @@ const CreateGroupBuyForm = () => {
                             value={formData.title}
                             onChange={handleChange}
                             placeholder="e.g., Premium Korean Strawberries"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                             required
                         />
                     </div>
@@ -132,7 +55,7 @@ const CreateGroupBuyForm = () => {
                             min="1"
                             step="0.01"
                             placeholder="38"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                             required
                         />
                     </div>
@@ -148,7 +71,7 @@ const CreateGroupBuyForm = () => {
                         onChange={handleChange}
                         rows={3}
                         placeholder="Describe your product..."
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                     />
                 </div>
                 <div className="grid md:grid-cols-3 gap-4">
@@ -161,7 +84,7 @@ const CreateGroupBuyForm = () => {
                             name="region"
                             value={formData.region}
                             onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                         >
                             <option value="Toronto">Toronto</option>
                             <option value="Hamilton">Hamilton</option>
@@ -179,7 +102,7 @@ const CreateGroupBuyForm = () => {
                             value={formData.targetQuantity}
                             onChange={handleChange}
                             min="5"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                             required
                         />
                     </div>
@@ -194,7 +117,7 @@ const CreateGroupBuyForm = () => {
                             value={formData.deadline}
                             onChange={handleChange}
                             min={new Date().toISOString().split('T')[0]}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                             required
                         />
                     </div>
