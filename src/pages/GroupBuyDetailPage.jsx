@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { useProducts, useUser, useSetCurrentScreen } from '../stores';
 import CheckoutModal from '../components/CheckoutModal';
+import MobileHeader from '../components/mobile/MobileHeader';
 import toast from 'react-hot-toast';
 
 const GroupBuyDetailPage = () => {
@@ -97,24 +98,22 @@ const GroupBuyDetailPage = () => {
     };
 
     return (
-        <div className="max-w-4xl mx-auto px-4 pb-24 sm:pb-8">
-            {/* Mobile-optimized sticky header */}
-            <div className="sticky top-0 bg-white z-10 py-3 mb-4 border-b border-gray-200 -mx-4 px-4 shadow-sm">
-                <button
-                    onClick={() => {
-                        window.location.hash = '';
-                        setCurrentScreen('groupbuys');
-                    }}
-                    className="text-blue-600 hover:text-blue-700 font-medium flex items-center min-h-[44px] text-base"
-                >
-                    <span className="mr-2 text-xl">←</span>
-                    <span>Back</span>
-                </button>
-            </div>
+        <div className="min-h-screen bg-gray-50 pb-24 sm:pb-8">
+            {/* Mobile Header */}
+            <MobileHeader 
+                title={product.title.length > 20 ? product.title.substring(0, 20) + '...' : product.title}
+                backScreen="groupbuys"
+                onBack={() => {
+                    window.location.hash = '';
+                    setCurrentScreen('groupbuys');
+                }}
+            />
 
-            <div className="bg-white rounded-lg shadow-md overflow-hidden mb-4">
-                {/* Product Image - Mobile optimized */}
-                <div className="h-48 sm:h-64 bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center overflow-hidden">
+            <div className="max-w-4xl mx-auto px-4 pt-4">
+                {/* Product Card */}
+                <div className="bg-white rounded-xl shadow-md overflow-hidden mb-4">
+                {/* Product Image - Mobile optimized, full-width banner */}
+                <div className="h-56 sm:h-72 bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center overflow-hidden relative">
                     {product.imageDataUrl ? (
                         <img 
                             src={product.imageDataUrl} 
@@ -128,8 +127,8 @@ const GroupBuyDetailPage = () => {
                     )}
                 </div>
 
-                {/* Product Details - Mobile optimized */}
-                <div className="p-4 sm:p-6">
+                {/* Product Details - Mobile optimized with better spacing */}
+                <div className="p-5 sm:p-6 space-y-5">
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-4 gap-3">
                         <div className="flex-1">
                             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 leading-tight">
@@ -200,24 +199,25 @@ const GroupBuyDetailPage = () => {
                             {product.description || 'No description provided.'}
                         </p>
                     </div>
-
+                </div>
                 </div>
             </div>
 
-            {/* Mobile-optimized sticky CTA button */}
+            {/* Mobile-optimized sticky CTA button - positioned above bottom nav */}
             {!isExpired && !isCompleted && (
-                <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-50 md:hidden shadow-lg">
+                <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-50 md:hidden shadow-lg safe-area-inset-bottom" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom) + 64px)' }}>
                     <button
                         onClick={handleJoinGroupBuy}
-                        className="w-full bg-blue-600 text-white py-4 px-6 rounded-xl hover:bg-blue-700 transition-colors font-semibold text-lg min-h-[56px]"
+                        className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 px-6 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-colors font-semibold text-lg min-h-[56px] shadow-lg"
                     >
                         Join Group Buy - ${product.price}
                     </button>
                 </div>
             )}
 
-            {/* Desktop CTA (inside card) */}
-            <div className="hidden md:block bg-white rounded-lg shadow-md p-6">
+            {/* Desktop CTA */}
+            <div className="max-w-4xl mx-auto px-4">
+                <div className="hidden md:block bg-white rounded-lg shadow-md p-6">
                 {!isExpired && !isCompleted && (
                     <button
                         onClick={handleJoinGroupBuy}
@@ -236,6 +236,7 @@ const GroupBuyDetailPage = () => {
                         ✗ This group buy has expired
                     </div>
                 )}
+                </div>
             </div>
 
             {/* Checkout Modal */}

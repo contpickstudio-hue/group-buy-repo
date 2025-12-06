@@ -16,6 +16,7 @@ import AuthPage from './pages/AuthPage';
 import BrowsePage from './pages/BrowsePage';
 import GroupBuysPage from './pages/GroupBuysPage';
 import GroupBuyDetailPage from './pages/GroupBuyDetailPage';
+import ErrandDetailPage from './pages/ErrandDetailPage';
 import ErrandsPage from './pages/ErrandsPage';
 import DashboardPage from './pages/DashboardPage';
 import ProfilePage from './pages/ProfilePage';
@@ -181,6 +182,9 @@ function AppContent() {
         const hash = window.location.hash;
         if (hash && hash.startsWith('#groupbuy/')) {
             return <GroupBuyDetailPage />;
+        }
+        if (hash && hash.startsWith('#errand/')) {
+            return <ErrandDetailPage />;
         }
 
         switch (currentScreen) {

@@ -303,11 +303,16 @@ const ErrandsPage = () => {
                                     </span>
                                 </div>
                                 <div className="flex flex-col sm:flex-row gap-2 sm:justify-end pt-4 border-t border-gray-100">
-                                    <button className="btn-secondary text-sm sm:text-base py-2.5 w-full sm:w-auto">
+                                    <button 
+                                        onClick={() => {
+                                            window.location.hash = `#errand/${errand.id}`;
+                                        }}
+                                        className="btn-secondary text-sm sm:text-base py-3 w-full sm:w-auto min-h-[48px]"
+                                    >
                                         View Details
                                     </button>
                                     {errand.status === 'open' && (
-                                        <button className="btn-primary text-sm sm:text-base py-2.5 w-full sm:w-auto">
+                                        <button className="btn-primary text-sm sm:text-base py-3 w-full sm:w-auto min-h-[48px]">
                                             Apply to Help
                                         </button>
                                     )}

@@ -148,8 +148,8 @@ const DashboardPage = () => {
                         </div>
                     </div>
 
-                    {/* Account Summary */}
-                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    {/* Account Summary - Stacked on mobile */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
                         <div className="bg-white rounded-lg shadow-md p-6 text-center">
                             <div className="text-2xl font-bold text-blue-600 mb-2">
                                 ${accountSummary.totalSavings.toFixed(2)}
@@ -179,17 +179,17 @@ const DashboardPage = () => {
                     {/* Quick Actions */}
                     <div className="bg-white rounded-lg shadow-md p-6 mb-8">
                         <h3 className="text-xl font-semibold mb-4">Quick Actions</h3>
-                        <div className="grid md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <button
                                 onClick={() => setCurrentScreen('groupbuys')}
-                                className="flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                className="flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors min-h-[48px] font-semibold"
                             >
                                 <span className="mr-2">🛒</span>
                                 Create Group Buy
                             </button>
                             <button
                                 onClick={() => setCurrentScreen('errands')}
-                                className="flex items-center justify-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                                className="flex items-center justify-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors min-h-[48px] font-semibold"
                             >
                                 <span className="mr-2">📝</span>
                                 Post Errand
@@ -260,7 +260,7 @@ const DashboardPage = () => {
                     {/* Completed Items */}
                     <div className="bg-white rounded-lg shadow-md p-6">
                         <h3 className="text-xl font-semibold mb-4">Completed Items</h3>
-                        <div className="grid md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <h4 className="text-sm font-medium text-gray-700 mb-2">Group Buys</h4>
                                 <div className="text-2xl font-bold text-green-600">

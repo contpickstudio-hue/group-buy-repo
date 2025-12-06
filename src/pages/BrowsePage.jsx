@@ -94,8 +94,10 @@ const BrowsePage = () => {
                                     
                                     {/* CTA Button */}
                                     <button 
-                                        onClick={() => setCurrentScreen('groupbuys')}
-                                        className="w-full btn-primary text-sm sm:text-base py-3"
+                                        onClick={() => {
+                                            window.location.hash = `#groupbuy/${product.id}`;
+                                        }}
+                                        className="w-full btn-primary text-sm sm:text-base py-3 min-h-[48px]"
                                     >
                                         View Details
                                     </button>
@@ -162,8 +164,10 @@ const BrowsePage = () => {
                                 </div>
                                 
                                 <button 
-                                    onClick={() => setCurrentScreen('errands')}
-                                    className="w-full mt-4 btn-secondary text-sm sm:text-base py-2.5"
+                                    onClick={() => {
+                                        window.location.hash = `#errand/${errand.id}`;
+                                    }}
+                                    className="w-full mt-4 btn-secondary text-sm sm:text-base py-3 min-h-[48px]"
                                 >
                                     View Details
                                 </button>
