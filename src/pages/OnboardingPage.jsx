@@ -93,14 +93,19 @@ const OnboardingPage = () => {
                 <div className="space-y-3">
                     <button
                         onClick={handleNext}
-                        className="w-full bg-blue-600 text-white py-4 px-6 rounded-xl hover:bg-blue-700 transition-colors font-semibold text-base min-h-[48px]"
+                        type="button"
+                        className="w-full bg-blue-600 text-white py-4 px-6 rounded-xl hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors font-semibold text-base min-h-[48px] disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={false}
+                        aria-label={isLastStep ? t('common.signUp') : t('common.next')}
                     >
                         {isLastStep ? t('common.signUp') : t('common.next')}
                     </button>
                     {!isLastStep && (
                         <button
                             onClick={handleSkip}
-                            className="w-full text-gray-600 py-3 px-6 rounded-xl hover:bg-gray-100 transition-colors font-medium text-sm min-h-[44px]"
+                            type="button"
+                            className="w-full text-gray-600 py-3 px-6 rounded-xl hover:bg-gray-100 active:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 transition-colors font-medium text-sm min-h-[44px]"
+                            aria-label={t('common.skip')}
                         >
                             {t('common.skip')}
                         </button>

@@ -6,11 +6,36 @@ import { Elements } from '@stripe/react-stripe-js';
 // In production, this should come from environment variables
 const STRIPE_PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_51QEXAMPLE'; // Replace with your actual key
 
+// Suppress Stripe errors from adblockers - they're expected and handled gracefully
 const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY).catch((error) => {
-  // Handle Stripe loading errors (e.g., ad blockers)
-  console.warn('Stripe failed to load. This may be due to an ad blocker.', error);
+  // Silently handle Stripe loading errors (e.g., ad blockers)
+  // These errors are expected and don't affect app functionality
+  if (import.meta.env.DEV) {
+    console.warn('⚠️ Stripe blocked by ad blocker. Payment features will be unavailable.');
+  }
   return null; // Return null instead of throwing
 });
+
+// Suppress Stripe fetch errors from console (adblocker-related)
+if (typeof window !== 'undefined') {
+  // Catch unhandled promise rejections for Stripe tracking
+  window.addEventListener('unhandledrejection', (event) => {
+    const errorMessage = event.reason?.message || event.reason?.toString() || '';
+    const errorStack = event.reason?.stack || '';
+    
+    // Suppress Stripe tracking errors
+    if (
+      errorMessage.includes('r.stripe.com') ||
+      errorMessage.includes('m.stripe.com') ||
+      errorMessage.includes('ERR_BLOCKED_BY_ADBLOCKER') ||
+      errorStack.includes('stripe') ||
+      errorMessage.includes('FetchError')
+    ) {
+      event.preventDefault(); // Prevent error from showing in console
+      return;
+    }
+  });
+}
 
 /**
  * StripeProvider Component
