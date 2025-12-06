@@ -152,20 +152,8 @@ function AppContent() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []); // Only run once on mount
 
-    // Show onboarding if needed
-    if (!onboardingChecked) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            </div>
-        );
-    }
-
-    if (showOnboarding) {
-        return <OnboardingPage />;
-    }
-
     // Listen for hash changes to handle detail page routing
+    // IMPORTANT: This hook must be called before any conditional returns
     useEffect(() => {
         const handleHashChange = () => {
             // Hash changes are handled in renderCurrentScreen
