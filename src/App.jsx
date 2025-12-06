@@ -163,6 +163,19 @@ function AppContent() {
         return () => window.removeEventListener('hashchange', handleHashChange);
     }, []);
 
+    // Show onboarding if needed - AFTER all hooks are called
+    if (!onboardingChecked) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
+        );
+    }
+
+    if (showOnboarding) {
+        return <OnboardingPage />;
+    }
+
     const renderCurrentScreen = () => {
         // Check for detail page routing via hash
         const hash = window.location.hash;
