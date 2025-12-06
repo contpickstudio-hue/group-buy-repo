@@ -67,15 +67,18 @@ const Navbar = () => {
                         </div>
                     </div>
 
-                    {/* User Actions */}
-                    <div className="flex items-center space-x-4">
+                    {/* User Actions - Fixed alignment with consistent spacing */}
+                    <div className="flex items-center gap-2 sm:gap-3">
                         {user ? (
-                            <div className="flex items-center space-x-4">
-                                {/* Notification Icon */}
-                                <NotificationIcon />
-                                {/* User Profile - Mobile optimized */}
-                                <div className="flex items-center space-x-2 sm:space-x-3">
-                                    <div className="avatar-circle w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center shadow-md ring-2 ring-white">
+                            <>
+                                {/* Notification Icon - Consistent tap target */}
+                                <div className="flex items-center justify-center min-w-[44px] min-h-[44px]">
+                                    <NotificationIcon />
+                                </div>
+                                
+                                {/* User Profile - Mobile optimized with consistent spacing */}
+                                <div className="flex items-center gap-2 sm:gap-3">
+                                    <div className="avatar-circle w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center shadow-md ring-2 ring-white min-w-[36px] min-h-[36px] sm:min-w-[40px] sm:min-h-[40px]">
                                         <span className="text-sm sm:text-base font-bold text-white">
                                             {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
                                         </span>
@@ -105,23 +108,23 @@ const Navbar = () => {
                                     </div>
                                 </div>
 
-                                {/* Action Buttons - Mobile optimized */}
-                                <div className="flex space-x-2">
+                                {/* Action Buttons - Mobile optimized with consistent spacing */}
+                                <div className="flex items-center gap-2">
                                     <button
                                         onClick={() => window.location.reload()}
-                                        className="btn-reset hidden sm:inline-flex px-3 py-1.5 text-sm"
+                                        className="btn-reset hidden sm:inline-flex px-3 py-1.5 text-sm min-h-[44px]"
                                     >
                                         Reset
                                     </button>
                                     <button
                                         onClick={handleLogout}
-                                        className="btn-primary px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm"
+                                        className="btn-primary px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm min-h-[44px]"
                                     >
                                         <span className="hidden sm:inline">Logout</span>
                                         <span className="sm:hidden">Out</span>
                                     </button>
                                 </div>
-                            </div>
+                            </>
                         ) : (
                             <button
                                 onClick={() => handleNavigation('auth')}

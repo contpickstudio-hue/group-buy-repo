@@ -5,7 +5,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { useUser, useSignOut, useSetCurrentScreen, useUpdateGroupBuyFilters, useUpdateErrandFilters } from '../stores';
-import { getCurrentLanguage, setLanguage, getAvailableLanguages, t } from '../utils/translations';
+import { getCurrentLanguage, getAvailableLanguages, t } from '../utils/translations';
+import { useTranslation } from '../contexts/TranslationProvider';
+import MobileHeader from '../components/mobile/MobileHeader';
+import NotificationIcon from '../components/NotificationIcon';
 import { signOut as supabaseSignOut } from '../services/supabaseService';
 
 const SettingsPage = () => {
@@ -15,7 +18,7 @@ const SettingsPage = () => {
     const updateGroupBuyFilters = useUpdateGroupBuyFilters();
     const updateErrandFilters = useUpdateErrandFilters();
     
-    const [currentLang, setCurrentLang] = useState(getCurrentLanguage());
+    const { currentLanguage, setLanguage } = useTranslation();
     const [preferredRegion, setPreferredRegion] = useState(() => {
         try {
             return localStorage.getItem('preferredRegion') || 'Toronto';
@@ -40,7 +43,7 @@ const SettingsPage = () => {
 
     const handleLanguageChange = (langCode) => {
         setLanguage(langCode);
-        setCurrentLang(langCode);
+        // Language change triggers re-render via TranslationProvider
     };
 
 
@@ -111,23 +114,19 @@ const SettingsPage = () => {
     }
 
     return (
-        <div className="max-w-4xl mx-auto px-4 py-6 sm:py-8 pb-24 sm:pb-8">
-            {/* Mobile-optimized header */}
-            <div className="sticky top-0 bg-white z-10 py-3 mb-4 border-b border-gray-200 -mx-4 px-4 shadow-sm">
-                <div className="flex items-center">
-                    <button
-                        onClick={() => setCurrentScreen('profile')}
-                        className="text-blue-600 hover:text-blue-700 font-medium flex items-center min-h-[44px] mr-4"
-                    >
-                        <span className="mr-2 text-xl">←</span>
-                        <span className="text-base">{t('common.back')}</span>
-                    </button>
-                    <h1 className="text-xl sm:text-2xl font-bold text-gray-900 flex-1 text-center">
-                        {t('settings.title')}
-                    </h1>
-                    <div className="w-16"></div> {/* Spacer for centering */}
-                </div>
-            </div>
+        <div className="min-h-screen bg-gray-50 pb-24 sm:pb-8">
+            {/* Mobile-optimized header with back button, title, and notification bell */}
+            <MobileHeader
+                title={t('settings.title')}
+                backScreen="profile"
+                rightAction={
+                    <div className="flex items-center">
+                        <NotificationIcon />
+                    </div>
+                }
+            />
+            
+            <div className="max-w-4xl mx-auto px-4 pt-4">
 
             {/* Account Settings */}
             <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-5">
@@ -183,32 +182,27 @@ const SettingsPage = () => {
                 </div>
             </div>
 
-            {/* Language Settings */}
+            {/* Language Settings - Dropdown */}
             <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-5">
                 <h2 className="text-lg sm:text-xl font-semibold mb-4">{t('settings.language.title')}</h2>
-                <div className="space-y-2">
-                    {availableLanguages.map(lang => (
-                        <button
-                            key={lang.code}
-                            onClick={() => handleLanguageChange(lang.code)}
-                            className={`w-full flex items-center justify-between p-4 rounded-xl border-2 transition-all min-h-[56px] ${
-                                currentLang === lang.code
-                                    ? 'border-blue-500 bg-blue-50'
-                                    : 'border-gray-200 hover:border-gray-300'
-                            }`}
-                        >
-                            <div className="flex items-center space-x-3">
-                                <span className="text-2xl">{lang.flag}</span>
-                                <div className="text-left">
-                                    <div className="font-medium text-gray-900">{lang.name}</div>
-                                    <div className="text-sm text-gray-500">{lang.nativeName}</div>
-                                </div>
-                            </div>
-                            {currentLang === lang.code && (
-                                <span className="text-blue-600 font-bold">✓</span>
-                            )}
-                        </button>
-                    ))}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {t('settings.language.selectLanguage')}
+                    </label>
+                    <select
+                        value={currentLanguage}
+                        onChange={(e) => handleLanguageChange(e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[48px] bg-white"
+                    >
+                        {availableLanguages.map(lang => (
+                            <option key={lang.code} value={lang.code}>
+                                {lang.flag} {lang.name} ({lang.nativeName})
+                            </option>
+                        ))}
+                    </select>
+                    <p className="mt-2 text-sm text-gray-500">
+                        {t('settings.language.description')}
+                    </p>
                 </div>
             </div>
 
@@ -321,6 +315,7 @@ const SettingsPage = () => {
                 >
                     {t('common.logout')}
                 </button>
+            </div>
             </div>
         </div>
     );

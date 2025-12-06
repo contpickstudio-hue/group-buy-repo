@@ -7,6 +7,7 @@ import BottomNavigation from './components/BottomNavigation';
 import FloatingActionButton from './components/FloatingActionButton';
 import FirstTimeGuidance from './components/FirstTimeGuidance';
 import StripeProvider from './components/StripeProvider';
+import TranslationProvider from './contexts/TranslationProvider';
 import { initializeErrorTracking } from './services/errorService';
 
 // Import page components
@@ -22,7 +23,8 @@ import DashboardPage from './pages/DashboardPage';
 import ProfilePage from './pages/ProfilePage';
 import SettingsPage from './pages/SettingsPage';
 import { getCurrentLanguage } from './utils/translations';
-import { useUpdateGroupBuyFilters, useUpdateErrandFilters } from './stores';
+import { useUpdateGroupBuyFilters, useUpdateErrandFilters, useSetUser } from './stores';
+import { StorageKeys } from './services/supabaseService';
 
 // Loading component
 const LoadingSpinner = () => (
@@ -101,6 +103,7 @@ function AppContent() {
     const setCurrentScreen = useSetCurrentScreen();
     const updateGroupBuyFilters = useUpdateGroupBuyFilters();
     const updateErrandFilters = useUpdateErrandFilters();
+    const setUser = useSetUser();
 
     // Check onboarding status
     const [showOnboarding, setShowOnboarding] = React.useState(false);
@@ -134,7 +137,21 @@ function AppContent() {
                     console.warn('Failed to apply preferred region filter:', error);
                 }
                 
-                // Check authentication status
+                // Restore auth state from localStorage first (prevent logout on refresh)
+                try {
+                    const storedUser = localStorage.getItem(StorageKeys.user);
+                    const storedLoginMethod = localStorage.getItem(StorageKeys.loginMethod);
+                    
+                    if (storedUser) {
+                        const userData = JSON.parse(storedUser);
+                        // Restore user to store immediately
+                        setUser(userData);
+                    }
+                } catch (error) {
+                    console.warn('Failed to restore user from localStorage:', error);
+                }
+                
+                // Check authentication status (validates with Supabase)
                 await checkAuthStatus();
                 
                 // Load initial data
@@ -219,16 +236,6 @@ function AppContent() {
                 Skip to main content
             </a>
 
-            {/* Language toggle - Mobile optimized */}
-            <div className="fixed top-16 sm:top-4 right-3 sm:right-4 z-40 flex space-x-1 sm:space-x-2">
-                <button className="px-2.5 py-1.5 text-xs sm:text-sm bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg hover:bg-white hover:shadow-sm transition-all font-medium min-h-[36px] min-w-[36px]">
-                    EN
-                </button>
-                <button className="px-2.5 py-1.5 text-xs sm:text-sm bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg hover:bg-white hover:shadow-sm transition-all font-medium min-h-[36px] min-w-[36px]">
-                    한국어
-                </button>
-            </div>
-
             {/* Navigation */}
             <SectionErrorBoundary section="Navigation">
                 <Navbar />
@@ -285,9 +292,11 @@ function AppContent() {
 function App() {
     return (
         <GlobalErrorBoundary>
-            <StripeProvider>
-                <AppContent />
-            </StripeProvider>
+            <TranslationProvider>
+                <StripeProvider>
+                    <AppContent />
+                </StripeProvider>
+            </TranslationProvider>
         </GlobalErrorBoundary>
     );
 }

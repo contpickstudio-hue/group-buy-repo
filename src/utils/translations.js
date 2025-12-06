@@ -39,13 +39,14 @@ export function getCurrentLanguage() {
 /**
  * Set language preference
  * @param {string} langCode - Language code (en, ko, zh, hi)
+ * Note: This function now only saves to localStorage. The TranslationProvider handles UI updates.
  */
 export function setLanguage(langCode) {
     if (translations[langCode]) {
         try {
             localStorage.setItem('language', langCode);
-            // Reload page to apply translations
-            window.location.reload();
+            // Dispatch event for TranslationProvider to pick up
+            window.dispatchEvent(new Event('languagechange'));
         } catch (error) {
             console.error('Failed to save language preference:', error);
         }

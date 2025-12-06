@@ -52,6 +52,7 @@
     "language": {
       "title": "语言",
       "selectLanguage": "选择语言",
+      "description": "选择您的首选语言。更改将立即生效。",
       "english": "英语",
       "korean": "韩语",
       "chinese": "中文（简体）",

@@ -52,6 +52,7 @@
     "language": {
       "title": "Language",
       "selectLanguage": "Select Language",
+      "description": "Choose your preferred language. Changes apply immediately.",
       "english": "English",
       "korean": "Korean",
       "chinese": "Chinese (Simplified)",
