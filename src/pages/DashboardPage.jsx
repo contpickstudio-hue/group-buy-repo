@@ -197,11 +197,11 @@ const DashboardPage = () => {
                         </div>
                     </div>
 
-                    {/* Active Group Buys */}
-                    <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-                        <h3 className="text-xl font-semibold mb-4">Active Group Buys</h3>
+                    {/* Active Group Buys - Mobile optimized */}
+                    <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6 sm:mb-8">
+                        <h3 className="text-lg sm:text-xl font-semibold mb-4">Active Group Buys</h3>
                         {userData.activeGroupBuys.length > 0 ? (
-                            <div className="space-y-3">
+                            <div className="space-y-4">
                                 {userData.activeGroupBuys.slice(0, 5).map(order => (
                                     <div key={order.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                                         <div className="flex-1">
@@ -227,11 +227,11 @@ const DashboardPage = () => {
                         )}
                     </div>
 
-                    {/* Active Errands */}
-                    <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-                        <h3 className="text-xl font-semibold mb-4">Active Errands</h3>
+                    {/* Active Errands - Mobile optimized */}
+                    <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6 sm:mb-8">
+                        <h3 className="text-lg sm:text-xl font-semibold mb-4">Active Errands</h3>
                         {userData.activeErrands.length > 0 ? (
-                            <div className="space-y-3">
+                            <div className="space-y-4">
                                 {userData.activeErrands.slice(0, 5).map(errand => (
                                     <div key={errand.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                                         <div className="flex-1">

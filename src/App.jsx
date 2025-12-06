@@ -5,11 +5,13 @@ import GlobalErrorBoundary, { SectionErrorBoundary } from './components/ErrorBou
 import Navbar from './components/Navbar';
 import BottomNavigation from './components/BottomNavigation';
 import FloatingActionButton from './components/FloatingActionButton';
+import FirstTimeGuidance from './components/FirstTimeGuidance';
 import StripeProvider from './components/StripeProvider';
 import { initializeErrorTracking } from './services/errorService';
 
 // Import page components
 import StartPage from './pages/StartPage';
+import OnboardingPage from './pages/OnboardingPage';
 import AuthPage from './pages/AuthPage';
 import BrowsePage from './pages/BrowsePage';
 import GroupBuysPage from './pages/GroupBuysPage';
@@ -17,6 +19,9 @@ import GroupBuyDetailPage from './pages/GroupBuyDetailPage';
 import ErrandsPage from './pages/ErrandsPage';
 import DashboardPage from './pages/DashboardPage';
 import ProfilePage from './pages/ProfilePage';
+import SettingsPage from './pages/SettingsPage';
+import { getCurrentLanguage } from './utils/translations';
+import { useUpdateGroupBuyFilters, useUpdateErrandFilters } from './stores';
 
 // Loading component
 const LoadingSpinner = () => (
@@ -92,6 +97,13 @@ function AppContent() {
     const loadProducts = useLoadProducts();
     const loadOrders = useLoadOrders();
     const loadErrands = useLoadErrands();
+    const setCurrentScreen = useSetCurrentScreen();
+    const updateGroupBuyFilters = useUpdateGroupBuyFilters();
+    const updateErrandFilters = useUpdateErrandFilters();
+
+    // Check onboarding status
+    const [showOnboarding, setShowOnboarding] = React.useState(false);
+    const [onboardingChecked, setOnboardingChecked] = React.useState(false);
 
     // Initialize app on mount
     useEffect(() => {
@@ -99,6 +111,27 @@ function AppContent() {
             try {
                 // Initialize error tracking
                 initializeErrorTracking();
+                
+                // Check onboarding status - only show on first visit to start page
+                const onboardingComplete = localStorage.getItem('onboardingComplete');
+                if (!onboardingComplete && currentScreen === 'start' && !user) {
+                    setShowOnboarding(true);
+                    setOnboardingChecked(true);
+                    return;
+                }
+                setOnboardingChecked(true);
+                
+                // Apply preferred region filter if enabled
+                try {
+                    const autoApplyFilter = localStorage.getItem('autoApplyFilter') === 'true';
+                    const preferredRegion = localStorage.getItem('preferredRegion');
+                    if (autoApplyFilter && preferredRegion && preferredRegion !== 'all') {
+                        updateGroupBuyFilters({ region: preferredRegion });
+                        updateErrandFilters({ region: preferredRegion });
+                    }
+                } catch (error) {
+                    console.warn('Failed to apply preferred region filter:', error);
+                }
                 
                 // Check authentication status
                 await checkAuthStatus();
@@ -118,6 +151,19 @@ function AppContent() {
         initializeApp();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []); // Only run once on mount
+
+    // Show onboarding if needed
+    if (!onboardingChecked) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
+        );
+    }
+
+    if (showOnboarding) {
+        return <OnboardingPage />;
+    }
 
     // Listen for hash changes to handle detail page routing
     useEffect(() => {
@@ -151,6 +197,8 @@ function AppContent() {
                 return <DashboardPage />;
             case 'profile':
                 return <ProfilePage />;
+            case 'settings':
+                return <SettingsPage />;
             default:
                 return <StartPage />;
         }
@@ -197,6 +245,9 @@ function AppContent() {
             <SectionErrorBoundary section="Floating Action Button">
                 <FloatingActionButton />
             </SectionErrorBoundary>
+
+            {/* First-time user guidance */}
+            <FirstTimeGuidance />
 
             {/* Loading overlay */}
             {loading && <LoadingSpinner />}

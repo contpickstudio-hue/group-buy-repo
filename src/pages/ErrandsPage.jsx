@@ -153,10 +153,10 @@ const ErrandsPage = () => {
                 </div>
             </div>
 
-            {/* Create Errand Form - Mobile optimized */}
-            <div className="card mb-6 sm:mb-8" data-testid="create-errand-form">
+            {/* Create Errand Form - Mobile optimized, single screen */}
+            <div className="card mb-6 sm:mb-8" data-testid="create-errand-form" data-coach-target="post-errand-form">
                 <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-gray-900">Post a New Errand</h3>
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-5">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Title
@@ -185,16 +185,18 @@ const ErrandsPage = () => {
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                         />
                     </div>
-                    <div className="grid md:grid-cols-3 gap-4">
+                    {/* Mobile-optimized: Stack fields on mobile, grid on desktop */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Region
                             </label>
                             <select 
                                 name="region"
                                 value={formData.region}
                                 onChange={handleInputChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[48px]"
+                                data-coach-target="region-filter"
                             >
                                 <option value="Toronto">Toronto</option>
                                 <option value="Hamilton">Hamilton</option>
@@ -202,7 +204,7 @@ const ErrandsPage = () => {
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Budget ($)
                             </label>
                             <input
@@ -212,12 +214,11 @@ const ErrandsPage = () => {
                                 onChange={handleInputChange}
                                 min="1"
                                 placeholder="25"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[48px]"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Deadline
                             </label>
                             <input
@@ -225,13 +226,13 @@ const ErrandsPage = () => {
                                 name="deadline"
                                 value={formData.deadline}
                                 onChange={handleInputChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[48px]"
                             />
                         </div>
                     </div>
                     <button
                         type="submit"
-                        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
+                        className="w-full bg-blue-600 text-white py-3 px-4 rounded-xl hover:bg-blue-700 transition-colors font-semibold text-base min-h-[48px]"
                     >
                         Post Errand
                     </button>

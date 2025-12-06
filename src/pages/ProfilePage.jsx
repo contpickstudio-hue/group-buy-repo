@@ -133,9 +133,21 @@ const ProfilePage = () => {
                         </div>
                         <button 
                             onClick={() => setShowOrders(true)}
-                            className="text-blue-600 hover:text-blue-700 font-medium"
+                            className="text-blue-600 hover:text-blue-700 font-medium min-h-[44px] px-3"
                         >
                             View Orders
+                        </button>
+                    </div>
+                    <div className="p-6 flex justify-between items-center">
+                        <div>
+                            <div className="font-medium">Settings</div>
+                            <div className="text-gray-500 text-sm">Manage your preferences</div>
+                        </div>
+                        <button 
+                            onClick={() => setCurrentScreen('settings')}
+                            className="text-blue-600 hover:text-blue-700 font-medium min-h-[44px] px-3"
+                        >
+                            Open Settings
                         </button>
                     </div>
                     <div className="p-6 flex justify-between items-center">

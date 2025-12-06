@@ -230,9 +230,9 @@ const GroupBuyMarketplace = ({
                 </select>
             </div>
 
-            {/* Products Grid - Mobile optimized */}
+            {/* Products Grid - Mobile optimized, stacked on mobile */}
             {filteredProducts.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6" data-testid="products-grid">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6" data-testid="products-grid">
                     {filteredProducts.filter(p => p && p.id).map((product, index) => (
                         <div 
                             key={product.id} 
@@ -286,8 +286,8 @@ const GroupBuyMarketplace = ({
                                     </span>
                                 </div>
                                 
-                                {/* Action Buttons */}
-                                <div className="flex gap-2">
+                                {/* Action Buttons - Mobile optimized */}
+                                <div className="flex flex-col sm:flex-row gap-2">
                                     <button 
                                         onClick={() => {
                                             // Navigate to detail page using hash routing
@@ -295,17 +295,18 @@ const GroupBuyMarketplace = ({
                                             // Trigger hashchange event for App.jsx to detect
                                             window.dispatchEvent(new HashChangeEvent('hashchange'));
                                         }}
-                                        className="flex-1 btn-secondary text-sm sm:text-base py-2"
+                                        className="flex-1 btn-secondary text-sm sm:text-base py-3 min-h-[48px]"
                                         data-testid={`view-details-${product.id}`}
                                     >
                                         View Details
                                     </button>
                                     <button 
                                         onClick={() => handleJoinClick(product)}
-                                        className="flex-1 btn-primary text-sm sm:text-base py-2"
+                                        className="flex-1 btn-primary text-sm sm:text-base py-3 min-h-[48px]"
                                         data-testid={`join-button-${product.id}`}
+                                        data-coach-target="join-groupbuy-button"
                                     >
-                                        Join
+                                        Join Group Buy
                                     </button>
                                 </div>
                             </div>

@@ -20,16 +20,29 @@ const GroupBuyDetailPage = () => {
         quantity: 1
     });
 
-    // Get product ID from URL hash or state
-    React.useEffect(() => {
+    // Get product ID from URL hash (format: #groupbuy/123)
+    useEffect(() => {
         const hash = window.location.hash;
-        if (hash) {
-            const id = hash.replace('#', '');
+        if (hash && hash.startsWith('#groupbuy/')) {
+            const id = hash.replace('#groupbuy/', '');
             setProductId(id);
         }
     }, []);
 
-    const product = products.find(p => p.id == productId || p.id === productId);
+    // Also listen for hash changes
+    useEffect(() => {
+        const handleHashChange = () => {
+            const hash = window.location.hash;
+            if (hash && hash.startsWith('#groupbuy/')) {
+                const id = hash.replace('#groupbuy/', '');
+                setProductId(id);
+            }
+        };
+        window.addEventListener('hashchange', handleHashChange);
+        return () => window.removeEventListener('hashchange', handleHashChange);
+    }, []);
+
+    const product = products.find(p => String(p.id) === String(productId));
 
     if (!productId || !product) {
         return (
@@ -84,18 +97,24 @@ const GroupBuyDetailPage = () => {
     };
 
     return (
-        <div className="max-w-4xl mx-auto px-4 py-8">
-            {/* Back Button */}
-            <button
-                onClick={() => setCurrentScreen('groupbuys')}
-                className="mb-6 text-blue-600 hover:text-blue-700 font-medium flex items-center"
-            >
-                ← Back to Group Buys
-            </button>
+        <div className="max-w-4xl mx-auto px-4 pb-24 sm:pb-8">
+            {/* Mobile-optimized sticky header */}
+            <div className="sticky top-0 bg-white z-10 py-3 mb-4 border-b border-gray-200 -mx-4 px-4 shadow-sm">
+                <button
+                    onClick={() => {
+                        window.location.hash = '';
+                        setCurrentScreen('groupbuys');
+                    }}
+                    className="text-blue-600 hover:text-blue-700 font-medium flex items-center min-h-[44px] text-base"
+                >
+                    <span className="mr-2 text-xl">←</span>
+                    <span>Back</span>
+                </button>
+            </div>
 
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                {/* Product Image */}
-                <div className="h-64 bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+            <div className="bg-white rounded-lg shadow-md overflow-hidden mb-4">
+                {/* Product Image - Mobile optimized */}
+                <div className="h-48 sm:h-64 bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center overflow-hidden">
                     {product.imageDataUrl ? (
                         <img 
                             src={product.imageDataUrl} 
@@ -103,25 +122,25 @@ const GroupBuyDetailPage = () => {
                             className="w-full h-full object-cover"
                         />
                     ) : (
-                        <div className="text-white text-6xl">
+                        <div className="text-white text-4xl sm:text-6xl">
                             {product.imageColor ? '📦' : '🛒'}
                         </div>
                     )}
                 </div>
 
-                {/* Product Details */}
-                <div className="p-6">
-                    <div className="flex justify-between items-start mb-4">
+                {/* Product Details - Mobile optimized */}
+                <div className="p-4 sm:p-6">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-4 gap-3">
                         <div className="flex-1">
-                            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 leading-tight">
                                 {product.title}
                             </h1>
-                            <p className="text-gray-600 mb-4">
+                            <p className="text-base sm:text-lg text-gray-600 mb-2">
                                 by <span className="font-semibold">{product.vendor || 'Unknown Vendor'}</span>
                             </p>
                         </div>
-                        <div className="text-right">
-                            <div className="text-3xl font-bold text-blue-600">
+                        <div className="text-left sm:text-right">
+                            <div className="text-2xl sm:text-3xl font-bold text-blue-600">
                                 ${product.price}
                             </div>
                             <div className="text-sm text-gray-500">per unit</div>
@@ -174,34 +193,49 @@ const GroupBuyDetailPage = () => {
                         </div>
                     </div>
 
-                    {/* Description */}
+                    {/* Description - Mobile optimized */}
                     <div className="mb-6">
-                        <h2 className="text-xl font-semibold text-gray-900 mb-2">Description</h2>
-                        <p className="text-gray-700 leading-relaxed">
+                        <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3">Description</h2>
+                        <p className="text-base sm:text-lg text-gray-700 leading-relaxed">
                             {product.description || 'No description provided.'}
                         </p>
                     </div>
 
-                    {/* Join Button */}
-                    {!isExpired && !isCompleted && (
-                        <button
-                            onClick={handleJoinGroupBuy}
-                            className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors font-semibold text-lg"
-                        >
-                            Join Group Buy - ${product.price}
-                        </button>
-                    )}
-                    {isCompleted && (
-                        <div className="w-full bg-green-100 text-green-800 py-3 px-6 rounded-lg text-center font-semibold">
-                            ✓ Group Buy Completed!
-                        </div>
-                    )}
-                    {isExpired && (
-                        <div className="w-full bg-red-100 text-red-800 py-3 px-6 rounded-lg text-center font-semibold">
-                            ✗ This group buy has expired
-                        </div>
-                    )}
                 </div>
+            </div>
+
+            {/* Mobile-optimized sticky CTA button */}
+            {!isExpired && !isCompleted && (
+                <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-50 md:hidden shadow-lg">
+                    <button
+                        onClick={handleJoinGroupBuy}
+                        className="w-full bg-blue-600 text-white py-4 px-6 rounded-xl hover:bg-blue-700 transition-colors font-semibold text-lg min-h-[56px]"
+                    >
+                        Join Group Buy - ${product.price}
+                    </button>
+                </div>
+            )}
+
+            {/* Desktop CTA (inside card) */}
+            <div className="hidden md:block bg-white rounded-lg shadow-md p-6">
+                {!isExpired && !isCompleted && (
+                    <button
+                        onClick={handleJoinGroupBuy}
+                        className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors font-semibold text-lg min-h-[48px]"
+                    >
+                        Join Group Buy - ${product.price}
+                    </button>
+                )}
+                {isCompleted && (
+                    <div className="w-full bg-green-100 text-green-800 py-3 px-6 rounded-lg text-center font-semibold">
+                        ✓ Group Buy Completed!
+                    </div>
+                )}
+                {isExpired && (
+                    <div className="w-full bg-red-100 text-red-800 py-3 px-6 rounded-lg text-center font-semibold">
+                        ✗ This group buy has expired
+                    </div>
+                )}
             </div>
 
             {/* Checkout Modal */}
