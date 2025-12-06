@@ -3,18 +3,18 @@
  * Handles multilingual support for the app
  */
 
-// Import translation files
+// Import translation files (Vite handles JSON imports automatically)
 import enTranslations from '../locales/en.json';
 import koTranslations from '../locales/ko.json';
 import zhTranslations from '../locales/zh.json';
 import hiTranslations from '../locales/hi.json';
 
-// Translation dictionary
+// Translation dictionary with fallback
 const translations = {
-    en: enTranslations,
-    ko: koTranslations,
-    zh: zhTranslations,
-    hi: hiTranslations
+    en: enTranslations || {},
+    ko: koTranslations || enTranslations || {},
+    zh: zhTranslations || enTranslations || {},
+    hi: hiTranslations || enTranslations || {}
 };
 
 // Default language
