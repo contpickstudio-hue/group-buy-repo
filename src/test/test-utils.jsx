@@ -1,5 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react';
+import TranslationProvider from '../contexts/TranslationProvider';
 import { vi } from 'vitest';
 import { Toaster } from 'react-hot-toast';
 import GlobalErrorBoundary from '../components/ErrorBoundary';
@@ -181,7 +182,7 @@ export const mockStoreHooks = (storeState) => {
   }));
 };
 
-// Custom render function with providers
+// Custom render function with providers (includes TranslationProvider)
 export const renderWithProviders = (ui, options = {}) => {
   const {
     initialState = {},
@@ -193,8 +194,10 @@ export const renderWithProviders = (ui, options = {}) => {
 
   const Wrapper = ({ children }) => (
     <GlobalErrorBoundary>
-      {children}
-      <Toaster />
+      <TranslationProvider>
+        {children}
+        <Toaster />
+      </TranslationProvider>
     </GlobalErrorBoundary>
   );
 

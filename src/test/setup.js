@@ -41,9 +41,12 @@ Object.defineProperty(navigator, 'onLine', {
   writable: true,
 });
 
-// Mock localStorage
+// Mock localStorage with default language
 const localStorageMock = {
-  getItem: vi.fn(),
+  getItem: vi.fn((key) => {
+    if (key === 'language') return 'en';
+    return null;
+  }),
   setItem: vi.fn(),
   removeItem: vi.fn(),
   clear: vi.fn(),
@@ -103,6 +106,33 @@ Object.defineProperty(window, 'matchMedia', {
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),
   })),
+});
+
+// Mock translation utilities
+vi.mock('../utils/translations', async () => {
+  const actual = await vi.importActual('../utils/translations');
+  return {
+    ...actual,
+    getCurrentLanguage: () => 'en',
+    setLanguage: vi.fn(),
+    t: (key, params = {}) => {
+      // Simple mock that returns key or interpolated value
+      if (params && Object.keys(params).length > 0) {
+        let result = key;
+        Object.entries(params).forEach(([paramKey, value]) => {
+          result = result.replace(`{{${paramKey}}}`, value);
+        });
+        return result;
+      }
+      return key;
+    },
+    getAvailableLanguages: () => [
+      { code: 'en', name: 'English', flag: '🇺🇸', nativeName: 'English' },
+      { code: 'ko', name: 'Korean', flag: '🇰🇷', nativeName: '한국어' },
+      { code: 'zh', name: 'Chinese (Simplified)', flag: '🇨🇳', nativeName: '中文' },
+      { code: 'hi', name: 'Hindi', flag: '🇮🇳', nativeName: 'हिंदी' }
+    ]
+  };
 });
 
 // Clean up after each test

@@ -25,7 +25,8 @@ describe('useCreateGroupBuyForm', () => {
                 description: '',
                 region: 'Toronto',
                 targetQuantity: 20,
-                deadline: ''
+                deadline: '',
+                imageDataUrl: ''
             });
         });
 
@@ -345,7 +346,8 @@ describe('useCreateGroupBuyForm', () => {
                 description: 'Test description',
                 region: 'Toronto',
                 targetQuantity: 30,
-                deadline: '2025-12-31'
+                deadline: '2025-12-31',
+                imageDataUrl: null
             });
         });
 
@@ -377,7 +379,8 @@ describe('useCreateGroupBuyForm', () => {
                 description: '',
                 region: 'Toronto',
                 targetQuantity: 20,
-                deadline: ''
+                deadline: '',
+                imageDataUrl: ''
             });
         });
 
