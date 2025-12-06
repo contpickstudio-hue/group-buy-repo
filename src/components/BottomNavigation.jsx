@@ -1,6 +1,7 @@
 import React from 'react';
-import { Home, ShoppingCart, Users, User } from 'lucide-react';
+import { Home, ShoppingCart, Users, User, LayoutDashboard, Settings } from 'lucide-react';
 import { useUser, useCurrentScreen, useSetCurrentScreen } from '../stores';
+import { t } from '../utils/translations';
 
 const BottomNavigation = () => {
     const user = useUser();
@@ -16,33 +17,39 @@ const BottomNavigation = () => {
     const navItems = [
         {
             key: 'browse',
-            label: 'Home',
+            label: t('common.home'),
             icon: Home,
             screen: 'browse'
         },
         {
             key: 'groupbuys',
-            label: 'Group Buys',
+            label: t('common.groupBuys'),
             icon: ShoppingCart,
             screen: 'groupbuys'
         },
         {
             key: 'errands',
-            label: 'Errands',
+            label: t('common.errands'),
             icon: Users,
             screen: 'errands'
         },
         {
-            key: 'profile',
-            label: 'Profile',
-            icon: User,
-            screen: 'profile'
+            key: 'dashboard',
+            label: t('common.dashboard'),
+            icon: LayoutDashboard,
+            screen: 'dashboard'
+        },
+        {
+            key: 'settings',
+            label: t('common.settings'),
+            icon: Settings,
+            screen: 'settings'
         }
     ];
 
     return (
-        <nav className="bottom-nav fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-2 py-1 z-50 md:hidden">
-            <div className="flex justify-around items-center max-w-md mx-auto">
+        <nav className="bottom-nav md:hidden touch-manipulation" style={{ minHeight: '64px' }}>
+            <div className="flex justify-around items-center max-w-md mx-auto px-2 py-2">
                 {navItems.map(item => {
                     const Icon = item.icon;
                     const isActive = currentScreen === item.screen || 
@@ -52,20 +59,26 @@ const BottomNavigation = () => {
                         <button
                             key={item.key}
                             onClick={() => handleNavigation(item.screen)}
-                            className={`bottom-nav-item flex flex-col items-center px-3 py-2 rounded-lg transition-colors ${
+                            className={`bottom-nav-item flex flex-col items-center justify-center min-h-[48px] min-w-[48px] px-2 ${
                                 isActive 
-                                    ? 'text-blue-600 bg-blue-50' 
-                                    : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
+                                    ? 'text-blue-600' 
+                                    : 'text-gray-500'
                             }`}
                             role="menuitem"
                             aria-label={`Go to ${item.label.toLowerCase()}`}
                         >
-                            <Icon 
-                                size={20} 
-                                className="bottom-nav-icon mb-1" 
-                                aria-hidden="true"
-                            />
-                            <span className="bottom-nav-label text-xs font-medium">
+                            <div className={`relative ${isActive ? 'scale-110' : ''} transition-transform duration-200`}>
+                                <Icon 
+                                    size={22} 
+                                    className="mb-1" 
+                                    strokeWidth={isActive ? 2.5 : 2}
+                                    aria-hidden="true"
+                                />
+                                {isActive && (
+                                    <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-blue-600 rounded-full"></div>
+                                )}
+                            </div>
+                            <span className={`bottom-nav-label text-xs mt-0.5 ${isActive ? 'font-semibold' : 'font-medium'}`}>
                                 {item.label}
                             </span>
                         </button>

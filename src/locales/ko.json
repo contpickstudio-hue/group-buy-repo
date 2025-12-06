@@ -1,0 +1,89 @@
+{
+  "common": {
+    "welcome": "환영합니다",
+    "home": "홈",
+    "groupBuys": "공동구매",
+    "errands": "심부름",
+    "dashboard": "대시보드",
+    "profile": "프로필",
+    "settings": "설정",
+    "logout": "로그아웃",
+    "save": "저장",
+    "cancel": "취소",
+    "back": "뒤로",
+    "next": "다음",
+    "skip": "건너뛰기",
+    "done": "완료",
+    "change": "변경",
+    "edit": "편집",
+    "signUp": "가입하기"
+  },
+  "onboarding": {
+    "screen1": {
+      "title": "OK-Snap 공동구매에 오신 것을 환영합니다",
+      "description": "공동구매를 통해 한국 식료품과 제품을 저렴하게 구매하세요.",
+      "details": "이웃들과 연결되어 더 나은 가격을 받으세요."
+    },
+    "screen2": {
+      "title": "돈을 절약하고 지역 주민들과 함께하세요",
+      "description": "공동구매는 좋아하는 제품을 대량 가격으로 구매하는 데 도움이 됩니다.",
+      "details": "심부름을 게시하여 도움을 받거나 다른 사람을 도와주세요."
+    },
+    "screen3": {
+      "title": "커뮤니티를 위한 하나의 앱",
+      "description": "필요한 모든 것: 공동구매, 심부름, 커뮤니티 연결.",
+      "details": "절약, 수입, 커뮤니티 영향력을 추적하세요."
+    },
+    "screen4": {
+      "title": "시작해봅시다",
+      "description": "커뮤니티에 참여할 준비가 되셨나요?",
+      "details": "가입하여 절약하고 이웃들과 연결하세요."
+    }
+  },
+  "settings": {
+    "title": "설정",
+    "account": {
+      "title": "계정 설정",
+      "displayName": "표시 이름",
+      "email": "이메일",
+      "profilePicture": "프로필 사진",
+      "manageAccount": "계정 관리"
+    },
+    "language": {
+      "title": "언어",
+      "selectLanguage": "언어 선택",
+      "english": "영어",
+      "korean": "한국어",
+      "chinese": "중국어 (간체)",
+      "hindi": "힌디어"
+    },
+    "notifications": {
+      "title": "알림",
+      "groupBuyUpdates": "공동구매 업데이트",
+      "errandUpdates": "심부름 업데이트",
+      "systemNotifications": "시스템 알림"
+    },
+    "region": {
+      "title": "지역 및 위치",
+      "preferredRegion": "선호 지역",
+      "autoApplyFilter": "검색에서 지역 필터 자동 적용"
+    },
+    "app": {
+      "title": "앱 정보",
+      "version": "버전",
+      "reportBug": "버그 신고",
+      "terms": "이용 약관",
+      "privacy": "개인정보 보호정책"
+    }
+  },
+  "groupBuy": {
+    "join": "공동구매 참여",
+    "viewDetails": "자세히 보기",
+    "create": "공동구매 만들기"
+  },
+  "errand": {
+    "post": "심부름 게시",
+    "create": "심부름 만들기"
+  }
+}
+

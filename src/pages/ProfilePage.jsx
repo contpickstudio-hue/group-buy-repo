@@ -1,6 +1,7 @@
 import React from 'react';
 import { useUser, useSignOut, useSetCurrentScreen, useSetUser, useAppStore } from '../stores';
 import { signOut as supabaseSignOut } from '../services/supabaseService';
+import MyOrdersPage from './MyOrdersPage';
 
 const ProfilePage = () => {
     try {
@@ -9,6 +10,7 @@ const ProfilePage = () => {
         const setCurrentScreen = useSetCurrentScreen();
         const setUser = useSetUser();
         const resetStore = useAppStore((state) => state.resetStore);
+        const [showOrders, setShowOrders] = React.useState(false);
 
     if (!user) {
         return (
@@ -38,6 +40,20 @@ const ProfilePage = () => {
     };
 
     const roles = user.roles || [];
+
+    if (showOrders) {
+        return (
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <button
+                    onClick={() => setShowOrders(false)}
+                    className="mb-4 text-blue-600 hover:text-blue-700 font-medium"
+                >
+                    ← Back to Profile
+                </button>
+                <MyOrdersPage />
+            </div>
+        );
+    }
 
     return (
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -108,6 +124,30 @@ const ProfilePage = () => {
                         </div>
                         <button className="text-blue-600 hover:text-blue-700 font-medium">
                             Manage
+                        </button>
+                    </div>
+                    <div className="p-6 flex justify-between items-center">
+                        <div>
+                            <div className="font-medium">My Orders</div>
+                            <div className="text-gray-500 text-sm">View your order history</div>
+                        </div>
+                        <button 
+                            onClick={() => setShowOrders(true)}
+                            className="text-blue-600 hover:text-blue-700 font-medium min-h-[44px] px-3"
+                        >
+                            View Orders
+                        </button>
+                    </div>
+                    <div className="p-6 flex justify-between items-center">
+                        <div>
+                            <div className="font-medium">Settings</div>
+                            <div className="text-gray-500 text-sm">Manage your preferences</div>
+                        </div>
+                        <button 
+                            onClick={() => setCurrentScreen('settings')}
+                            className="text-blue-600 hover:text-blue-700 font-medium min-h-[44px] px-3"
+                        >
+                            Open Settings
                         </button>
                     </div>
                     <div className="p-6 flex justify-between items-center">

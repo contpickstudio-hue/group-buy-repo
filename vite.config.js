@@ -6,6 +6,19 @@ export default defineConfig({
   // Base path for GitHub Pages (uncomment if using GitHub Pages)
   // base: process.env.NODE_ENV === 'production' ? '/korean-commerce-app/' : '/',
   plugins: [react()],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom'],
+          'stripe-vendor': ['@stripe/stripe-js', '@stripe/react-stripe-js'],
+          'supabase-vendor': ['@supabase/supabase-js'],
+          'ui-vendor': ['lucide-react', 'react-hot-toast']
+        }
+      }
+    },
+    chunkSizeWarningLimit: 1000
+  },
   test: {
     globals: true,
     environment: 'jsdom',

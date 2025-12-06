@@ -5,17 +5,23 @@ import GlobalErrorBoundary, { SectionErrorBoundary } from './components/ErrorBou
 import Navbar from './components/Navbar';
 import BottomNavigation from './components/BottomNavigation';
 import FloatingActionButton from './components/FloatingActionButton';
+import FirstTimeGuidance from './components/FirstTimeGuidance';
 import StripeProvider from './components/StripeProvider';
 import { initializeErrorTracking } from './services/errorService';
 
 // Import page components
 import StartPage from './pages/StartPage';
+import OnboardingPage from './pages/OnboardingPage';
 import AuthPage from './pages/AuthPage';
 import BrowsePage from './pages/BrowsePage';
 import GroupBuysPage from './pages/GroupBuysPage';
+import GroupBuyDetailPage from './pages/GroupBuyDetailPage';
 import ErrandsPage from './pages/ErrandsPage';
 import DashboardPage from './pages/DashboardPage';
 import ProfilePage from './pages/ProfilePage';
+import SettingsPage from './pages/SettingsPage';
+import { getCurrentLanguage } from './utils/translations';
+import { useUpdateGroupBuyFilters, useUpdateErrandFilters } from './stores';
 
 // Loading component
 const LoadingSpinner = () => (
@@ -33,27 +39,34 @@ const NotificationContainer = () => {
     if (notifications.length === 0) return null;
 
     return (
-        <div className="fixed top-4 right-4 z-50 space-y-2">
+        <div 
+            className="fixed top-4 right-4 z-50 space-y-2 max-w-[calc(100vw-2rem)] sm:max-w-md"
+            style={{
+                top: 'calc(1rem + env(safe-area-inset-top))',
+                right: 'calc(1rem + env(safe-area-inset-right))'
+            }}
+        >
             {notifications.map(notification => (
                 <div
                     key={notification.id}
-                    className={`px-4 py-3 rounded-lg shadow-lg max-w-md animate-slide-up ${
+                    className={`px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg shadow-lg w-full animate-slide-up touch-manipulation ${
                         notification.type === 'error' ? 'bg-red-100 border border-red-400 text-red-700' :
                         notification.type === 'success' ? 'bg-green-100 border border-green-400 text-green-700' :
                         notification.type === 'warning' ? 'bg-yellow-100 border border-yellow-400 text-yellow-700' :
                         'bg-blue-100 border border-blue-400 text-blue-700'
                     }`}
                 >
-                    <div className="flex items-center justify-between">
-                        <div>
+                    <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
                             {notification.type === 'error' && <strong className="font-bold">Error: </strong>}
                             {notification.type === 'success' && <strong className="font-bold">Success: </strong>}
                             {notification.type === 'warning' && <strong className="font-bold">Warning: </strong>}
-                            <span className="block sm:inline">{notification.message}</span>
+                            <span className="block sm:inline text-sm sm:text-base break-words">{notification.message}</span>
                         </div>
                         <button
                             onClick={() => removeNotification(notification.id)}
-                            className="ml-4 hover:opacity-75"
+                            className="flex-shrink-0 ml-2 hover:opacity-75 active:opacity-50 transition-opacity min-h-[32px] min-w-[32px] flex items-center justify-center text-lg sm:text-xl font-bold"
+                            aria-label="Close notification"
                         >
                             ×
                         </button>
@@ -68,9 +81,9 @@ const NotificationContainer = () => {
 const VersionInfo = () => (
     <div 
         className="fixed bottom-4 right-4 bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs z-10 hidden md:block"
-        title="Multi-User Platform v3.0.0 - Complete Feature Set with Analytics & Mobile Optimization"
+        title="Korean Community Commerce v3.2.0 - Modern Mobile-First UI Design"
     >
-        v3.0.0
+        v3.2.0
     </div>
 );
 
@@ -84,6 +97,13 @@ function AppContent() {
     const loadProducts = useLoadProducts();
     const loadOrders = useLoadOrders();
     const loadErrands = useLoadErrands();
+    const setCurrentScreen = useSetCurrentScreen();
+    const updateGroupBuyFilters = useUpdateGroupBuyFilters();
+    const updateErrandFilters = useUpdateErrandFilters();
+
+    // Check onboarding status
+    const [showOnboarding, setShowOnboarding] = React.useState(false);
+    const [onboardingChecked, setOnboardingChecked] = React.useState(false);
 
     // Initialize app on mount
     useEffect(() => {
@@ -91,6 +111,27 @@ function AppContent() {
             try {
                 // Initialize error tracking
                 initializeErrorTracking();
+                
+                // Check onboarding status - only show on first visit to start page
+                const onboardingComplete = localStorage.getItem('onboardingComplete');
+                if (!onboardingComplete && currentScreen === 'start' && !user) {
+                    setShowOnboarding(true);
+                    setOnboardingChecked(true);
+                    return;
+                }
+                setOnboardingChecked(true);
+                
+                // Apply preferred region filter if enabled
+                try {
+                    const autoApplyFilter = localStorage.getItem('autoApplyFilter') === 'true';
+                    const preferredRegion = localStorage.getItem('preferredRegion');
+                    if (autoApplyFilter && preferredRegion && preferredRegion !== 'all') {
+                        updateGroupBuyFilters({ region: preferredRegion });
+                        updateErrandFilters({ region: preferredRegion });
+                    }
+                } catch (error) {
+                    console.warn('Failed to apply preferred region filter:', error);
+                }
                 
                 // Check authentication status
                 await checkAuthStatus();
@@ -111,7 +152,36 @@ function AppContent() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []); // Only run once on mount
 
+    // Show onboarding if needed
+    if (!onboardingChecked) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
+        );
+    }
+
+    if (showOnboarding) {
+        return <OnboardingPage />;
+    }
+
+    // Listen for hash changes to handle detail page routing
+    useEffect(() => {
+        const handleHashChange = () => {
+            // Hash changes are handled in renderCurrentScreen
+            // Force re-render by updating a state if needed
+        };
+        window.addEventListener('hashchange', handleHashChange);
+        return () => window.removeEventListener('hashchange', handleHashChange);
+    }, []);
+
     const renderCurrentScreen = () => {
+        // Check for detail page routing via hash
+        const hash = window.location.hash;
+        if (hash && hash.startsWith('#groupbuy/')) {
+            return <GroupBuyDetailPage />;
+        }
+
         switch (currentScreen) {
             case 'start':
                 return <StartPage />;
@@ -127,6 +197,8 @@ function AppContent() {
                 return <DashboardPage />;
             case 'profile':
                 return <ProfilePage />;
+            case 'settings':
+                return <SettingsPage />;
             default:
                 return <StartPage />;
         }
@@ -142,12 +214,12 @@ function AppContent() {
                 Skip to main content
             </a>
 
-            {/* Language toggle (placeholder for now) */}
-            <div className="fixed top-4 right-4 z-40 flex space-x-2">
-                <button className="px-2 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50">
+            {/* Language toggle - Mobile optimized */}
+            <div className="fixed top-16 sm:top-4 right-3 sm:right-4 z-40 flex space-x-1 sm:space-x-2">
+                <button className="px-2.5 py-1.5 text-xs sm:text-sm bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg hover:bg-white hover:shadow-sm transition-all font-medium min-h-[36px] min-w-[36px]">
                     EN
                 </button>
-                <button className="px-2 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50">
+                <button className="px-2.5 py-1.5 text-xs sm:text-sm bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg hover:bg-white hover:shadow-sm transition-all font-medium min-h-[36px] min-w-[36px]">
                     한국어
                 </button>
             </div>
@@ -157,8 +229,8 @@ function AppContent() {
                 <Navbar />
             </SectionErrorBoundary>
 
-            {/* Main content */}
-            <main id="main-content" className="pb-20 md:pb-8">
+            {/* Main content - Mobile optimized spacing */}
+            <main id="main-content" className="pb-24 md:pb-8 min-h-screen">
                 <SectionErrorBoundary section="Main Content">
                     {renderCurrentScreen()}
                 </SectionErrorBoundary>
@@ -174,10 +246,13 @@ function AppContent() {
                 <FloatingActionButton />
             </SectionErrorBoundary>
 
+            {/* First-time user guidance */}
+            <FirstTimeGuidance />
+
             {/* Loading overlay */}
             {loading && <LoadingSpinner />}
 
-            {/* Notifications */}
+            {/* Notifications - Mobile optimized */}
             <NotificationContainer />
 
             {/* Toast notifications */}

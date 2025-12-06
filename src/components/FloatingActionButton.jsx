@@ -10,7 +10,7 @@ const FloatingActionButton = () => {
     const menuRef = useRef(null);
     const fabRef = useRef(null);
 
-    // Close menu when clicking outside
+    // Close menu when clicking outside (handles both mouse and touch events)
     useEffect(() => {
         function handleClickOutside(event) {
             if (
@@ -24,8 +24,13 @@ const FloatingActionButton = () => {
         }
 
         if (isMenuOpen) {
+            // Handle both mouse and touch events for better mobile support
             document.addEventListener('mousedown', handleClickOutside);
-            return () => document.removeEventListener('mousedown', handleClickOutside);
+            document.addEventListener('touchstart', handleClickOutside);
+            return () => {
+                document.removeEventListener('mousedown', handleClickOutside);
+                document.removeEventListener('touchstart', handleClickOutside);
+            };
         }
     }, [isMenuOpen]);
 
@@ -104,16 +109,12 @@ const FloatingActionButton = () => {
     });
 
     return (
-        <div className="fab-container fixed bottom-20 right-4 z-40 md:bottom-6">
-            {/* FAB Menu */}
+        <div className="fab-container">
+            {/* FAB Menu - Mobile optimized */}
             {isMenuOpen && (
                 <div 
                     ref={menuRef}
-                    className="fab-menu absolute bottom-16 right-0 bg-white rounded-xl shadow-lg border border-gray-200 py-2 min-w-48 transform transition-all duration-200 ease-out"
-                    style={{
-                        transform: isMenuOpen ? 'scale(1) translateY(0)' : 'scale(0.95) translateY(10px)',
-                        opacity: isMenuOpen ? 1 : 0
-                    }}
+                    className="fab-menu animate-scale-in"
                 >
                     {actions_list.map((action, index) => {
                         const Icon = action.icon;
@@ -121,13 +122,16 @@ const FloatingActionButton = () => {
                             <button
                                 key={index}
                                 onClick={() => handleActionClick(action.action)}
-                                className="fab-menu-item w-full flex items-center px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+                                className="fab-menu-item"
+                                style={{ animationDelay: `${index * 0.05}s` }}
                             >
-                                <Icon 
-                                    size={20} 
-                                    className="fab-menu-icon mr-3 text-gray-600" 
-                                />
-                                <span className="fab-menu-label text-sm font-medium text-gray-700">
+                                <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center mr-3">
+                                    <Icon 
+                                        size={20} 
+                                        className="text-blue-600" 
+                                    />
+                                </div>
+                                <span className="fab-menu-label">
                                     {action.label}
                                 </span>
                             </button>
@@ -136,17 +140,21 @@ const FloatingActionButton = () => {
                 </div>
             )}
 
-            {/* FAB Button */}
+            {/* FAB Button - Mobile optimized */}
             <button
                 ref={fabRef}
                 onClick={handleFabClick}
-                className={`fab-button w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center ${
-                    isMenuOpen ? 'rotate-45' : 'rotate-0'
+                className={`fab-button ${
+                    isMenuOpen ? 'rotate-45 bg-gradient-to-br from-red-500 to-red-600' : ''
                 }`}
                 aria-label="Quick action button"
                 aria-expanded={isMenuOpen}
             >
-                <Plus size={24} className="transition-transform duration-200" />
+                <Plus 
+                    size={28} 
+                    className={`transition-transform duration-300 ${isMenuOpen ? 'rotate-90' : ''}`}
+                    strokeWidth={2.5}
+                />
             </button>
         </div>
     );
