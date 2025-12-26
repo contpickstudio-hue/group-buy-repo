@@ -1,0 +1,90 @@
+{
+  "common": {
+    "welcome": "Welcome",
+    "home": "Home",
+    "groupBuys": "Group Buys",
+    "errands": "Errands",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Logout",
+    "save": "Save",
+    "cancel": "Cancel",
+    "back": "Back",
+    "next": "Next",
+    "skip": "Skip",
+    "done": "Done",
+    "change": "Change",
+    "edit": "Edit",
+    "signUp": "Sign Up"
+  },
+  "onboarding": {
+    "screen1": {
+      "title": "Welcome to OK-Snap Group Buy",
+      "description": "Join your community to save money on Korean groceries and products through group purchases.",
+      "details": "Connect with neighbors and get better prices together."
+    },
+    "screen2": {
+      "title": "Save Money, Join Locals",
+      "description": "Group buys help you get bulk pricing on items you love.",
+      "details": "Post errands to get help with tasks or help others in your community."
+    },
+    "screen3": {
+      "title": "One App for Your Community",
+      "description": "Everything you need in one place: group buys, errands, and community connections.",
+      "details": "Track your savings, earnings, and community impact."
+    },
+    "screen4": {
+      "title": "Let's Get Started",
+      "description": "Ready to join your community?",
+      "details": "Sign up to start saving and connecting with neighbors."
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "account": {
+      "title": "Account Settings",
+      "displayName": "Display Name",
+      "email": "Email",
+      "profilePicture": "Profile Picture",
+      "manageAccount": "Manage Account"
+    },
+    "language": {
+      "title": "Language",
+      "selectLanguage": "Select Language",
+      "description": "Choose your preferred language. Changes apply immediately.",
+      "english": "English",
+      "korean": "Korean",
+      "chinese": "Chinese (Simplified)",
+      "hindi": "Hindi"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "groupBuyUpdates": "Group Buy Updates",
+      "errandUpdates": "Errand Updates",
+      "systemNotifications": "System Notifications"
+    },
+    "region": {
+      "title": "Region & Location",
+      "preferredRegion": "Preferred Region",
+      "autoApplyFilter": "Auto-apply region filter in search"
+    },
+    "app": {
+      "title": "App Information",
+      "version": "Version",
+      "reportBug": "Report a Bug",
+      "terms": "Terms & Conditions",
+      "privacy": "Privacy Policy"
+    }
+  },
+  "groupBuy": {
+    "join": "Join Group Buy",
+    "viewDetails": "View Details",
+    "create": "Create Group Buy"
+  },
+  "errand": {
+    "post": "Post Errand",
+    "create": "Create Errand"
+  }
+}
+
