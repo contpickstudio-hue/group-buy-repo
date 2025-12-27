@@ -38,13 +38,13 @@ const NotificationPanel = ({ isOpen, onClose }) => {
   const markNotificationAsRead = useMarkNotificationAsRead();
   const markAllNotificationsAsRead = useMarkAllNotificationsAsRead();
   const removeNotification = useRemoveNotification();
-  const { useLoadNotifications } = require('../stores');
-
   const loadNotifications = useLoadNotifications();
   
-  const unreadCount = notifications.filter(n => !n.read).length;
-  const unreadNotifications = notifications.filter(n => !n.read);
-  const readNotifications = notifications.filter(n => n.read);
+  // Safety check: ensure notifications is an array
+  const notificationsArray = Array.isArray(notifications) ? notifications : [];
+  const unreadCount = notificationsArray.filter(n => n && !n.read).length;
+  const unreadNotifications = notificationsArray.filter(n => n && !n.read);
+  const readNotifications = notificationsArray.filter(n => n && n.read);
   
   // Load notifications when panel opens
   useEffect(() => {
@@ -137,7 +137,7 @@ const NotificationPanel = ({ isOpen, onClose }) => {
 
         {/* Notifications List */}
         <div className="flex-1 overflow-y-auto">
-          {notifications.length === 0 ? (
+          {notificationsArray.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full p-8 text-center">
               <Bell size={48} className="text-gray-400 mb-4" />
               <p className="text-gray-600 font-medium mb-2">No notifications</p>
