@@ -114,6 +114,18 @@ export const createErrandSlice = (set, get) => ({
       const index = state.errands.findIndex(e => e.id === errandId);
       if (index !== -1) {
         Object.assign(state.errands[index], updates);
+        // Update status based on completion confirmations
+        if (updates.requesterConfirmedCompletion !== undefined || updates.helperConfirmedCompletion !== undefined) {
+          const errand = state.errands[index];
+          if (errand.requesterConfirmedCompletion && errand.helperConfirmedCompletion) {
+            errand.status = 'completed';
+            if (!errand.completedAt) {
+              errand.completedAt = new Date().toISOString();
+            }
+          } else if (errand.requesterConfirmedCompletion || errand.helperConfirmedCompletion) {
+            errand.status = 'awaiting_confirmation';
+          }
+        }
       }
     });
   },
@@ -124,15 +136,17 @@ export const createErrandSlice = (set, get) => ({
     });
   },
 
-  addApplication: (application) => {
-    set((state) => {
-      const newApplication = {
-        ...application,
-        id: application.id || Date.now() + Math.random(),
-        createdAt: application.createdAt || new Date().toISOString()
-      };
-      state.applications.push(newApplication);
-    });
+  addApplication: async (errandId, helperEmail, offerAmount = null, message = null) => {
+    const { applyToErrand } = await import('../services/errandService');
+    const result = await applyToErrand(errandId, helperEmail, offerAmount, message);
+    
+    if (result.success && result.application) {
+      set((state) => {
+        state.applications.push(result.application);
+      });
+    }
+    
+    return result;
   },
 
   updateApplication: (applicationId, updates) => {
@@ -142,6 +156,74 @@ export const createErrandSlice = (set, get) => ({
         Object.assign(state.applications[index], updates);
       }
     });
+  },
+
+  acceptHelperApplication: async (errandId, applicationId, requesterEmail) => {
+    const { acceptHelperApplication: acceptHelper } = await import('../services/errandService');
+    const result = await acceptHelper(errandId, applicationId, requesterEmail);
+    
+    if (result.success) {
+      // Update application status
+      set((state) => {
+        state.applications.forEach(app => {
+          if (app.errandId === errandId) {
+            if (app.id === applicationId) {
+              app.status = 'accepted';
+            } else {
+              app.status = 'rejected';
+            }
+          }
+        });
+      });
+      
+      // Update errand status
+      set((state) => {
+        const errand = state.errands.find(e => e.id === errandId);
+        if (errand) {
+          const application = state.applications.find(a => a.id === applicationId);
+          if (application) {
+            errand.assignedHelperEmail = application.helperEmail;
+            errand.status = 'assigned';
+          }
+        }
+      });
+    }
+    
+    return result;
+  },
+
+  confirmErrandCompletion: async (errandId, userEmail, isRequester) => {
+    const { confirmErrandCompletion: confirmCompletion } = await import('../services/errandService');
+    const result = await confirmCompletion(errandId, userEmail, isRequester);
+    
+    if (result.success) {
+      // Update errand confirmation status
+      set((state) => {
+        const errand = state.errands.find(e => e.id === errandId);
+        if (errand) {
+          if (isRequester) {
+            errand.requesterConfirmedCompletion = true;
+          } else {
+            errand.helperConfirmedCompletion = true;
+          }
+          
+          if (result.bothConfirmed) {
+            errand.status = 'completed';
+            errand.completedAt = new Date().toISOString();
+            // Payment release is handled in the service
+          } else {
+            errand.status = 'awaiting_confirmation';
+          }
+        }
+      });
+    }
+    
+    return result;
+  },
+
+  rateHelper: async (errandId, raterEmail, rating, comment = null) => {
+    const { rateHelper: rateHelperService } = await import('../services/errandService');
+    return await rateHelperService(errandId, raterEmail, rating, comment);
   },
 
   setMessages: (messages) => {

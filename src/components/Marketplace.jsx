@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { MapPin, Clock } from 'lucide-react';
 import { useListings, useGetBatchesByListing } from '../stores';
+import { canJoinBatch } from '../services/supabaseService';
 
 /**
  * Marketplace Component
@@ -16,7 +17,8 @@ const Marketplace = ({ filters = {}, onJoinListing, user }) => {
         return listings.map(listing => {
             const batches = getBatchesByListing(listing.id) || [];
             const regions = batches.map(b => b.region);
-            const activeBatches = batches.filter(b => b.status === 'collecting');
+            // Filter to only active batches (can accept orders)
+            const activeBatches = batches.filter(b => canJoinBatch(b));
             
             // Find nearest cutoff date
             let nearestCutoff = null;

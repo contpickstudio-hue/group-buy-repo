@@ -109,7 +109,7 @@ const FloatingActionButton = () => {
     });
 
     return (
-        <div className="fab-container" style={{ bottom: 'calc(64px + 1rem + env(safe-area-inset-bottom))' }}>
+        <div className="fab-container" style={{ bottom: 'calc(64px + 1rem + env(safe-area-inset-bottom))', zIndex: 30 }}>
             {/* FAB Menu - Mobile optimized */}
             {isMenuOpen && (
                 <div 

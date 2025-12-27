@@ -32,8 +32,8 @@ export const createRegionalBatchSlice = (set, get) => ({
                 id: batch.id || Date.now() + Math.random(),
                 createdAt: batch.createdAt || new Date().toISOString(),
                 updatedAt: batch.updatedAt || new Date().toISOString(),
-                currentQuantity: batch.currentQuantity || 0,
-                status: batch.status || 'collecting'
+            currentQuantity: batch.currentQuantity || 0,
+            status: batch.status || 'draft'
             };
             state.regionalBatches.push(newBatch);
             
@@ -173,7 +173,7 @@ export const createRegionalBatchSlice = (set, get) => ({
             id: Date.now() + Math.random(),
             listingId,
             currentQuantity: 0,
-            status: 'collecting',
+            status: 'draft',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
         };
@@ -204,7 +204,7 @@ export const createRegionalBatchSlice = (set, get) => ({
                     minimum_quantity: batchData.minimumQuantity,
                     cutoff_date: batchData.cutoffDate,
                     delivery_method: batchData.deliveryMethod,
-                    status: 'collecting'
+                    status: 'draft'
                 });
                 
                 if (!result.success) {
@@ -300,6 +300,36 @@ export const createRegionalBatchSlice = (set, get) => ({
                     throw new Error(result.error || 'Failed to update batch status');
                 }
                 
+                // Notify users about batch status change
+                if (status === 'successful' || status === 'failed') {
+                    const batch = get().getBatchById(batchId);
+                    const appStore = get();
+                    const listing = appStore.listings?.find(l => l.id === batch?.listingId);
+                    const batchOrders = appStore.orders?.filter(o => String(o.regionalBatchId) === String(batchId)) || [];
+                    
+                    // Notify vendor
+                    if (listing?.ownerEmail && appStore.addNotification) {
+                        appStore.addNotification({
+                            type: status === 'successful' ? 'success' : 'warning',
+                            title: status === 'successful' ? 'Group Buy Successful!' : 'Group Buy Failed',
+                            message: `"${listing.title}" in ${batch.region} ${status === 'successful' ? 'reached its target!' : 'did not reach its target.'}`,
+                            data: { type: 'group_buy_status', listingId: listing.id, batchId, status }
+                        });
+                    }
+                    
+                    // Notify buyers
+                    batchOrders.forEach(order => {
+                        if (order.customerEmail && order.customerEmail !== listing?.ownerEmail && appStore.addNotification) {
+                            appStore.addNotification({
+                                type: status === 'successful' ? 'success' : 'warning',
+                                title: status === 'successful' ? 'Group Buy Successful!' : 'Group Buy Failed',
+                                message: `"${listing.title}" in ${batch.region} ${status === 'successful' ? 'succeeded! Your order will be processed.' : 'failed. You will be refunded.'}`,
+                                data: { type: 'group_buy_status', listingId: listing.id, batchId, orderId: order.id, status }
+                            });
+                        }
+                    });
+                }
+                
                 return { success: true };
             }
         } catch (error) {
@@ -314,6 +344,92 @@ export const createRegionalBatchSlice = (set, get) => ({
         }
     },
     
+    activateRegionalBatch: async (batchId) => {
+        const loginMethod = useAuthStore.getState().loginMethod;
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        
+        // Check if batch is in draft status
+        const batch = get().getBatchById(batchId);
+        if (!batch) {
+            return { success: false, error: 'Batch not found' };
+        }
+        if (batch.status !== 'draft') {
+            return { success: false, error: `Cannot activate batch. Current status: ${batch.status}` };
+        }
+        
+        // Update local state optimistically
+        set((state) => {
+            const index = state.regionalBatches.findIndex(b => b.id === batchId);
+            if (index !== -1) {
+                state.regionalBatches[index].status = 'active';
+                state.regionalBatches[index].updatedAt = new Date().toISOString();
+                
+                // Update batchesByListing
+                const batch = state.regionalBatches[index];
+                const listingBatches = state.batchesByListing[batch.listingId] || [];
+                const listingIndex = listingBatches.findIndex(b => b.id === batchId);
+                if (listingIndex !== -1) {
+                    listingBatches[listingIndex].status = 'active';
+                    listingBatches[listingIndex].updatedAt = new Date().toISOString();
+                }
+            }
+        });
+        
+        try {
+            if (loginMethod === 'demo' || !session) {
+                const currentBatches = get().regionalBatches || [];
+                await dbSaveSlice(StorageKeys.regionalBatches, currentBatches);
+                return { success: true };
+            }
+            
+            if (session && supabaseClient) {
+                const { activateRegionalBatch: activateBatch } = await import('../services/supabaseService');
+                const result = await activateBatch(batchId);
+                
+                if (!result.success) {
+                    // Revert optimistic update
+                    set((state) => {
+                        const index = state.regionalBatches.findIndex(b => b.id === batchId);
+                        if (index !== -1) {
+                            state.regionalBatches[index].status = 'draft';
+                        }
+                    });
+                    throw new Error(result.error || 'Failed to activate batch');
+                }
+                
+                return { success: true };
+            }
+        } catch (error) {
+            console.error('Failed to activate batch:', error);
+            // Revert optimistic update
+            set((state) => {
+                const index = state.regionalBatches.findIndex(b => b.id === batchId);
+                if (index !== -1) {
+                    state.regionalBatches[index].status = 'draft';
+                }
+            });
+            return { success: false, error: error.message };
+        }
+    },
+    
+    checkAndTransitionBatchStatuses: async () => {
+        try {
+            const { checkAndTransitionBatchStatuses: checkStatuses } = await import('../services/supabaseService');
+            const result = await checkStatuses();
+            
+            if (result.success) {
+                // Reload batches to get updated statuses
+                const { loadAllBatches } = get();
+                await loadAllBatches();
+            }
+            
+            return result;
+        } catch (error) {
+            console.error('Failed to check batch statuses:', error);
+            return { success: false, error: error.message };
+        }
+    },
+    
     cancelRegionalBatch: async (batchId) => {
         // First update status to cancelled
         const statusResult = await get().updateRegionalBatchStatus(batchId, 'cancelled');
@@ -322,13 +438,19 @@ export const createRegionalBatchSlice = (set, get) => ({
             return statusResult;
         }
         
-        // Flag orders for refund (stub)
+        // Refund escrow funds to customers
         try {
-            const { flagOrdersForRefund } = await import('../services/supabaseService');
-            await flagOrdersForRefund(batchId);
+            const { refundEscrowToCustomers } = await import('../services/escrowService');
+            const refundResult = await refundEscrowToCustomers(batchId);
+            
+            if (refundResult.success) {
+                console.log(`Refunded ${refundResult.refunded} orders for cancelled batch ${batchId}`);
+            } else {
+                console.warn('Some refunds failed:', refundResult.errors);
+            }
         } catch (error) {
-            console.warn('Failed to flag orders for refund:', error);
-            // Don't fail the cancellation if refund flagging fails
+            console.warn('Failed to refund escrow for cancelled batch:', error);
+            // Don't fail the cancellation if refund fails - it will be retried
         }
         
         return { success: true };

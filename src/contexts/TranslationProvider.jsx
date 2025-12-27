@@ -1,10 +1,11 @@
 /**
  * Translation Provider
- * Global context provider for translations that triggers re-renders on language change
+ * Global context provider for translations using Zustand store
  */
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getCurrentLanguage, setLanguage as setLanguageUtil, t as tUtil } from '../utils/translations';
+import React, { createContext, useContext, useEffect } from 'react';
+import { useCurrentLanguage, useSetLanguage, useInitializeLanguage, useAppStore } from '../stores';
+import { t as tUtil, setStoreRef } from '../utils/translations';
 
 const TranslationContext = createContext({
     currentLanguage: 'en',
@@ -21,49 +22,37 @@ export const useTranslation = () => {
 };
 
 export const TranslationProvider = ({ children }) => {
-    const [currentLanguage, setCurrentLanguageState] = useState(getCurrentLanguage());
-    const [updateTrigger, setUpdateTrigger] = useState(0);
+    const currentLanguage = useCurrentLanguage();
+    const setLanguage = useSetLanguage();
+    const initializeLanguage = useInitializeLanguage();
 
-    // Listen for language changes in localStorage
+    // Initialize language on mount and set store reference
     useEffect(() => {
-        const handleStorageChange = (e) => {
-            if (e.key === 'language') {
-                setCurrentLanguageState(e.newValue || 'en');
-                setUpdateTrigger(prev => prev + 1);
-            }
+        initializeLanguage();
+        // Set store reference for t() function
+        setStoreRef(useAppStore);
+    }, [initializeLanguage]);
+
+    // Listen for language changes
+    useEffect(() => {
+        const handleLanguageChange = (event) => {
+            // Language change is handled by Zustand store
+            // This effect ensures components re-render
         };
 
-        window.addEventListener('storage', handleStorageChange);
-        
-        // Also check periodically for same-tab changes (since storage event only fires cross-tab)
-        const interval = setInterval(() => {
-            const current = getCurrentLanguage();
-            if (current !== currentLanguage) {
-                setCurrentLanguageState(current);
-                setUpdateTrigger(prev => prev + 1);
-            }
-        }, 100);
-
+        window.addEventListener('languagechange', handleLanguageChange);
         return () => {
-            window.removeEventListener('storage', handleStorageChange);
-            clearInterval(interval);
+            window.removeEventListener('languagechange', handleLanguageChange);
         };
-    }, [currentLanguage]);
-
-    const setLanguage = (langCode) => {
-        setLanguageUtil(langCode);
-        setCurrentLanguageState(langCode);
-        setUpdateTrigger(prev => prev + 1);
-        // Force re-render by updating state
-        window.dispatchEvent(new Event('languagechange'));
-    };
+    }, []);
 
     const t = (key, params) => {
+        // Use current language from store
         return tUtil(key, params);
     };
 
     return (
-        <TranslationContext.Provider value={{ currentLanguage, setLanguage, t, updateTrigger }}>
+        <TranslationContext.Provider value={{ currentLanguage, setLanguage, t }}>
             {children}
         </TranslationContext.Provider>
     );

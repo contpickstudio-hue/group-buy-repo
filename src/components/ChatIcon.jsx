@@ -66,7 +66,7 @@ const ChatIcon = () => {
       >
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className={`relative p-2 transition-colors ${
+          className={`relative p-3 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center ${
             hasChats 
               ? 'text-gray-600 hover:text-gray-900' 
               : 'text-gray-400 hover:text-gray-500 opacity-75'
@@ -121,7 +121,7 @@ const ChatIcon = () => {
               </div>
               <button
                 onClick={handleClosePanel}
-                className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded hover:bg-gray-100"
+                className="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded hover:bg-gray-100 min-w-[44px] min-h-[44px] flex items-center justify-center"
                 aria-label="Close chats"
                 type="button"
               >

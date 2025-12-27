@@ -326,18 +326,18 @@ const AuthPage = () => {
                     </button>
                 </div>
 
-                {/* Skip Login Button for Testing */}
+                {/* Guest Preview Button */}
                 <div className="mt-6 pt-4 border-t border-gray-200">
                     <button
                         onClick={handleSkipLogin}
                         disabled={isLoading}
                         className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
-                        title="Skip login and test as verified user with all roles (customer, vendor, helper)"
+                        title="Continue as guest to preview the app"
                     >
-                        🧪 Skip Login (Test Mode)
+                        👤 Continue as Guest
                     </button>
                     <p className="mt-2 text-xs text-gray-500 text-center">
-                        Test as verified user with all roles
+                        Preview account with limited access
                     </p>
                 </div>
             </div>

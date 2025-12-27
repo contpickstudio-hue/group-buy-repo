@@ -10,7 +10,10 @@ import RegionSelector from '../components/RegionSelector';
 import CheckoutModal from '../components/CheckoutModal';
 import ChatModal from '../components/ChatModal';
 import MobileHeader from '../components/mobile/MobileHeader';
-import { MessageCircle, Share2, MapPin, Package } from 'lucide-react';
+import { MessageCircle, Share2, MapPin, Package, AlertCircle } from 'lucide-react';
+import { canJoinBatch } from '../services/supabaseService';
+import ReportButton from '../components/ReportButton';
+import { checkListingSuspension } from '../services/moderationService';
 import toast from 'react-hot-toast';
 
 const ListingDetailPage = () => {
@@ -53,9 +56,28 @@ const ListingDetailPage = () => {
         return () => window.removeEventListener('hashchange', handleHashChange);
     }, []);
 
+    // Check if listing is suspended
+    useEffect(() => {
+        if (listingId && listing) {
+            const checkSuspension = async () => {
+                try {
+                    const result = await checkListingSuspension(parseInt(listingId));
+                    if (result.success) {
+                        setIsSuspended(result.isSuspended);
+                        setSuspension(result.suspension);
+                    }
+                } catch (error) {
+                    console.error('Error checking listing suspension:', error);
+                }
+            };
+            checkSuspension();
+        }
+    }, [listingId, listing]);
+
     const listing = listings.find(l => String(l.id) === String(listingId));
     const batches = listing ? getBatchesByListing(listing.id) || [] : [];
-    const activeBatches = batches.filter(b => b.status === 'collecting');
+    // Filter to only show active batches that can accept orders
+    const activeBatches = batches.filter(b => canJoinBatch(b));
     
     // Set default selected batch
     useEffect(() => {
@@ -95,8 +117,13 @@ const ListingDetailPage = () => {
             return;
         }
 
-        if (selectedBatch.status !== 'collecting') {
-            toast.error('This batch is no longer accepting orders');
+        // Validate batch can accept orders
+        if (!canJoinBatch(selectedBatch)) {
+            if (selectedBatch.status !== 'active') {
+                toast.error('This batch is not active and cannot accept orders');
+            } else {
+                toast.error('This batch has passed its deadline and is no longer accepting orders');
+            }
             return;
         }
 
@@ -114,7 +141,10 @@ const ListingDetailPage = () => {
 
     const handlePaymentSuccess = async (paymentData) => {
         try {
-            // Create order with immediate payment status
+            // Import escrow service
+            const { placeOrderInEscrow } = await import('../services/escrowService');
+            
+            // Create order with escrow status
             const order = {
                 id: checkoutState.orderId,
                 listingId: listing.id,
@@ -126,13 +156,41 @@ const ListingDetailPage = () => {
                 total: selectedBatch.price * checkoutState.quantity,
                 groupStatus: 'open',
                 fulfillmentStatus: 'pending',
-                paymentStatus: 'paid', // Immediate payment
+                paymentStatus: 'authorized', // Authorized but held in escrow
+                escrowStatus: 'escrow_held', // Funds in escrow
+                paymentIntentId: paymentData?.paymentIntentId || null,
                 createdAt: new Date().toISOString()
             };
             
+            // Place order in escrow
+            const escrowResult = await placeOrderInEscrow(
+                order.id,
+                paymentData?.paymentIntentId,
+                order.totalPrice
+            );
+            
+            if (!escrowResult.success) {
+                throw new Error(escrowResult.error || 'Failed to place order in escrow');
+            }
+            
+            // Update order with escrow status
+            order.escrowStatus = escrowResult.escrowStatus || 'escrow_held';
+            
             addOrder(order);
             
-            toast.success(`Order placed successfully! You've joined ${listing.title} in ${selectedBatch.region}`);
+            // Notify vendor about new order
+            const { useAppStore } = await import('../stores');
+            const appStore = useAppStore.getState();
+            if (listing.ownerEmail && appStore.addNotification) {
+                appStore.addNotification({
+                    type: 'success',
+                    title: 'New Order Received',
+                    message: `${user.name || user.email} joined "${listing.title}" in ${batch.region}`,
+                    data: { type: 'group_buy_joined', listingId: listing.id, batchId: batch.id, orderId: order.id }
+                });
+            }
+            
+            toast.success(`Order placed! Funds held in escrow until group buy succeeds.`);
             setCheckoutState({ isOpen: false, listing: null, batch: null, quantity: 1 });
         } catch (error) {
             toast.error('Failed to create order: ' + error.message);
@@ -196,18 +254,23 @@ const ListingDetailPage = () => {
                             <div className="flex gap-2">
                                 <button
                                     onClick={handleShare}
-                                    className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+                                    className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                                     aria-label="Share listing"
                                 >
                                     <Share2 size={20} />
                                 </button>
                                 <button
                                     onClick={() => setChatOpen(true)}
-                                    className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+                                    className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                                     aria-label="Open chat"
                                 >
                                     <MessageCircle size={20} />
                                 </button>
+                                <ReportButton
+                                    reportType="listing"
+                                    targetId={listing.id}
+                                    targetTitle={listing.title}
+                                />
                             </div>
                         </div>
 
@@ -237,11 +300,21 @@ const ListingDetailPage = () => {
                                         {selectedBatch.region} - ${selectedBatch.price.toFixed(2)}
                                     </h3>
                                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                        selectedBatch.status === 'collecting' 
+                                        selectedBatch.status === 'active' 
                                             ? 'bg-blue-100 text-blue-800'
+                                            : selectedBatch.status === 'successful'
+                                            ? 'bg-green-100 text-green-800'
+                                            : selectedBatch.status === 'failed'
+                                            ? 'bg-red-100 text-red-800'
+                                            : selectedBatch.status === 'draft'
+                                            ? 'bg-yellow-100 text-yellow-800'
                                             : 'bg-gray-100 text-gray-800'
                                     }`}>
-                                        {selectedBatch.status === 'collecting' ? 'Collecting Orders' : selectedBatch.status}
+                                        {selectedBatch.status === 'active' ? 'Active' : 
+                                         selectedBatch.status === 'successful' ? 'Successful' :
+                                         selectedBatch.status === 'failed' ? 'Failed' :
+                                         selectedBatch.status === 'draft' ? 'Draft' :
+                                         selectedBatch.status}
                                     </span>
                                 </div>
                                 
@@ -264,13 +337,20 @@ const ListingDetailPage = () => {
                                 </div>
 
                                 {/* Join Button */}
-                                {selectedBatch.status === 'collecting' && (
+                                {canJoinBatch(selectedBatch) && (
                                     <button
                                         onClick={handleJoinListing}
                                         className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 transition-colors font-semibold text-lg"
                                     >
                                         Place Order - ${selectedBatch.price.toFixed(2)}
                                     </button>
+                                )}
+                                {!canJoinBatch(selectedBatch) && selectedBatch.status === 'active' && (
+                                    <div className="w-full bg-yellow-50 border border-yellow-200 rounded-md p-3 text-center">
+                                        <p className="text-yellow-800 text-sm font-medium">
+                                            Deadline has passed. This batch is no longer accepting orders.
+                                        </p>
+                                    </div>
                                 )}
                             </div>
                         )}

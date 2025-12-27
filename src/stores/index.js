@@ -13,6 +13,7 @@ import { createFilterSlice } from './filterSlice';
 import { createChatSlice } from './chatSlice';
 import { createReferralSlice } from './referralSlice';
 import { createCommunityStatsSlice } from './communityStatsSlice';
+import { createLanguageSlice } from './languageSlice';
 
 // Combine all slices into a single store
 export const useAppStore = create()(
@@ -45,6 +46,9 @@ export const useAppStore = create()(
                 
                 // Community stats slice
                 ...createCommunityStatsSlice(set, get, api),
+                
+                // Language slice
+                ...createLanguageSlice(set, get, api),
                 
                 // Listing slice (regional marketplace)
                 ...createListingSlice(set, get, api),
@@ -149,10 +153,12 @@ export {
 // Legacy selectors - now using authStore
 export const useUser = () => useAuthStore((state) => state.user);
 export const useCheckAuthStatus = () => useAuthStore((state) => state.checkAuthStatus);
+export const useInitializeAuth = () => useAuthStore((state) => state.initializeAuth);
 export const useSignUp = () => useAuthStore((state) => state.signUp);
 export const useSignIn = () => useAuthStore((state) => state.signIn);
 export const useSignInWithGoogle = () => useAuthStore((state) => state.signInWithGoogle);
 export const useSignOut = () => useAuthStore((state) => state.signOut);
+export const useDeleteAccount = () => useAuthStore((state) => state.deleteAccount);
 export const useSetDemoUser = () => useAuthStore((state) => state.setDemoUser);
 export const useSkipLogin = () => useAuthStore((state) => state.skipLogin);
 export const useSetUser = () => useAuthStore((state) => state.setUser);
@@ -198,8 +204,10 @@ export const useGetBatchesByListing = () => useAppStore((state) => state.getBatc
 export const useLoadBatchesForListing = () => useAppStore((state) => state.loadBatchesForListing);
 export const useLoadAllBatches = () => useAppStore((state) => state.loadAllBatches);
 export const useCreateRegionalBatch = () => useAppStore((state) => state.createRegionalBatch);
+export const useActivateRegionalBatch = () => useAppStore((state) => state.activateRegionalBatch);
 export const useUpdateRegionalBatchStatus = () => useAppStore((state) => state.updateRegionalBatchStatus);
 export const useCancelRegionalBatch = () => useAppStore((state) => state.cancelRegionalBatch);
+export const useCheckAndTransitionBatchStatuses = () => useAppStore((state) => state.checkAndTransitionBatchStatuses);
 export const useAggregateBatchQuantity = () => useAppStore((state) => state.aggregateBatchQuantity);
 export const useGetBatchById = () => useAppStore((state) => state.getBatchById);
 export const useGetBatchProgress = () => useAppStore((state) => state.getBatchProgress);
@@ -214,6 +222,7 @@ export const useAddOrder = () => useAppStore((state) => state.addOrder);
 export const useUpdateOrder = () => useAppStore((state) => state.updateOrder);
 export const useSetOrders = () => useAppStore((state) => state.setOrders);
 export const useUpdatePaymentStatus = () => useAppStore((state) => state.updatePaymentStatus);
+export const useUpdateEscrowStatus = () => useAppStore((state) => state.updateEscrowStatus);
 export const useUpdateFulfillmentStatus = () => useAppStore((state) => state.updateFulfillmentStatus);
 export const useCancelOrder = () => useAppStore((state) => state.cancelOrder);
 export const useGetOrdersByBatch = () => useAppStore((state) => state.getOrdersByBatch);
@@ -232,6 +241,9 @@ export const useUpdateErrand = () => useAppStore((state) => state.updateErrand);
 export const useSetErrands = () => useAppStore((state) => state.setErrands);
 export const useSetApplications = () => useAppStore((state) => state.setApplications);
 export const useAddApplication = () => useAppStore((state) => state.addApplication);
+export const useAcceptHelperApplication = () => useAppStore((state) => state.acceptHelperApplication);
+export const useConfirmErrandCompletion = () => useAppStore((state) => state.confirmErrandCompletion);
+export const useRateHelper = () => useAppStore((state) => state.rateHelper);
 export const useUpdateApplication = () => useAppStore((state) => state.updateApplication);
 export const useSetMessages = () => useAppStore((state) => state.setMessages);
 export const useAddMessage = () => useAppStore((state) => state.addMessage);
@@ -319,6 +331,14 @@ export const useRemoveNotification = () => useAppStore((state) => state.removeNo
 export const useClearNotifications = () => useAppStore((state) => state.clearNotifications);
 export const useMarkNotificationAsRead = () => useAppStore((state) => state.markNotificationAsRead);
 export const useMarkAllNotificationsAsRead = () => useAppStore((state) => state.markAllNotificationsAsRead);
+export const useLoadNotifications = () => useAppStore((state) => state.loadNotifications);
+export const useSetNotifications = () => useAppStore((state) => state.setNotifications);
+
+// Language hooks
+export const useCurrentLanguage = () => useAppStore((state) => state.currentLanguage);
+export const useSetLanguage = () => useAppStore((state) => state.setLanguage);
+export const useInitializeLanguage = () => useAppStore((state) => state.initializeLanguage);
+export const useAvailableLanguages = () => useAppStore((state) => state.availableLanguages);
 
 // Backward compatibility hook removed - use individual hooks instead
 // export const useUIActions = () => useAppStore((state) => ({...}), shallow);

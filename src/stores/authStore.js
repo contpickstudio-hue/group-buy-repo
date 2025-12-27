@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { signUpWithEmail, signInWithEmail, signInWithGoogle, signOut as supabaseSignOut, getCurrentUser } from '../services/supabaseService';
-import { setStorageItem, removeStorageItem } from '../utils/storageUtils';
+import { setStorageItem, removeStorageItem, getStorageItem } from '../utils/storageUtils';
 import { StorageKeys } from '../services/supabaseService';
 
 export const useAuthStore = create()(
@@ -13,6 +13,113 @@ export const useAuthStore = create()(
       selectedRoles: new Set(['customer']),
       authLoading: false,
       authError: null,
+      isInitialized: false, // Track if auth state has been restored from storage
+
+      /**
+       * Initialize auth state from storage on app load
+       * This should be called once when the app starts
+       */
+      initializeAuth: async () => {
+        if (get().isInitialized) {
+          return; // Already initialized
+        }
+
+        set((state) => {
+          state.authLoading = true;
+        });
+
+        try {
+          // Load stored auth state
+          const storedUser = await getStorageItem(StorageKeys.user);
+          const storedLoginMethod = await getStorageItem(StorageKeys.loginMethod);
+
+          if (storedUser && storedLoginMethod) {
+            // Restore user and login method from storage
+            set((state) => {
+              state.user = storedUser;
+              state.loginMethod = storedLoginMethod;
+            });
+
+            // If it's a real user (not demo), validate session with Supabase
+            if (storedLoginMethod !== 'demo') {
+              // Validate session is still valid
+              const { user: supabaseUser, error } = await getCurrentUser();
+              
+              if (error || !supabaseUser) {
+                // Session is invalid - clear stored auth
+                set((state) => {
+                  state.user = null;
+                  state.loginMethod = null;
+                });
+                await removeStorageItem(StorageKeys.user);
+                await removeStorageItem(StorageKeys.loginMethod);
+              } else {
+                // Session is valid - update user profile from Supabase
+                const userProfile = {
+                  id: supabaseUser.id,
+                  email: supabaseUser.email,
+                  name: supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0] || 'User',
+                  roles: supabaseUser.user_metadata?.roles || ['customer'],
+                  helperVerified: supabaseUser.user_metadata?.helperVerified || false
+                };
+                
+                set((state) => {
+                  state.user = userProfile;
+                  state.loginMethod = storedLoginMethod; // Preserve login method (email/google)
+                });
+                
+                // Update stored user profile
+                await setStorageItem(StorageKeys.user, userProfile);
+              }
+            }
+            // For demo users, just restore from storage - no Supabase validation needed
+          } else if (storedUser && !storedLoginMethod) {
+            // Legacy: user exists but no loginMethod - treat as demo if email matches
+            if (storedUser.email === 'test@demo.com') {
+              set((state) => {
+                state.user = storedUser;
+                state.loginMethod = 'demo';
+              });
+              await setStorageItem(StorageKeys.loginMethod, 'demo');
+            } else {
+              // Unknown user - clear it
+              await removeStorageItem(StorageKeys.user);
+            }
+          } else {
+            // No stored auth - check Supabase for active session
+            const { user: supabaseUser, error } = await getCurrentUser();
+            
+            if (!error && supabaseUser) {
+              // Active Supabase session found
+              const userProfile = {
+                id: supabaseUser.id,
+                email: supabaseUser.email,
+                name: supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0] || 'User',
+                roles: supabaseUser.user_metadata?.roles || ['customer'],
+                helperVerified: supabaseUser.user_metadata?.helperVerified || false
+              };
+              
+              set((state) => {
+                state.user = userProfile;
+                state.loginMethod = 'email'; // Default to email if unknown
+              });
+              
+              await setStorageItem(StorageKeys.user, userProfile);
+              await setStorageItem(StorageKeys.loginMethod, 'email');
+            }
+          }
+        } catch (error) {
+          console.error('Failed to initialize auth from storage:', error);
+          // On error, clear potentially corrupted state
+          await removeStorageItem(StorageKeys.user);
+          await removeStorageItem(StorageKeys.loginMethod);
+        } finally {
+          set((state) => {
+            state.authLoading = false;
+            state.isInitialized = true;
+          });
+        }
+      },
 
       checkAuthStatus: async () => {
         set((state) => {
@@ -50,7 +157,9 @@ export const useAuthStore = create()(
               state.loginMethod = 'email';
             });
             
+            // Persist both user and login method
             await setStorageItem(StorageKeys.user, userProfile);
+            await setStorageItem(StorageKeys.loginMethod, 'email');
           } else {
             // Only clear if not a demo user
             if (currentState.loginMethod !== 'demo') {
@@ -59,6 +168,7 @@ export const useAuthStore = create()(
                 state.loginMethod = null;
               });
               await removeStorageItem(StorageKeys.user);
+              await removeStorageItem(StorageKeys.loginMethod);
             }
           }
         } catch (error) {
@@ -98,7 +208,9 @@ export const useAuthStore = create()(
               state.loginMethod = 'email';
             });
             
+            // Persist both user and login method
             await setStorageItem(StorageKeys.user, userProfile);
+            await setStorageItem(StorageKeys.loginMethod, 'email');
             return { success: true, user: userProfile };
           }
           
@@ -152,7 +264,9 @@ export const useAuthStore = create()(
               state.loginMethod = 'email';
             });
             
+            // Persist both user and login method
             await setStorageItem(StorageKeys.user, userProfile);
+            await setStorageItem(StorageKeys.loginMethod, 'email');
             return { success: true, user: userProfile };
           }
           return { 
@@ -189,6 +303,35 @@ export const useAuthStore = create()(
             });
             return { success: false, error: errorMessage };
           }
+          
+          // If we get here, Google sign-in was successful
+          // The session will be restored on next page load via initializeAuth
+          // But we can also try to get the user immediately
+          try {
+            const { user: supabaseUser } = await getCurrentUser();
+            if (supabaseUser) {
+              const userProfile = {
+                id: supabaseUser.id,
+                email: supabaseUser.email,
+                name: supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0] || 'User',
+                roles: supabaseUser.user_metadata?.roles || ['customer'],
+                helperVerified: supabaseUser.user_metadata?.helperVerified || false
+              };
+              
+              set((state) => {
+                state.user = userProfile;
+                state.loginMethod = 'google';
+              });
+              
+              // Persist both user and login method
+              await setStorageItem(StorageKeys.user, userProfile);
+              await setStorageItem(StorageKeys.loginMethod, 'google');
+            }
+          } catch (err) {
+            // User will be restored on redirect/refresh
+            console.warn('Could not get user immediately after Google sign-in:', err);
+          }
+          
           return result;
         } catch (error) {
           const errorMessage = error?.message || error?.msg || 'Google sign in failed. Please check if Google OAuth is enabled in your Supabase project.';
@@ -206,18 +349,39 @@ export const useAuthStore = create()(
       signOut: async () => {
         try {
           const currentState = get();
+          
+          // Clear state first
+          set((state) => {
+            state.user = null;
+            state.loginMethod = null;
+            state.authError = null;
+          });
+          
+          // Clear all auth-related storage
+          await Promise.all([
+            removeStorageItem(StorageKeys.user),
+            removeStorageItem(StorageKeys.loginMethod)
+          ]);
+          
           // Only call Supabase signOut if not a demo user
           if (currentState.loginMethod !== 'demo') {
-            await supabaseSignOut();
+            try {
+              await supabaseSignOut();
+            } catch (supabaseError) {
+              // Even if Supabase signOut fails, we've cleared local state
+              console.warn('Supabase signOut failed, but local state cleared:', supabaseError);
+            }
           }
+          
+          return { success: true };
+        } catch (error) {
+          // Ensure state is cleared even on error
           set((state) => {
             state.user = null;
             state.loginMethod = null;
           });
-          await removeStorageItem(StorageKeys.user);
-          await removeStorageItem(StorageKeys.loginMethod);
-          return { success: true };
-        } catch (error) {
+          await removeStorageItem(StorageKeys.user).catch(() => {});
+          await removeStorageItem(StorageKeys.loginMethod).catch(() => {});
           return { success: false, error: error.message };
         }
       },
@@ -236,30 +400,32 @@ export const useAuthStore = create()(
         });
       },
 
-      clearUser: () => {
+      clearUser: async () => {
         set((state) => {
           state.user = null;
           state.loginMethod = null;
         });
+        // Also clear storage
+        await removeStorageItem(StorageKeys.user).catch(() => {});
+        await removeStorageItem(StorageKeys.loginMethod).catch(() => {});
       },
 
-      setDemoUser: (user) => {
+      setDemoUser: async (user) => {
         set((state) => {
           state.user = user;
           state.loginMethod = 'demo';
         });
-        // Also save to storage for persistence
-        setStorageItem(StorageKeys.user, user).catch(err => {
-          console.warn('Failed to save demo user to storage:', err);
-        });
+        // Persist both user and login method
+        await setStorageItem(StorageKeys.user, user);
+        await setStorageItem(StorageKeys.loginMethod, 'demo');
       },
 
       skipLogin: async () => {
-        // Create a verified test account with all roles
+        // Create a guest preview account with all roles
         const demoUser = {
-          id: 'demo-user-' + Date.now(),
-          email: 'test@demo.com',
-          name: 'Test User',
+          id: 'guest-' + Date.now(),
+          email: 'guest@preview.app',
+          name: 'Guest User',
           roles: ['customer', 'vendor', 'helper'],
           helperVerified: true
         };
@@ -279,6 +445,33 @@ export const useAuthStore = create()(
         set((state) => {
           state.selectedRoles = new Set(Array.isArray(roles) ? roles : [roles]);
         });
+      },
+
+      deleteAccount: async (userEmail) => {
+        try {
+          const { deleteUserAccount } = await import('../services/supabaseService');
+          const result = await deleteUserAccount(userEmail);
+          
+          if (result.success) {
+            // Clear all state
+            set((state) => {
+              state.user = null;
+              state.loginMethod = null;
+              state.authError = null;
+              state.selectedRoles = new Set();
+            });
+            
+            // Clear all storage
+            await Promise.all([
+              removeStorageItem(StorageKeys.user),
+              removeStorageItem(StorageKeys.loginMethod)
+            ]);
+          }
+          
+          return result;
+        } catch (error) {
+          return { success: false, error: error.message || 'Failed to delete account' };
+        }
       }
     })),
     { name: 'auth-store' }
@@ -298,7 +491,8 @@ export const useAuthActions = () => useAuthStore((state) => ({
   signIn: state.signIn,
   signInWithGoogle: state.signInWithGoogle,
   signOut: state.signOut,
-  checkAuthStatus: state.checkAuthStatus
+  checkAuthStatus: state.checkAuthStatus,
+  initializeAuth: state.initializeAuth
 }));
 
 export const useUserRoles = () => useAuthStore((state) => state.selectedRoles);

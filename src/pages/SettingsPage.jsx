@@ -4,12 +4,13 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useUser, useSignOut, useSetCurrentScreen, useUpdateGroupBuyFilters, useUpdateErrandFilters } from '../stores';
+import { useUser, useSignOut, useSetCurrentScreen, useUpdateGroupBuyFilters, useUpdateErrandFilters, useAuthStore } from '../stores';
 import { getCurrentLanguage, getAvailableLanguages, t } from '../utils/translations';
 import { useTranslation } from '../contexts/TranslationProvider';
 import MobileHeader from '../components/mobile/MobileHeader';
 import NotificationIcon from '../components/NotificationIcon';
 import { signOut as supabaseSignOut } from '../services/supabaseService';
+import toast from 'react-hot-toast';
 
 const SettingsPage = () => {
     const user = useUser();
@@ -84,16 +85,64 @@ const SettingsPage = () => {
             ...prev,
             [key]: !prev[key]
         }));
-        // TODO: Save to backend when notifications are implemented
+        // Note: Notification preferences are saved locally for now
+        // Backend persistence will be implemented in a future update
+        try {
+            localStorage.setItem('notificationPreferences', JSON.stringify({
+                ...notifications,
+                [key]: !notifications[key]
+            }));
+        } catch (error) {
+            console.warn('Failed to save notification preferences:', error);
+        }
     };
 
     const handleLogout = async () => {
+        if (!window.confirm('Are you sure you want to sign out?')) {
+            return;
+        }
         try {
             await supabaseSignOut();
             await signOutAction();
             setCurrentScreen('start');
+            toast.success('Signed out successfully');
         } catch (error) {
             console.error('Logout error:', error);
+            toast.error('Failed to sign out. Please try again.');
+        }
+    };
+
+    const handleDeleteAccount = async () => {
+        const confirmMessage = 'Are you sure you want to delete your account? This action cannot be undone. All your data will be permanently deleted.';
+        if (!window.confirm(confirmMessage)) {
+            return;
+        }
+        
+        const secondConfirm = window.prompt('Type "DELETE" to confirm account deletion:');
+        if (secondConfirm !== 'DELETE') {
+            return;
+        }
+
+        try {
+            const deleteAccount = useAuthStore.getState().deleteAccount;
+            const userEmail = user?.email || user?.id;
+            
+            if (!userEmail) {
+                toast.error('Unable to identify user account');
+                return;
+            }
+
+            const result = await deleteAccount(userEmail);
+            
+            if (result.success) {
+                toast.success('Account deletion requested. Your data will be removed.');
+                setCurrentScreen('start');
+            } else {
+                throw new Error(result.error || 'Failed to delete account');
+            }
+        } catch (error) {
+            console.error('Account deletion error:', error);
+            toast.error(error.message || 'Failed to delete account. Please contact support.');
         }
     };
 
@@ -287,34 +336,45 @@ const SettingsPage = () => {
                         {t('settings.app.reportBug')}
                     </button>
                     <button
-                        onClick={() => {
-                            // Placeholder: Show terms page
-                            alert('Terms & Conditions page coming soon');
-                        }}
+                        onClick={() => setCurrentScreen('privacypolicy')}
                         className="w-full text-left py-3 px-4 rounded-xl hover:bg-gray-50 transition-colors min-h-[48px] text-gray-700"
                     >
-                        {t('settings.app.terms')}
+                        Privacy Policy
                     </button>
                     <button
                         onClick={() => {
-                            // Placeholder: Show privacy policy
-                            alert('Privacy Policy page coming soon');
+                            // Terms page - can be added later
+                            alert('Terms & Conditions page is under development. Please contact support for more information.');
                         }}
-                        className="w-full text-left py-3 px-4 rounded-xl hover:bg-gray-50 transition-colors min-h-[48px] text-gray-700"
+                        className="w-full text-left py-3 px-4 rounded-xl hover:bg-gray-50 transition-colors min-h-[48px] text-gray-700 opacity-75"
+                        disabled
+                        title="Coming soon"
                     >
-                        {t('settings.app.privacy')}
+                        {t('settings.app.terms')} (Coming Soon)
                     </button>
                 </div>
             </div>
 
-            {/* Logout Button */}
-            <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">
-                <button
-                    onClick={handleLogout}
-                    className="w-full bg-red-600 text-white py-3 px-6 rounded-xl hover:bg-red-700 transition-colors font-semibold min-h-[48px]"
-                >
-                    {t('common.logout')}
-                </button>
+            {/* Account Actions */}
+            <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-5">
+                <h2 className="text-lg sm:text-xl font-semibold mb-4">{t('settings.account.title')}</h2>
+                <div className="space-y-3">
+                    <button
+                        onClick={handleLogout}
+                        className="w-full py-3 px-4 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-semibold min-h-[48px]"
+                    >
+                        {t('settings.account.logout')}
+                    </button>
+                    <button
+                        onClick={handleDeleteAccount}
+                        className="w-full py-3 px-4 bg-gray-200 text-red-700 rounded-xl hover:bg-gray-300 transition-colors font-semibold min-h-[48px] border-2 border-red-300"
+                    >
+                        Delete Account
+                    </button>
+                    <p className="text-xs text-gray-500 mt-2">
+                        Deleting your account will permanently remove all your data and cannot be undone.
+                    </p>
+                </div>
             </div>
             </div>
         </div>

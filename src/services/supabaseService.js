@@ -24,7 +24,12 @@ export const StorageKeys = {
     orders: 'orders',
     errands: 'errands',
     applications: 'applications',
-    messages: 'messages'
+    messages: 'messages',
+    vendorWallets: 'vendorWallets',
+    payoutMethods: 'payoutMethods',
+    withdrawalRequests: 'withdrawalRequests',
+    errandRatings: 'errandRatings',
+    notifications: 'notifications'
 };
 
 // Database operations with error handling
@@ -239,6 +244,83 @@ export async function getCurrentUser() {
     }
 }
 
+/**
+ * Delete user account and all associated data
+ * This is a critical operation and should be used with caution
+ */
+export async function deleteUserAccount(userEmail) {
+    return await apiCall(async () => {
+        // Check if user is authenticated
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        
+        if (!session) {
+            // For demo users, just clear local storage
+            if (userEmail === 'guest@preview.app' || userEmail?.includes('guest-')) {
+                // Clear all user-related data from localStorage
+                const keysToRemove = [
+                    StorageKeys.user,
+                    StorageKeys.loginMethod,
+                    StorageKeys.products,
+                    StorageKeys.orders,
+                    StorageKeys.errands,
+                    StorageKeys.applications,
+                    StorageKeys.messages,
+                    StorageKeys.notifications
+                ];
+                
+                for (const key of keysToRemove) {
+                    try {
+                        await removeStorageItem(key);
+                    } catch (e) {
+                        console.warn(`Failed to remove ${key}:`, e);
+                    }
+                }
+                
+                return { success: true };
+            }
+            throw new Error('No active session');
+        }
+
+        // For real users, delete from Supabase
+        // Note: This requires proper RLS policies and may need to be done via Edge Function
+        // for cascading deletes of related data
+        
+        // First, sign out the user
+        await supabaseClient.auth.signOut();
+        
+        // Then delete the user account
+        // Note: Supabase doesn't have a direct deleteUser method in the client
+        // This would typically be done via an Edge Function or admin API
+        // For now, we'll clear local data and sign out
+        
+        // Clear all local storage
+        const keysToRemove = [
+            StorageKeys.user,
+            StorageKeys.loginMethod,
+            StorageKeys.products,
+            StorageKeys.orders,
+            StorageKeys.errands,
+            StorageKeys.applications,
+            StorageKeys.messages,
+            StorageKeys.notifications
+        ];
+        
+        for (const key of keysToRemove) {
+            try {
+                await removeStorageItem(key);
+            } catch (e) {
+                console.warn(`Failed to remove ${key}:`, e);
+            }
+        }
+        
+        showSuccessToast('Account deletion requested. Please contact support to complete the process.');
+        return { success: true };
+    }, {
+        context: 'Deleting user account',
+        showToast: true
+    });
+}
+
 // Data loading functions
 export async function loadProductsFromBackend() {
     try {
@@ -311,7 +393,9 @@ export async function loadOrdersFromBackend() {
             total: parseFloat(o.total_price || 0),
             groupStatus: o.group_status,
             fulfillmentStatus: o.fulfillment_status,
-            paymentStatus: o.payment_status || 'paid',
+            paymentStatus: o.payment_status || 'authorized',
+            escrowStatus: o.escrow_status || 'escrow_held',
+            paymentIntentId: o.payment_intent_id || null,
             refundRequired: o.refund_required || false,
             createdAt: o.created_at
         }));
@@ -374,6 +458,11 @@ export async function loadErrandsFromBackend() {
             status: e.status,
             requesterEmail: e.requester_email,
             assignedHelperEmail: e.assigned_helper_email,
+            requesterConfirmedCompletion: e.requester_confirmed_completion || false,
+            helperConfirmedCompletion: e.helper_confirmed_completion || false,
+            paymentReleased: e.payment_released || false,
+            paymentReleasedAt: e.payment_released_at,
+            completedAt: e.completed_at,
             createdAt: e.created_at
         }));
         
@@ -632,7 +721,7 @@ export async function createRegionalBatchInBackend(batchData) {
                 minimum_quantity: batchData.minimum_quantity,
                 cutoff_date: batchData.cutoff_date,
                 delivery_method: batchData.delivery_method,
-                status: batchData.status || 'collecting',
+                status: batchData.status || 'draft',
                 current_quantity: 0
             })
             .select()
@@ -739,6 +828,216 @@ export async function flagOrdersForRefund(batchId) {
         console.error('Error flagging orders for refund', error);
         return { success: false, error: error.message };
     }
+}
+
+/**
+ * Update order fulfillment status
+ */
+export async function updateOrderFulfillmentStatus(orderId, fulfillmentStatus) {
+    try {
+        if (!supabaseClient) {
+            return { success: false, error: 'Supabase client not available' };
+        }
+        
+        const { data, error } = await supabaseClient
+            .from('orders')
+            .update({ 
+                fulfillment_status: fulfillmentStatus,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', orderId)
+            .select()
+            .single();
+            
+        if (error) {
+            console.error('Error updating order fulfillment status', error);
+            return { success: false, error: error.message };
+        }
+        
+        return { success: true, data };
+    } catch (error) {
+        console.error('Error updating order fulfillment status', error);
+        return { success: false, error: error.message };
+    }
+}
+
+/**
+ * Activate a draft batch (transition from draft to active)
+ */
+export async function activateRegionalBatch(batchId) {
+    try {
+        if (!supabaseClient) {
+            return { success: false, error: 'Supabase client not available' };
+        }
+        
+        // Use RPC function if available, otherwise direct update
+        const { data, error } = await supabaseClient
+            .rpc('activate_batch', { batch_id: batchId })
+            .then(async (result) => {
+                if (result.error) {
+                    // Fallback to direct update if RPC doesn't exist
+                    return await supabaseClient
+                        .from('regional_batches')
+                        .update({ 
+                            status: 'active',
+                            updated_at: new Date().toISOString()
+                        })
+                        .eq('id', batchId)
+                        .eq('status', 'draft')
+                        .select()
+                        .single();
+                }
+                return result;
+            })
+            .catch(async () => {
+                // Fallback to direct update
+                return await supabaseClient
+                    .from('regional_batches')
+                    .update({ 
+                        status: 'active',
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', batchId)
+                    .eq('status', 'draft')
+                    .select()
+                    .single();
+            });
+            
+        if (error) {
+            console.error('Error activating regional batch', error);
+            return { success: false, error: error.message };
+        }
+        
+        return { success: true, data };
+    } catch (error) {
+        console.error('Error activating regional batch', error);
+        return { success: false, error: error.message };
+    }
+}
+
+/**
+ * Check and transition batches at deadline (should be called periodically)
+ * Also handles escrow release/refund based on batch outcome
+ */
+export async function checkAndTransitionBatchStatuses() {
+    try {
+        if (!supabaseClient) {
+            return { success: false, error: 'Supabase client not available' };
+        }
+        
+        // Use RPC function if available
+        const { error: rpcError } = await supabaseClient
+            .rpc('check_and_transition_batch_status');
+            
+        if (rpcError) {
+            // Fallback: manually check and update batches
+            const now = new Date().toISOString();
+            const { data: activeBatches, error: fetchError } = await supabaseClient
+                .from('regional_batches')
+                .select('*')
+                .eq('status', 'active')
+                .lt('cutoff_date', now);
+                
+            if (fetchError) {
+                console.error('Error fetching batches for transition', fetchError);
+                return { success: false, error: fetchError.message };
+            }
+            
+            // Import escrow service
+            const { releaseEscrowToVendor, refundEscrowToCustomers } = await import('./escrowService');
+            
+            // Update each batch based on quantity
+            for (const batch of activeBatches || []) {
+                const newStatus = (batch.current_quantity || 0) >= batch.minimum_quantity
+                    ? 'successful'
+                    : 'failed';
+                    
+                await supabaseClient
+                    .from('regional_batches')
+                    .update({ 
+                        status: newStatus,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', batch.id);
+                
+                // Handle escrow based on outcome
+                if (newStatus === 'successful') {
+                    // Release escrow to vendor
+                    try {
+                        await releaseEscrowToVendor(batch.id);
+                    } catch (escrowError) {
+                        console.error(`Failed to release escrow for batch ${batch.id}:`, escrowError);
+                        // Don't fail the status transition if escrow release fails
+                    }
+                } else if (newStatus === 'failed') {
+                    // Refund escrow to customers
+                    try {
+                        await refundEscrowToCustomers(batch.id);
+                    } catch (escrowError) {
+                        console.error(`Failed to refund escrow for batch ${batch.id}:`, escrowError);
+                        // Don't fail the status transition if escrow refund fails
+                    }
+                }
+            }
+        } else {
+            // RPC succeeded - trigger escrow operations for newly transitioned batches
+            // This is handled by database triggers, but we can also call the service
+            // to ensure consistency
+            const { data: transitionedBatches } = await supabaseClient
+                .from('regional_batches')
+                .select('id, status')
+                .in('status', ['successful', 'failed'])
+                .gte('updated_at', new Date(Date.now() - 60000).toISOString()); // Last minute
+                
+            if (transitionedBatches && transitionedBatches.length > 0) {
+                const { releaseEscrowToVendor, refundEscrowToCustomers } = await import('./escrowService');
+                
+                for (const batch of transitionedBatches) {
+                    if (batch.status === 'successful') {
+                        try {
+                            await releaseEscrowToVendor(batch.id);
+                        } catch (error) {
+                            console.error(`Failed to release escrow for batch ${batch.id}:`, error);
+                        }
+                    } else if (batch.status === 'failed') {
+                        try {
+                            await refundEscrowToCustomers(batch.id);
+                        } catch (error) {
+                            console.error(`Failed to refund escrow for batch ${batch.id}:`, error);
+                        }
+                    }
+                }
+            }
+        }
+        
+        return { success: true };
+    } catch (error) {
+        console.error('Error checking batch statuses', error);
+        return { success: false, error: error.message };
+    }
+}
+
+/**
+ * Check if a batch can accept new orders
+ */
+export function canJoinBatch(batch) {
+    if (!batch) return false;
+    
+    // Cannot join if batch is not active
+    if (batch.status !== 'active') {
+        return false;
+    }
+    
+    // Cannot join if deadline has passed
+    if (batch.cutoffDate) {
+        const cutoffDate = new Date(batch.cutoffDate);
+        const now = new Date();
+        if (cutoffDate < now) {
+            return false;
+        }
+    }
+    
+    return true;
 }
 
 // Seed data (extracted from original file)

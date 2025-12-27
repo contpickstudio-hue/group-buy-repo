@@ -16,7 +16,15 @@
     "done": "Done",
     "change": "Change",
     "edit": "Edit",
-    "signUp": "Sign Up"
+    "signUp": "Sign Up",
+    "loginSignUp": "Login / Sign Up",
+    "reset": "Reset",
+    "logoutShort": "Out",
+    "browse": "Browse",
+    "appName": "Korean Community Commerce",
+    "appNameShort": "KCC",
+    "language": "Language",
+    "selectLanguage": "Select Language"
   },
   "onboarding": {
     "screen1": {

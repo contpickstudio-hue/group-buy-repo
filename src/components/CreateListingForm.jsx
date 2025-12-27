@@ -172,9 +172,9 @@ const CreateListingForm = () => {
     };
     
     return (
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8" data-testid="create-listing-form">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-8 pb-24 sm:pb-8" data-testid="create-listing-form">
             <h3 className="text-xl font-semibold mb-4">Create Listing</h3>
-            <form className="space-y-6" onSubmit={handleSubmit}>
+            <form className="space-y-4 sm:space-y-6" onSubmit={handleSubmit}>
                 {error && (
                     <div className="bg-red-50 border border-red-200 rounded-md p-3 text-red-700 text-sm">
                         {error}
@@ -197,7 +197,7 @@ const CreateListingForm = () => {
                                 value={formData.title}
                                 onChange={handleChange}
                                 placeholder="e.g., Premium Korean Strawberries"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[44px]"
                                 required
                             />
                         </div>
@@ -212,7 +212,7 @@ const CreateListingForm = () => {
                                 value={formData.originLocation}
                                 onChange={handleChange}
                                 placeholder="e.g., Montreal"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[44px]"
                                 required
                             />
                         </div>
@@ -229,7 +229,7 @@ const CreateListingForm = () => {
                             onChange={handleChange}
                             rows={3}
                             placeholder="Describe your product..."
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[88px]"
                         />
                     </div>
                 </div>
@@ -256,10 +256,10 @@ const CreateListingForm = () => {
                                     <button
                                         type="button"
                                         onClick={() => removeBatch(index)}
-                                        className="text-red-600 hover:text-red-800 p-1"
+                                        className="text-red-600 hover:text-red-800 p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
                                         aria-label="Remove batch"
                                     >
-                                        <Trash2 size={16} />
+                                        <Trash2 size={18} />
                                     </button>
                                 )}
                             </div>
@@ -272,7 +272,7 @@ const CreateListingForm = () => {
                                     <select
                                         value={batch.region}
                                         onChange={(e) => handleBatchChange(index, 'region', e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[44px]"
                                         required
                                     >
                                         <option value="Toronto">Toronto</option>
@@ -295,7 +295,7 @@ const CreateListingForm = () => {
                                         min="0.01"
                                         step="0.01"
                                         placeholder="38.00"
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[44px]"
                                         required
                                     />
                                 </div>
@@ -310,7 +310,7 @@ const CreateListingForm = () => {
                                         onChange={(e) => handleBatchChange(index, 'minimumQuantity', e.target.value)}
                                         min="1"
                                         placeholder="20"
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[44px]"
                                         required
                                     />
                                 </div>
@@ -322,7 +322,7 @@ const CreateListingForm = () => {
                                     <select
                                         value={batch.deliveryMethod}
                                         onChange={(e) => handleBatchChange(index, 'deliveryMethod', e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[44px]"
                                         required
                                     >
                                         <option value="pickup_point">Pickup Point</option>
@@ -367,7 +367,7 @@ const CreateListingForm = () => {
                             }]);
                             setError(null);
                         }}
-                        className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+                        className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors min-h-[44px] min-w-[44px]"
                         disabled={isSubmitting}
                     >
                         Reset
@@ -375,7 +375,7 @@ const CreateListingForm = () => {
                     <button
                         type="submit"
                         disabled={isSubmitting || !isFormValid()}
-                        className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                        className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 min-h-[44px] min-w-[44px] text-base"
                     >
                         {isSubmitting ? (
                             <>

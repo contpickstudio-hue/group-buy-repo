@@ -195,13 +195,13 @@ const ErrandsPage = () => {
                             placeholder="Search errands..."
                             value={search}
                             onChange={(e) => updateErrandFilters({ search: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[44px]"
                         />
                     </div>
                     <select 
                         value={region}
                         onChange={(e) => updateErrandFilters({ region: e.target.value })}
-                        className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+                        className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[44px]"
                     >
                         <option value="all">All Regions</option>
                         <option value="Toronto">Toronto</option>
@@ -212,9 +212,9 @@ const ErrandsPage = () => {
             </div>
 
             {/* Create Errand Form - Mobile optimized, single screen */}
-            <div className="card mb-6 sm:mb-8" data-testid="create-errand-form" data-coach-target="post-errand-form">
+            <div className="card mb-6 sm:mb-8 pb-24 sm:pb-6" data-testid="create-errand-form" data-coach-target="post-errand-form">
                 <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-gray-900">Post a New Errand</h3>
-                <form onSubmit={handleSubmit} className="space-y-5">
+                <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Title <span className="text-red-500">*</span>
@@ -226,7 +226,7 @@ const ErrandsPage = () => {
                             onChange={handleInputChange}
                             placeholder="e.g., Weekly H-Mart Grocery Run"
                             required
-                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-base ${
+                            className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 text-base min-h-[44px] ${
                                 formErrors.title 
                                     ? 'border-red-300 focus:ring-red-500' 
                                     : 'border-gray-300 focus:ring-blue-500'
@@ -249,7 +249,7 @@ const ErrandsPage = () => {
                             rows={3}
                             placeholder="Describe what you need help with..."
                             required
-                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-base ${
+                            className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 text-base min-h-[88px] ${
                                 formErrors.description 
                                     ? 'border-red-300 focus:ring-red-500' 
                                     : 'border-gray-300 focus:ring-blue-500'
@@ -290,7 +290,7 @@ const ErrandsPage = () => {
                                 onChange={handleInputChange}
                                 min="1"
                                 placeholder="25"
-                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[48px]"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[44px]"
                             />
                         </div>
                         <div>
@@ -308,7 +308,7 @@ const ErrandsPage = () => {
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full bg-blue-600 text-white py-3 px-4 rounded-xl hover:bg-blue-700 transition-colors font-semibold text-base min-h-[48px] disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:bg-gray-400"
+                        className="w-full bg-blue-600 text-white py-3 px-4 rounded-xl hover:bg-blue-700 transition-colors font-semibold text-base min-h-[44px] disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:bg-gray-400"
                     >
                         {isSubmitting ? (
                             <div className="flex items-center justify-center gap-2">
@@ -329,7 +329,7 @@ const ErrandsPage = () => {
                     <select 
                         value={sort}
                         onChange={(e) => updateErrandFilters({ sort: e.target.value })}
-                        className="px-3 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[44px]"
                     >
                         <option value="deadline">⏰ Deadline</option>
                         <option value="budget-high">💰 Budget: High to Low</option>

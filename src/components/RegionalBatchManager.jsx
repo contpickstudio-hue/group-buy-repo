@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, ChevronUp, X, Plus, Package, Clock, TrendingUp } from 'lucide-react';
-import { useGetBatchesByListing, useCancelRegionalBatch, useCreateRegionalBatch } from '../stores';
+import { ChevronDown, ChevronUp, X, Plus, Package, Clock, TrendingUp, Play } from 'lucide-react';
+import { useGetBatchesByListing, useCancelRegionalBatch, useCreateRegionalBatch, useActivateRegionalBatch } from '../stores';
 import toast from 'react-hot-toast';
 import DateInput from './DateInput';
 
@@ -12,10 +12,12 @@ const RegionalBatchManager = ({ listingId, onBatchAdded }) => {
     const getBatchesByListing = useGetBatchesByListing();
     const cancelRegionalBatch = useCancelRegionalBatch();
     const createRegionalBatch = useCreateRegionalBatch();
+    const activateRegionalBatch = useActivateRegionalBatch();
     
     const [expandedBatches, setExpandedBatches] = useState(new Set());
     const [showAddBatch, setShowAddBatch] = useState(false);
     const [isCancelling, setIsCancelling] = useState(null);
+    const [isActivating, setIsActivating] = useState(null);
     
     const batches = getBatchesByListing(listingId) || [];
     
@@ -97,16 +99,36 @@ const RegionalBatchManager = ({ listingId, onBatchAdded }) => {
         }
     };
     
+    const handleActivateBatch = async (batchId) => {
+        setIsActivating(batchId);
+        try {
+            const result = await activateRegionalBatch(batchId);
+            if (result.success) {
+                toast.success('Batch activated successfully! It is now accepting orders.');
+            } else {
+                throw new Error(result.error || 'Failed to activate batch');
+            }
+        } catch (error) {
+            toast.error(error.message || 'Failed to activate batch');
+        } finally {
+            setIsActivating(null);
+        }
+    };
+    
     const getStatusColor = (status) => {
         switch (status) {
-            case 'collecting':
+            case 'draft':
+                return 'bg-yellow-100 text-yellow-800';
+            case 'active':
                 return 'bg-blue-100 text-blue-800';
-            case 'ready_to_deliver':
+            case 'successful':
                 return 'bg-green-100 text-green-800';
-            case 'cancelled':
+            case 'failed':
                 return 'bg-red-100 text-red-800';
-            case 'delivered':
+            case 'cancelled':
                 return 'bg-gray-100 text-gray-800';
+            case 'delivered':
+                return 'bg-purple-100 text-purple-800';
             default:
                 return 'bg-gray-100 text-gray-800';
         }
@@ -114,10 +136,14 @@ const RegionalBatchManager = ({ listingId, onBatchAdded }) => {
     
     const getStatusLabel = (status) => {
         switch (status) {
-            case 'collecting':
-                return 'Collecting';
-            case 'ready_to_deliver':
-                return 'Ready to Deliver';
+            case 'draft':
+                return 'Draft';
+            case 'active':
+                return 'Active';
+            case 'successful':
+                return 'Successful';
+            case 'failed':
+                return 'Failed';
             case 'cancelled':
                 return 'Cancelled';
             case 'delivered':
@@ -182,7 +208,17 @@ const RegionalBatchManager = ({ listingId, onBatchAdded }) => {
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    {batch.status === 'collecting' && (
+                                    {batch.status === 'draft' && (
+                                        <button
+                                            onClick={() => handleActivateBatch(batch.id)}
+                                            disabled={isActivating === batch.id}
+                                            className="px-3 py-1 text-sm bg-green-600 text-white hover:bg-green-700 rounded-md transition-colors disabled:opacity-50 flex items-center gap-1"
+                                        >
+                                            <Play size={14} />
+                                            {isActivating === batch.id ? 'Activating...' : 'Activate'}
+                                        </button>
+                                    )}
+                                    {batch.status === 'active' && (
                                         <button
                                             onClick={() => handleCancelBatch(batch.id)}
                                             disabled={isCancelling === batch.id}
@@ -223,7 +259,14 @@ const RegionalBatchManager = ({ listingId, onBatchAdded }) => {
                                     </div>
                                     <div>
                                         <span className="text-gray-600">Price:</span>
-                                        <span className="ml-2 font-medium text-gray-900">${batch.price.toFixed(2)}</span>
+                                        <span className={`ml-2 font-medium ${
+                                            batch.status !== 'draft' ? 'text-gray-900' : 'text-gray-900'
+                                        }`}>
+                                            ${batch.price.toFixed(2)}
+                                            {batch.status !== 'draft' && (
+                                                <span className="ml-2 text-xs text-gray-500">(Locked)</span>
+                                            )}
+                                        </span>
                                     </div>
                                     <div>
                                         <span className="text-gray-600">Minimum Quantity:</span>

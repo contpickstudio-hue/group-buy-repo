@@ -4,7 +4,7 @@ import {
   useStripe,
   useElements
 } from '@stripe/react-stripe-js';
-import { createPaymentIntent } from '../services/paymentService';
+import { createEscrowPayment, isTestPaymentMode } from '../services/paymentService';
 import { useUser, useCredits, useLoadCredits, useApplyCredits } from '../stores';
 import CreditsDisplay from './CreditsDisplay';
 import toast from 'react-hot-toast';
@@ -71,16 +71,18 @@ const CheckoutForm = ({
       try {
         setIsLoading(true);
         const creditAmount = Math.min(creditsToApply, credits?.balance || 0);
-        const result = await createPaymentIntent({
+        // Create escrow payment (funds held, not captured)
+        const result = await createEscrowPayment({
           amount: finalAmount,
           currency,
           orderId,
-          productId,
           customerEmail: user.email,
           metadata: {
             customerName: user.name || user.email,
             creditsApplied: creditAmount,
             originalAmount: amount,
+            productId,
+            escrow: true, // Mark as escrow payment
             ...metadata
           }
         });
@@ -428,6 +430,21 @@ const CheckoutForm = ({
           </button>
         </div>
       </div>
+      )}
+
+      {/* Test Mode Warning */}
+      {isTestPaymentMode() && (
+        <div className="bg-yellow-50 border-2 border-yellow-400 rounded-lg p-4">
+          <div className="flex items-start">
+            <svg className="w-5 h-5 text-yellow-600 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            <div className="text-sm text-yellow-800">
+              <p className="font-bold">TEST MODE - NO REAL PAYMENTS</p>
+              <p className="mt-1">You are in test mode. No real payments will be processed. This is for development and testing only.</p>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Security Notice */}

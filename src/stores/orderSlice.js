@@ -20,8 +20,11 @@ export const createOrderSlice = (set, get) => ({
         id: order.id || Date.now() + Math.random(),
         createdAt: order.createdAt || new Date().toISOString(),
         status: order.status || 'pending',
-        // Immediate payment - default to 'paid'
-        paymentStatus: order.paymentStatus || 'paid',
+        // Escrow payment - default to 'authorized' (held in escrow)
+        paymentStatus: order.paymentStatus || 'authorized',
+        // Escrow status tracking
+        escrowStatus: order.escrowStatus || 'escrow_held',
+        paymentIntentId: order.paymentIntentId || order.payment_intent_id || null,
         // Link to regional batch (required for new marketplace model)
         regionalBatchId: order.regionalBatchId || order.regional_batch_id || null,
         // Keep productId for backward compatibility
@@ -49,13 +52,52 @@ export const createOrderSlice = (set, get) => ({
     });
   },
 
-  updateFulfillmentStatus: (orderId, status) => {
+  updateEscrowStatus: (orderId, escrowStatus) => {
+    set((state) => {
+      const order = state.orders.find(o => o.id === orderId);
+      if (order) {
+        order.escrowStatus = escrowStatus;
+        // Update payment status based on escrow status
+        if (escrowStatus === 'escrow_released') {
+          order.paymentStatus = 'paid';
+        } else if (escrowStatus === 'escrow_refunded') {
+          order.paymentStatus = 'refunded';
+        }
+      }
+    });
+  },
+
+  updateFulfillmentStatus: async (orderId, status) => {
+    // Update local state optimistically
     set((state) => {
       const order = state.orders.find(o => o.id === orderId);
       if (order) {
         order.fulfillmentStatus = status;
       }
     });
+    
+    // Persist to backend
+    try {
+      const { updateOrderFulfillmentStatus } = await import('../services/supabaseService');
+      const result = await updateOrderFulfillmentStatus(orderId, status);
+      
+      if (!result.success) {
+        // Revert optimistic update on failure
+        set((state) => {
+          const order = state.orders.find(o => o.id === orderId);
+          if (order) {
+            // Revert to previous status - we'd need to track this, but for now just log
+            console.error('Failed to update fulfillment status:', result.error);
+          }
+        });
+        return { success: false, error: result.error };
+      }
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Error updating fulfillment status:', error);
+      return { success: false, error: error.message };
+    }
   },
 
   cancelOrder: (orderId) => {

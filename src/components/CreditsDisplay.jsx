@@ -6,6 +6,9 @@ import {
   useLoadCredits,
   useLoadCreditsHistory 
 } from '../stores';
+import { useAuthStore } from '../stores/authStore';
+import { useUser } from '../stores';
+import { isGuestUser } from '../utils/authUtils';
 
 /**
  * CreditsDisplay Component
@@ -16,13 +19,44 @@ const CreditsDisplay = ({ showHistory = true, compact = false }) => {
   const creditsHistory = useCreditsHistory();
   const loadCredits = useLoadCredits();
   const loadCreditsHistory = useLoadCreditsHistory();
+  const user = useUser();
+  const loginMethod = useAuthStore((state) => state.loginMethod);
+  const isGuest = isGuestUser(user, loginMethod);
 
   useEffect(() => {
-    loadCredits();
-    if (showHistory) {
-      loadCreditsHistory(20);
+    if (!isGuest) {
+      loadCredits();
+      if (showHistory) {
+        loadCreditsHistory(20);
+      }
     }
-  }, [loadCredits, loadCreditsHistory, showHistory]);
+  }, [loadCredits, loadCreditsHistory, showHistory, isGuest]);
+
+  // Show guest message for compact view
+  if (compact && isGuest) {
+    return (
+      <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg border border-gray-200">
+        <Gift size={18} className="text-gray-400" />
+        <span className="text-sm text-gray-500">Sign up to view credits</span>
+      </div>
+    );
+  }
+
+  // Show guest message for full view
+  if (isGuest) {
+    return (
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
+          <h3 className="text-lg font-semibold text-yellow-800 mb-2">
+            Guest Preview Access
+          </h3>
+          <p className="text-yellow-700 mb-4">
+            Credits are only available to registered users. Please sign up to access this feature.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
