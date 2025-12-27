@@ -33,7 +33,10 @@ const LanguageDropdown = () => {
         }
     }, [isOpen]);
 
-    const currentLang = availableLanguages.find(lang => lang.code === currentLanguage) || availableLanguages[0];
+    const languages = Array.isArray(availableLanguages) && availableLanguages.length > 0 
+        ? availableLanguages 
+        : [{ code: 'en', flag: '🇺🇸', nativeName: 'English', name: 'English' }];
+    const currentLang = languages.find(lang => lang.code === currentLanguage) || languages[0];
 
     const handleLanguageChange = async (langCode) => {
         if (langCode !== currentLanguage) {
@@ -65,7 +68,7 @@ const LanguageDropdown = () => {
                     <div className="px-3 py-2.5 text-xs font-semibold text-gray-500 uppercase border-b border-gray-100 sticky top-0 bg-white">
                         {t('common.selectLanguage') || 'Select Language'}
                     </div>
-                    {availableLanguages.map((lang) => (
+                    {languages.map((lang) => (
                         <button
                             key={lang.code}
                             onClick={() => handleLanguageChange(lang.code)}

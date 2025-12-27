@@ -12,7 +12,7 @@ const NotificationIcon = () => {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   
   // Count unread notifications
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = Array.isArray(notifications) ? notifications.filter(n => n && !n.read).length : 0;
 
   return (
     <>
