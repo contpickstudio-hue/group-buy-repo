@@ -86,11 +86,18 @@ const ErrandsPage = () => {
         setFormErrors({});
         
         const userEmail = user.email || user.id;
+        // Parse budget properly - handle empty string, null, undefined
+        const budgetValue = formData.budget 
+          ? (typeof formData.budget === 'string' && formData.budget.trim() !== '' 
+              ? parseFloat(formData.budget.trim()) 
+              : (typeof formData.budget === 'number' ? formData.budget : 0))
+          : 0;
+        
         const newErrand = {
             title: formData.title.trim(),
             description: formData.description.trim(),
             region: formData.region,
-            budget: parseFloat(formData.budget) || 0,
+            budget: isNaN(budgetValue) ? 0 : budgetValue,
             deadline: formData.deadline ? new Date(formData.deadline).toISOString() : null,
             requester_email: userEmail, // For backend
             requesterEmail: userEmail, // For frontend

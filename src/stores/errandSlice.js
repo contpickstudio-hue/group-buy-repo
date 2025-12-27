@@ -21,12 +21,18 @@ export const createErrandSlice = (set, get) => ({
     const loginMethod = useAuthStore.getState().loginMethod;
     
     // Optimistically add to local state
+    // Ensure budget is properly preserved (handle 0 as valid value)
+    const budgetValue = errand.budget !== null && errand.budget !== undefined
+      ? (typeof errand.budget === 'number' ? errand.budget : parseFloat(errand.budget) || 0)
+      : 0;
+    
     const newErrand = {
       ...errand,
       id: errand.id || Date.now() + Math.random(),
       createdAt: errand.createdAt || new Date().toISOString(),
       status: errand.status || 'open',
-      requesterEmail: errand.requester_email || errand.requesterEmail
+      requesterEmail: errand.requester_email || errand.requesterEmail,
+      budget: budgetValue // Explicitly preserve budget
     };
     
     set((state) => {
@@ -52,7 +58,9 @@ export const createErrandSlice = (set, get) => ({
             title: newErrand.title,
             description: newErrand.description,
             region: newErrand.region,
-            budget: newErrand.budget || 0,
+            budget: newErrand.budget !== null && newErrand.budget !== undefined 
+              ? (typeof newErrand.budget === 'number' ? newErrand.budget : parseFloat(newErrand.budget) || 0)
+              : 0,
             deadline: newErrand.deadline,
             status: newErrand.status,
             requester_email: newErrand.requesterEmail || newErrand.requester_email
@@ -62,7 +70,7 @@ export const createErrandSlice = (set, get) => ({
 
         if (error) throw error;
         
-        // Update with real ID from database
+        // Update with real ID and data from database
         if (data) {
           set((state) => {
             const index = state.errands.findIndex(e => e.id === newErrand.id);
@@ -70,7 +78,13 @@ export const createErrandSlice = (set, get) => ({
               state.errands[index] = {
                 ...state.errands[index],
                 id: data.id,
-                createdAt: data.created_at
+                createdAt: data.created_at,
+                // Preserve budget from database if available, otherwise keep optimistic value
+                budget: data.budget !== null && data.budget !== undefined 
+                  ? (typeof data.budget === 'number' ? data.budget : parseFloat(data.budget) || 0)
+                  : (state.errands[index].budget !== null && state.errands[index].budget !== undefined 
+                      ? state.errands[index].budget 
+                      : 0)
               };
             }
           });

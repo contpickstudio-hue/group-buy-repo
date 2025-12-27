@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
-import { MessageCircle, ShoppingBag, Briefcase } from 'lucide-react';
-import { useChatThreads, useLoadChatThreads, useGetUnreadCount, useSetActiveThread, useSetCurrentScreen } from '../stores';
+import React, { useEffect, useState } from 'react';
+import { MessageCircle, ShoppingBag, Briefcase, Loader2 } from 'lucide-react';
+import { useChatThreads, useLoadChatThreads, useGetUnreadCount, useSetActiveThread, useSetCurrentScreen, useChatLoading } from '../stores';
 
 /**
  * ChatList Component
@@ -12,9 +12,17 @@ const ChatList = ({ onSelectChat }) => {
   const getUnreadCount = useGetUnreadCount();
   const setActiveThread = useSetActiveThread();
   const setCurrentScreen = useSetCurrentScreen();
+  const chatLoading = useChatLoading();
+  const [hasLoaded, setHasLoaded] = useState(false);
 
   useEffect(() => {
-    loadChatThreads();
+    const loadChats = async () => {
+      setHasLoaded(false);
+      await loadChatThreads();
+      // Small delay to ensure state updates
+      setTimeout(() => setHasLoaded(true), 100);
+    };
+    loadChats();
   }, [loadChatThreads]);
 
   const handleChatClick = (thread) => {
@@ -40,7 +48,21 @@ const ChatList = ({ onSelectChat }) => {
     return date.toLocaleDateString();
   };
 
-  if (chatThreads.length === 0) {
+  // Show loading state
+  if (chatLoading || !hasLoaded) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 h-full min-h-[300px] text-center">
+        <Loader2 size={48} className="mx-auto text-blue-600 animate-spin mb-4" />
+        <p className="text-gray-600 text-sm">Loading chats...</p>
+      </div>
+    );
+  }
+
+  // Safety check: ensure chatThreads is an array
+  const threads = Array.isArray(chatThreads) ? chatThreads : [];
+
+  // Show empty state when no chats
+  if (threads.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-8 h-full min-h-[300px] text-center">
         <div className="mb-6">
@@ -94,7 +116,7 @@ const ChatList = ({ onSelectChat }) => {
 
   return (
     <div className="divide-y divide-gray-200">
-      {chatThreads.map((thread) => {
+      {threads.map((thread) => {
         const unreadCount = getUnreadCount(thread.threadId);
         const displayName = thread.chatType === 'direct' 
           ? (thread.otherUserEmail || 'Unknown User').split('@')[0]

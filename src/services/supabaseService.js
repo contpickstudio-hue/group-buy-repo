@@ -362,7 +362,9 @@ export async function loadErrandsFromBackend() {
             title: e.title,
             description: e.description,
             region: e.region,
-            budget: parseFloat(e.budget || 0),
+            budget: e.budget !== null && e.budget !== undefined 
+              ? (typeof e.budget === 'number' ? e.budget : parseFloat(e.budget) || 0)
+              : 0,
             deadline: e.deadline,
             status: e.status,
             requesterEmail: e.requester_email,

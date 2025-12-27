@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { useUser, useProducts, useOrders, useErrands, useSetCurrentScreen, useAppStore } from '../stores';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { useUser, useProducts, useOrders, useErrands, useSetCurrentScreen, useAppStore, useLoadProducts } from '../stores';
 import { 
   useCommunitySavings, 
   useUserContribution,
@@ -30,6 +30,8 @@ const DashboardPage = () => {
     const orders = useOrders();
     const errands = useErrands();
     const setCurrentScreen = useSetCurrentScreen();
+    const loadProducts = useLoadProducts();
+    const prevProductsLengthRef = useRef(products?.length || 0);
     
     // Community stats hooks
     const loadCommunityStats = useLoadCommunityStats();
@@ -88,41 +90,124 @@ const DashboardPage = () => {
     const [activeTab, setActiveTab] = useState('overview');
 
     // Calculate user's active and completed items
+    // Use products.length as additional dependency to ensure recalculation when products are added
     const userData = useMemo(() => {
         const userEmail = user.email || user.id;
         
-        // Active group buys (user has orders)
+        // Helper function to check if a product is active
+        const isProductActive = (product) => {
+            if (!product) return false;
+            const progress = product.targetQuantity > 0 
+                ? (product.currentQuantity / product.targetQuantity) * 100 
+                : 0;
+            const deadline = product.deadline ? new Date(product.deadline) : null;
+            const daysLeft = deadline ? Math.ceil((deadline - new Date()) / (1000 * 60 * 60 * 24)) : null;
+            return progress < 100 && daysLeft !== null && daysLeft > 0;
+        };
+        
+        // Helper function to check if a product is completed
+        const isProductCompleted = (product, order = null) => {
+            if (!product) return false;
+            const progress = product.targetQuantity > 0 
+                ? (product.currentQuantity / product.targetQuantity) * 100 
+                : 0;
+            return progress >= 100 || (order && order.fulfillmentStatus === 'completed');
+        };
+        
+        // Active group buys where user has orders (as customer)
         const userOrders = orders.filter(o => o.customerEmail === userEmail);
-        const activeGroupBuys = userOrders
+        const activeGroupBuysFromOrders = userOrders
             .filter(o => {
                 const product = products.find(p => p.id === o.productId);
-                if (!product) return false;
-                const progress = product.targetQuantity > 0 
-                    ? (product.currentQuantity / product.targetQuantity) * 100 
-                    : 0;
-                const deadline = product.deadline ? new Date(product.deadline) : null;
-                const daysLeft = deadline ? Math.ceil((deadline - new Date()) / (1000 * 60 * 60 * 24)) : null;
-                return progress < 100 && daysLeft !== null && daysLeft > 0;
+                return isProductActive(product);
             })
             .map(o => {
                 const product = products.find(p => p.id === o.productId);
-                return { ...o, product };
+                return { ...o, product, role: 'customer' };
             });
+        
+        // Active group buys created by user (as vendor/owner)
+        const activeGroupBuysAsVendor = products
+            .filter(p => (p.ownerEmail === userEmail || p.owner_email === userEmail))
+            .filter(p => isProductActive(p))
+            .map(product => {
+                // Find if user also has an order for this product
+                const userOrder = userOrders.find(o => o.productId === product.id);
+                return {
+                    ...(userOrder || { 
+                        id: `vendor-${product.id}`,
+                        productId: product.id,
+                        customerEmail: userEmail,
+                        quantity: 0,
+                        totalPrice: 0,
+                        groupStatus: 'open',
+                        fulfillmentStatus: 'pending'
+                    }),
+                    product,
+                    role: 'vendor'
+                };
+            });
+        
+        // Combine and deduplicate active group buys
+        const activeGroupBuysMap = new Map();
+        [...activeGroupBuysFromOrders, ...activeGroupBuysAsVendor].forEach(item => {
+            const key = item.productId;
+            if (!activeGroupBuysMap.has(key)) {
+                activeGroupBuysMap.set(key, item);
+            } else {
+                // If user is both vendor and customer, prioritize vendor role
+                if (item.role === 'vendor') {
+                    activeGroupBuysMap.set(key, item);
+                }
+            }
+        });
+        const activeGroupBuys = Array.from(activeGroupBuysMap.values());
 
-        // Completed group buys
-        const completedGroupBuys = userOrders
+        // Completed group buys where user has orders (as customer)
+        const completedGroupBuysFromOrders = userOrders
             .filter(o => {
                 const product = products.find(p => p.id === o.productId);
-                if (!product) return false;
-                const progress = product.targetQuantity > 0 
-                    ? (product.currentQuantity / product.targetQuantity) * 100 
-                    : 0;
-                return progress >= 100 || o.fulfillmentStatus === 'completed';
+                return isProductCompleted(product, o);
             })
             .map(o => {
                 const product = products.find(p => p.id === o.productId);
-                return { ...o, product };
+                return { ...o, product, role: 'customer' };
             });
+        
+        // Completed group buys created by user (as vendor/owner)
+        const completedGroupBuysAsVendor = products
+            .filter(p => (p.ownerEmail === userEmail || p.owner_email === userEmail))
+            .filter(p => isProductCompleted(p))
+            .map(product => {
+                const userOrder = userOrders.find(o => o.productId === product.id);
+                return {
+                    ...(userOrder || { 
+                        id: `vendor-${product.id}`,
+                        productId: product.id,
+                        customerEmail: userEmail,
+                        quantity: 0,
+                        totalPrice: 0,
+                        groupStatus: 'closed',
+                        fulfillmentStatus: 'completed'
+                    }),
+                    product,
+                    role: 'vendor'
+                };
+            });
+        
+        // Combine and deduplicate completed group buys
+        const completedGroupBuysMap = new Map();
+        [...completedGroupBuysFromOrders, ...completedGroupBuysAsVendor].forEach(item => {
+            const key = item.productId;
+            if (!completedGroupBuysMap.has(key)) {
+                completedGroupBuysMap.set(key, item);
+            } else {
+                if (item.role === 'vendor') {
+                    completedGroupBuysMap.set(key, item);
+                }
+            }
+        });
+        const completedGroupBuys = Array.from(completedGroupBuysMap.values());
 
         // Active errands (user is requester)
         const activeErrands = errands.filter(e => 
@@ -143,7 +228,15 @@ const DashboardPage = () => {
             activeErrands,
             completedErrands
         };
-    }, [user, orders, products, errands]);
+    }, [user, orders, products, errands, products?.length]);
+    
+    // Track products changes to ensure dashboard updates when new products are created
+    // The useMemo above should recalculate when products or products.length changes
+    // This effect helps ensure the component is aware of product changes
+    useEffect(() => {
+        const currentProductsLength = products?.length || 0;
+        prevProductsLengthRef.current = currentProductsLength;
+    }, [products, products?.length]);
 
     // Tab configuration based on user roles
     const tabs = [];
