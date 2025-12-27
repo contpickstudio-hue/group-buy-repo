@@ -66,13 +66,17 @@ export const useAuthStore = create()(
 
         try {
           const result = await signUpWithEmail(email, password, metadata);
-          if (result.success && result.user) {
+          // Check for user in the nested data structure: result.data.data.user
+          const user = result.data?.data?.user;
+          
+          if (result.success && user) {
+            // User is available immediately (email confirmation may be disabled)
             const userProfile = {
-              id: result.user.id,
-              email: result.user.email,
-              name: metadata.name || email.split('@')[0],
-              roles: metadata.roles || ['customer'],
-              helperVerified: false
+              id: user.id,
+              email: user.email,
+              name: metadata.name || user.user_metadata?.name || email.split('@')[0],
+              roles: metadata.roles || user.user_metadata?.roles || ['customer'],
+              helperVerified: user.user_metadata?.helperVerified || false
             };
             
             set((state) => {
@@ -83,12 +87,27 @@ export const useAuthStore = create()(
             await setStorageItem(StorageKeys.user, userProfile);
             return { success: true, user: userProfile };
           }
-          return { success: false, error: result.error };
+          
+          // Handle case where signup succeeds but user needs email verification
+          // Supabase may return user: null when email confirmation is required
+          if (result.success) {
+            // Signup was successful but user needs to verify email
+            return { 
+              success: false, 
+              error: 'Account created successfully! Please check your email for verification before signing in.' 
+            };
+          }
+          
+          return { 
+            success: false, 
+            error: result.error || 'Failed to create account. Please try again.' 
+          };
         } catch (error) {
+          const errorMessage = error?.message || 'An unexpected error occurred during sign up';
           set((state) => {
-            state.authError = error.message;
+            state.authError = errorMessage;
           });
-          return { success: false, error: error.message };
+          return { success: false, error: errorMessage };
         } finally {
           set((state) => {
             state.authLoading = false;
@@ -104,8 +123,8 @@ export const useAuthStore = create()(
 
         try {
           const result = await signInWithEmail(email, password);
-          if (result.success && result.data?.user) {
-            const user = result.data.user;
+          if (result.success && result.data?.data?.user) {
+            const user = result.data.data.user;
             const userProfile = {
               id: user.id,
               email: user.email,
@@ -122,12 +141,16 @@ export const useAuthStore = create()(
             await setStorageItem(StorageKeys.user, userProfile);
             return { success: true, user: userProfile };
           }
-          return { success: false, error: result.error };
+          return { 
+            success: false, 
+            error: result.error || 'Failed to sign in. Please check your credentials and try again.' 
+          };
         } catch (error) {
+          const errorMessage = error?.message || 'An unexpected error occurred during sign in';
           set((state) => {
-            state.authError = error.message;
+            state.authError = errorMessage;
           });
-          return { success: false, error: error.message };
+          return { success: false, error: errorMessage };
         } finally {
           set((state) => {
             state.authLoading = false;

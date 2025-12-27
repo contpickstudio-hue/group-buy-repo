@@ -107,7 +107,7 @@ const AuthPage = () => {
                 }
                 
                 if (!authResult.success) {
-                    throw new Error(authResult.error);
+                    throw new Error(authResult.error || 'Authentication failed. Please try again.');
                 }
                 
                 return authResult;
