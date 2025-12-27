@@ -121,6 +121,7 @@ export async function applyCreditsToOrder(userEmail, orderId, amount) {
     const creditsToUse = [];
 
     // Use credits until we've covered the amount
+    // Store full credit records to preserve source and referral_id
     for (const credit of availableCredits || []) {
       if (remainingAmount <= 0) break;
 
@@ -130,7 +131,9 @@ export async function applyCreditsToOrder(userEmail, orderId, amount) {
       creditsToUse.push({
         id: credit.id,
         useAmount,
-        originalAmount: creditAmount
+        originalAmount: creditAmount,
+        source: credit.source,
+        referral_id: credit.referral_id
       });
 
       remainingAmount -= useAmount;

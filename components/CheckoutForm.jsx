@@ -47,22 +47,30 @@ const CheckoutForm = ({
 
   // Update final amount when credits change
   useEffect(() => {
-    const creditAmount = Math.min(creditsToApply, credits.balance || 0);
+    const creditAmount = Math.min(creditsToApply, credits?.balance || 0);
     const newFinalAmount = Math.max(0, amount - creditAmount);
     setFinalAmount(newFinalAmount);
-  }, [amount, creditsToApply, credits.balance]);
+  }, [amount, creditsToApply, credits?.balance]);
 
   // Create payment intent when component mounts or amount changes
+  // Skip payment intent if finalAmount is 0 (fully covered by credits)
   useEffect(() => {
     const initializePayment = async () => {
-      if (!user || !finalAmount) {
+      if (!user) {
+        setIsLoading(false);
+        return;
+      }
+
+      // If finalAmount is 0, we don't need a payment intent (credits-only payment)
+      if (finalAmount <= 0) {
+        setClientSecret(null);
         setIsLoading(false);
         return;
       }
 
       try {
         setIsLoading(true);
-        const creditAmount = Math.min(creditsToApply, credits.balance || 0);
+        const creditAmount = Math.min(creditsToApply, credits?.balance || 0);
         const result = await createPaymentIntent({
           amount: finalAmount,
           currency,
@@ -93,17 +101,49 @@ const CheckoutForm = ({
     };
 
     initializePayment();
-  }, [finalAmount, currency, orderId, productId, user, creditsToApply, credits.balance]);
+  }, [finalAmount, currency, orderId, productId, user, creditsToApply, credits?.balance, amount, metadata]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (!stripe || !elements) {
-      return;
-    }
-
     setIsProcessing(true);
     setError(null);
+
+    // Calculate credit amount to apply
+    const creditAmount = Math.min(creditsToApply, credits?.balance || 0);
+
+    // Handle credits-only payment (finalAmount is 0)
+    if (finalAmount <= 0 && creditAmount > 0) {
+      try {
+        // Apply credits directly
+        await applyCredits(user.email, creditAmount, orderId);
+        toast.success('Order placed successfully using credits!');
+        if (onSuccess) {
+          onSuccess({
+            paymentIntentId: 'credits_only',
+            paymentIntent: null,
+            orderId,
+            productId,
+            creditsApplied: creditAmount,
+            finalAmount: 0
+          });
+        }
+        setIsProcessing(false);
+        return;
+      } catch (err) {
+        setError(err.message || 'Failed to apply credits');
+        setIsProcessing(false);
+        toast.error(err.message || 'Failed to apply credits');
+        return;
+      }
+    }
+
+    // Handle payment with Stripe
+    if (!stripe || !elements || !clientSecret) {
+      setError('Payment system not ready. Please try again.');
+      setIsProcessing(false);
+      return;
+    }
 
     try {
       // Confirm the payment with Stripe
@@ -132,7 +172,15 @@ const CheckoutForm = ({
 
       // Payment succeeded
       if (paymentIntent && paymentIntent.status === 'succeeded') {
-        // Apply credits after payment succeeds (credits will be applied when order is created)
+        // Apply credits after payment succeeds
+        if (creditAmount > 0) {
+          try {
+            await applyCredits(user.email, creditAmount, orderId);
+          } catch (creditsErr) {
+            console.error('Failed to apply credits:', creditsErr);
+            // Don't block payment success if credits fail
+          }
+        }
         toast.success('Payment successful!');
         if (onSuccess) {
           onSuccess({
@@ -146,6 +194,14 @@ const CheckoutForm = ({
         }
       } else if (paymentIntent && paymentIntent.status === 'requires_capture') {
         // Payment is held in escrow (requires manual capture)
+        if (creditAmount > 0) {
+          try {
+            await applyCredits(user.email, creditAmount, orderId);
+          } catch (creditsErr) {
+            console.error('Failed to apply credits:', creditsErr);
+            // Don't block payment success if credits fail
+          }
+        }
         toast.success('Payment authorized! Funds are held until order fulfillment.');
         if (onSuccess) {
           onSuccess({
@@ -178,7 +234,12 @@ const CheckoutForm = ({
     );
   }
 
-  if (!clientSecret) {
+  // Calculate credit amount for display
+  const creditAmount = Math.min(creditsToApply, credits?.balance || 0);
+  
+  // If finalAmount is 0 and we have credits, allow credits-only payment
+  // Otherwise, require clientSecret for Stripe payment
+  if (finalAmount > 0 && !clientSecret) {
     return (
       <div className="p-6 bg-red-50 border border-red-200 rounded-lg">
         <p className="text-red-800">{error || 'Failed to initialize payment. Please try again.'}</p>
@@ -196,29 +257,28 @@ const CheckoutForm = ({
 
   const handleCreditsChange = (e) => {
     const value = parseFloat(e.target.value) || 0;
-    const maxCredits = Math.min(credits.balance || 0, amount);
+    const maxCredits = Math.min(credits?.balance || 0, amount);
     setCreditsToApply(Math.min(value, maxCredits));
   };
 
-  const availableCredits = Math.min(credits.balance || 0, amount);
-  const creditAmount = Math.min(creditsToApply, availableCredits);
+  const availableCredits = Math.min(credits?.balance || 0, amount);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Credits Section */}
-      {credits.balance > 0 && (
+      {credits?.balance > 0 && (
         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
           <div className="flex items-center justify-between mb-3">
             <div>
               <h4 className="font-semibold text-gray-900">Apply Credits</h4>
               <p className="text-sm text-gray-600">
-                You have ${(credits.balance || 0).toFixed(2)} available
+                You have ${(credits?.balance || 0).toFixed(2)} available
               </p>
             </div>
             <div className="text-right">
               <div className="text-sm text-gray-600">Available</div>
               <div className="text-lg font-bold text-green-600">
-                ${(credits.balance || 0).toFixed(2)}
+                ${(credits?.balance || 0).toFixed(2)}
               </div>
             </div>
           </div>
@@ -253,6 +313,8 @@ const CheckoutForm = ({
         </div>
       )}
 
+      {/* Payment Details - only show if finalAmount > 0 */}
+      {finalAmount > 0 && (
       <div className="bg-white p-6 rounded-lg border border-gray-200">
         <h3 className="text-lg font-semibold mb-4">Payment Details</h3>
         
@@ -291,9 +353,11 @@ const CheckoutForm = ({
               ✓ Order fully covered by credits!
             </p>
           )}
-          <p className="text-sm text-gray-500 mt-2">
-            💳 Payment is held securely until order fulfillment
-          </p>
+          {finalAmount > 0 && (
+            <p className="text-sm text-gray-500 mt-2">
+              💳 Payment is held securely until order fulfillment
+            </p>
+          )}
         </div>
 
         {/* Error Display */}
@@ -317,7 +381,7 @@ const CheckoutForm = ({
           )}
           <button
             type="submit"
-            disabled={!stripe || isProcessing}
+            disabled={isProcessing || (finalAmount > 0 && (!stripe || !clientSecret))}
             className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold"
           >
             {isProcessing ? (
@@ -325,12 +389,15 @@ const CheckoutForm = ({
                 <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
                 Processing...
               </span>
+            ) : finalAmount <= 0 ? (
+              'Complete Order (Credits Only)'
             ) : (
-              finalAmount > 0 ? `Pay $${finalAmount.toFixed(2)}` : 'Complete Order'
+              `Pay $${finalAmount.toFixed(2)}`
             )}
           </button>
         </div>
       </div>
+      )}
 
       {/* Security Notice */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
