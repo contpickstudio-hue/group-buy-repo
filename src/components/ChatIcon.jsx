@@ -24,8 +24,13 @@ const ChatIcon = () => {
   }, [isOpen, loadChatThreads]);
 
   const handleChatSelect = (thread) => {
-    setSelectedChat(thread);
-    setIsOpen(false);
+    if (thread) {
+      setSelectedChat(thread);
+      setIsOpen(false);
+    } else {
+      // If null is passed, just close the panel (used by empty state CTAs)
+      setIsOpen(false);
+    }
   };
 
   const handleCloseChat = () => {

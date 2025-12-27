@@ -21,19 +21,50 @@ const ReferralShare = ({ productId = null, onClose }) => {
   const loadReferralStats = useLoadReferralStats();
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!referralCode) {
-      // Set a timeout to prevent infinite loading
-      const timeoutId = setTimeout(async () => {
-        const result = await generateReferralCode();
-        if (!result.success) {
-          toast.error(result.error || 'Failed to generate referral code');
+    let isMounted = true;
+    
+    const loadCode = async () => {
+      if (!referralCode) {
+        setLoading(true);
+        setError(null);
+        
+        try {
+          const result = await generateReferralCode();
+          if (isMounted) {
+            if (!result.success) {
+              const errorMsg = result.error || 'Failed to generate referral code';
+              setError(errorMsg);
+              toast.error(errorMsg);
+            } else {
+              setError(null);
+            }
+            setLoading(false);
+          }
+        } catch (err) {
+          if (isMounted) {
+            const errorMsg = err.message || 'Failed to generate referral code';
+            setError(errorMsg);
+            toast.error(errorMsg);
+            setLoading(false);
+          }
         }
-      }, 100);
-      return () => clearTimeout(timeoutId);
-    }
-    loadReferralStats();
+      } else {
+        setLoading(false);
+        setError(null);
+        loadReferralStats();
+      }
+    };
+    
+    // Small delay to prevent race conditions
+    const timeoutId = setTimeout(loadCode, 100);
+    
+    return () => {
+      isMounted = false;
+      clearTimeout(timeoutId);
+    };
   }, [referralCode, generateReferralCode, loadReferralStats]);
 
   const handleCopyCode = async () => {
@@ -98,14 +129,19 @@ const ReferralShare = ({ productId = null, onClose }) => {
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Your Referral Code
         </label>
+        {error && (
+          <div className="mb-2 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-700">
+            {error}
+          </div>
+        )}
         <div className="flex items-center gap-2">
           <div className="flex-1 bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 font-mono text-lg font-semibold">
-            {referralCode || 'Generating...'}
+            {loading ? 'Generating...' : referralCode || (error ? 'Failed to generate' : 'No code available')}
           </div>
           <button
             onClick={handleCopyCode}
-            className="flex items-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors min-h-[48px]"
-            disabled={!referralCode || copied}
+            className="flex items-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors min-h-[48px] disabled:bg-gray-400 disabled:cursor-not-allowed"
+            disabled={!referralCode || copied || loading}
           >
             {copied ? (
               <>
@@ -125,8 +161,8 @@ const ReferralShare = ({ productId = null, onClose }) => {
       {/* Share Button */}
       <button
         onClick={handleShare}
-        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors min-h-[48px] font-semibold mb-6"
-        disabled={!referralCode}
+        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors min-h-[48px] font-semibold mb-6 disabled:bg-gray-400 disabled:cursor-not-allowed"
+        disabled={!referralCode || loading}
       >
         <Share2 size={20} />
         <span>Share Referral Link</span>

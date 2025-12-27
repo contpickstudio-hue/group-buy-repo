@@ -14,6 +14,7 @@ import {
   getCreditsHistory as apiGetCreditsHistory
 } from '../services/creditsService';
 import { supabaseClient, dbSaveSlice, dbLoadSlice, StorageKeys } from '../services/supabaseService';
+import { useAuthStore } from './authStore';
 
 // Helper function to generate referral code locally for demo users
 async function generateLocalReferralCode(userEmail) {
@@ -61,16 +62,32 @@ export const createReferralSlice = (set, get) => ({
 
   // Load referral code from localStorage on initialization
   loadReferralCodeFromStorage: async () => {
-    const { user } = get();
+    // Get user and loginMethod from authStore (not from combined store)
+    const user = useAuthStore.getState().user;
+    const loginMethod = useAuthStore.getState().loginMethod;
+    
     if (!user || (!user.email && !user.id)) {
       return;
     }
     const userEmail = user.email || user.id;
 
     try {
+      // For demo users or when no session, load from localStorage
+      if (loginMethod === 'demo') {
+        const storageKey = `referral_code_${userEmail}`;
+        const storedCode = await dbLoadSlice(storageKey, null);
+        if (storedCode) {
+          set((state) => {
+            state.referralCode = storedCode;
+          });
+          return;
+        }
+      }
+      
+      // For authenticated users, check session
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (!session) {
-        // Demo user - try to load from localStorage
+        // No session - try to load from localStorage as fallback
         const storageKey = `referral_code_${userEmail}`;
         const storedCode = await dbLoadSlice(storageKey, null);
         if (storedCode) {
@@ -86,7 +103,10 @@ export const createReferralSlice = (set, get) => ({
 
   // Actions
   generateReferralCode: async () => {
-    const { user, loginMethod } = get();
+    // Get user and loginMethod from authStore (not from combined store)
+    const user = useAuthStore.getState().user;
+    const loginMethod = useAuthStore.getState().loginMethod;
+    
     // Support both real and demo users
     if (!user || (!user.email && !user.id)) {
       return { success: false, error: 'User not authenticated' };

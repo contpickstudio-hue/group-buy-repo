@@ -1,4 +1,5 @@
 import { loadProductsFromBackend, supabaseClient, dbSaveSlice, dbLoadSlice, StorageKeys } from '../services/supabaseService';
+import { useAuthStore } from './authStore';
 
 export const createProductSlice = (set, get) => ({
     // Product state
@@ -55,7 +56,7 @@ export const createProductSlice = (set, get) => ({
             const products = await loadProductsFromBackend();
             
             // For demo users, also load from localStorage and merge
-            const { loginMethod } = get();
+            const loginMethod = useAuthStore.getState().loginMethod;
             const { data: { session } } = await supabaseClient.auth.getSession();
             
             let finalProducts = products || [];
@@ -88,7 +89,10 @@ export const createProductSlice = (set, get) => ({
     },
     
     createProduct: async (productData) => {
-        const { user, loginMethod } = get();
+        // Get user and loginMethod from authStore (not from combined store)
+        const user = useAuthStore.getState().user;
+        const loginMethod = useAuthStore.getState().loginMethod;
+        
         // Check authentication - support both real and demo users
         if (!user || (!user.email && !user.id)) {
             return { success: false, error: 'User not authenticated' };
@@ -217,7 +221,11 @@ export const createProductSlice = (set, get) => ({
     },
     
     joinGroupBuy: async (productId, quantity, customerData) => {
-        const { user, addOrder, loginMethod } = get();
+        // Get user and loginMethod from authStore (not from combined store)
+        const user = useAuthStore.getState().user;
+        const loginMethod = useAuthStore.getState().loginMethod;
+        const { addOrder } = get();
+        
         // Check authentication - support both real and demo users
         if (!user || (!user.email && !user.id)) {
             return { success: false, error: 'User not authenticated' };

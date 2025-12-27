@@ -55,15 +55,21 @@ const DashboardPage = () => {
         loadCredits();
         loadReferralStats();
         // Try to load from storage first, then generate if needed
+        // Load referral code from storage first, then generate if needed
         loadReferralCodeFromStorage().then(() => {
-          // Check if code was loaded, if not generate one
           const currentCode = useAppStore.getState().referralCode;
           if (!currentCode) {
-            generateReferralCode();
+            // Generate if not found in storage
+            generateReferralCode().catch((err) => {
+              console.error('Failed to generate referral code:', err);
+            });
           }
-        }).catch(() => {
-          // If loading fails, just generate a new one
-          generateReferralCode();
+        }).catch((err) => {
+          // If loading fails, try to generate a new one
+          console.warn('Failed to load referral code from storage, generating new one:', err);
+          generateReferralCode().catch((genErr) => {
+            console.error('Failed to generate referral code:', genErr);
+          });
         });
       }
     }, [user, loadCommunityStats, loadUserContribution, loadCredits, loadReferralStats, generateReferralCode, loadReferralCodeFromStorage]);

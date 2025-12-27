@@ -1,4 +1,5 @@
 import { loadErrandsFromBackend, supabaseClient, dbSaveSlice, dbLoadSlice, StorageKeys } from '../services/supabaseService';
+import { useAuthStore } from './authStore';
 
 export const createErrandSlice = (set, get) => ({
   // Errand state
@@ -16,8 +17,8 @@ export const createErrandSlice = (set, get) => ({
   },
 
   addErrand: async (errand) => {
-    // Get login method to determine if demo user
-    const { loginMethod } = get();
+    // Get login method from authStore (not from combined store)
+    const loginMethod = useAuthStore.getState().loginMethod;
     
     // Optimistically add to local state
     const newErrand = {
@@ -156,7 +157,7 @@ export const createErrandSlice = (set, get) => ({
       const result = await loadErrandsFromBackend();
       
       // For demo users, also load from localStorage and merge
-      const { loginMethod } = get();
+      const loginMethod = useAuthStore.getState().loginMethod;
       const { data: { session } } = await supabaseClient.auth.getSession();
       
       let finalErrands = result.errands || [];
