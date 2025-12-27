@@ -18,9 +18,15 @@ const ChatList = ({ onSelectChat }) => {
   useEffect(() => {
     const loadChats = async () => {
       setHasLoaded(false);
-      await loadChatThreads();
-      // Small delay to ensure state updates
-      setTimeout(() => setHasLoaded(true), 100);
+      try {
+        await loadChatThreads();
+      } catch (error) {
+        console.error('Failed to load chat threads:', error);
+      } finally {
+        // Always set hasLoaded to true after a short delay, even if loading fails
+        // This ensures the empty state is shown if there are no chats
+        setTimeout(() => setHasLoaded(true), 100);
+      }
     };
     loadChats();
   }, [loadChatThreads]);
@@ -48,8 +54,11 @@ const ChatList = ({ onSelectChat }) => {
     return date.toLocaleDateString();
   };
 
-  // Show loading state
-  if (chatLoading || !hasLoaded) {
+  // Safety check: ensure chatThreads is an array
+  const threads = Array.isArray(chatThreads) ? chatThreads : [];
+
+  // Show loading state only if actively loading and not yet loaded
+  if ((chatLoading || !hasLoaded) && threads.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-8 h-full min-h-[300px] text-center">
         <Loader2 size={48} className="mx-auto text-blue-600 animate-spin mb-4" />
@@ -58,11 +67,8 @@ const ChatList = ({ onSelectChat }) => {
     );
   }
 
-  // Safety check: ensure chatThreads is an array
-  const threads = Array.isArray(chatThreads) ? chatThreads : [];
-
-  // Show empty state when no chats
-  if (threads.length === 0) {
+  // Show empty state when no chats (after loading is complete)
+  if (threads.length === 0 && hasLoaded) {
     return (
       <div className="flex flex-col items-center justify-center p-8 h-full min-h-[300px] text-center">
         <div className="mb-6">
