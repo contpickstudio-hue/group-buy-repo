@@ -384,5 +384,5 @@ export async function getPaymentStatus(paymentIntentId) {
 /**
  * Export provider for testing
  */
-export { paymentProvider, PaymentProvider, StripePaymentProvider, MockPaymentProvider };
+export { paymentProvider, StripePaymentProvider, MockPaymentProvider };
 
