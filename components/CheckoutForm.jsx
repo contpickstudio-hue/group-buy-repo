@@ -237,16 +237,47 @@ const CheckoutForm = ({
   // Calculate credit amount for display
   const creditAmount = Math.min(creditsToApply, credits?.balance || 0);
   
+  // Check if Stripe is available (may be blocked by adblocker)
+  const isStripeBlocked = !stripe && finalAmount > 0;
+  
   // If finalAmount is 0 and we have credits, allow credits-only payment
   // Otherwise, require clientSecret for Stripe payment
-  if (finalAmount > 0 && !clientSecret) {
+  if (finalAmount > 0 && !clientSecret && !isLoading) {
     return (
-      <div className="p-6 bg-red-50 border border-red-200 rounded-lg">
-        <p className="text-red-800">{error || 'Failed to initialize payment. Please try again.'}</p>
+      <div className="p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
+        {isStripeBlocked ? (
+          <>
+            <div className="flex items-start mb-4">
+              <svg className="w-5 h-5 text-yellow-600 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-yellow-800 mb-2">
+                  Payment Service Unavailable
+                </h3>
+                <p className="text-yellow-700 mb-3">
+                  It looks like your ad blocker is preventing our payment system from loading. To complete your purchase:
+                </p>
+                <ol className="list-decimal list-inside text-yellow-700 space-y-2 mb-4 ml-2">
+                  <li>Disable your ad blocker temporarily, or</li>
+                  <li>Add our site to your ad blocker's allowlist, or</li>
+                  <li>Use credits to complete your order (if available)</li>
+                </ol>
+                {credits?.balance > 0 && (
+                  <p className="text-sm text-yellow-600 bg-yellow-100 p-2 rounded">
+                    💡 You have ${(credits.balance || 0).toFixed(2)} in credits available!
+                  </p>
+                )}
+              </div>
+            </div>
+          </>
+        ) : (
+          <p className="text-red-800">{error || 'Failed to initialize payment. Please try again.'}</p>
+        )}
         {onCancel && (
           <button
             onClick={onCancel}
-            className="mt-4 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
+            className="mt-4 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
           >
             Cancel
           </button>

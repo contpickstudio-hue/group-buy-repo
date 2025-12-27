@@ -17,24 +17,28 @@ const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY).catch((error) => {
 });
 
 // Suppress Stripe fetch errors from console (adblocker-related)
+// Note: Console errors from blocked resources may still appear but won't break functionality
 if (typeof window !== 'undefined') {
-  // Catch unhandled promise rejections for Stripe tracking
+  // Catch unhandled promise rejections for Stripe tracking/analytics
   window.addEventListener('unhandledrejection', (event) => {
     const errorMessage = event.reason?.message || event.reason?.toString() || '';
     const errorStack = event.reason?.stack || '';
     
-    // Suppress Stripe tracking errors
-    if (
+    // Suppress Stripe tracking/analytics errors (these are non-critical)
+    const isStripeTrackingError = 
       errorMessage.includes('r.stripe.com') ||
       errorMessage.includes('m.stripe.com') ||
       errorMessage.includes('ERR_BLOCKED_BY_ADBLOCKER') ||
-      errorStack.includes('stripe') ||
-      errorMessage.includes('FetchError')
-    ) {
+      (errorMessage.includes('Failed to fetch') && (errorMessage.includes('stripe.com') || errorStack.includes('stripe'))) ||
+      (errorMessage.includes('FetchError') && (errorMessage.includes('stripe.com') || errorStack.includes('stripe')));
+    
+    if (isStripeTrackingError) {
       event.preventDefault(); // Prevent error from showing in console
+      // Note: Console errors from network requests may still appear in browser dev tools
+      // but this prevents them from bubbling up as unhandled rejections
       return;
     }
-  });
+  }, { passive: true });
 }
 
 /**
