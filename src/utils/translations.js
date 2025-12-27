@@ -23,6 +23,7 @@ const DEFAULT_LANGUAGE = 'en';
 /**
  * Get current language from localStorage
  * @returns {string} Language code
+ * Note: This is now a fallback. The Zustand store is the source of truth.
  */
 export function getCurrentLanguage() {
     try {
@@ -53,14 +54,43 @@ export function setLanguage(langCode) {
     }
 }
 
+// Store reference for accessing current language
+let storeRef = null;
+
+/**
+ * Set store reference for translation function
+ * Called by TranslationProvider
+ */
+export function setStoreRef(store) {
+    storeRef = store;
+}
+
 /**
  * Translation function
  * @param {string} key - Translation key (e.g., "common.welcome")
  * @param {Object} params - Optional parameters for interpolation
+ * @param {string} forceLang - Optional language code to force (for use outside React context)
  * @returns {string} Translated text
  */
-export function t(key, params = {}) {
-    const lang = getCurrentLanguage();
+export function t(key, params = {}, forceLang = null) {
+    // Try to get language from Zustand store if available
+    let lang = forceLang;
+    if (!lang && storeRef) {
+        try {
+            const state = storeRef.getState();
+            if (state && state.currentLanguage) {
+                lang = state.currentLanguage;
+            }
+        } catch (e) {
+            // Store not available, fall back to localStorage
+        }
+    }
+    
+    // Fallback to localStorage if store not available
+    if (!lang) {
+        lang = getCurrentLanguage();
+    }
+    
     const translation = translations[lang] || translations[DEFAULT_LANGUAGE];
     
     // Navigate nested object using dot notation

@@ -1,90 +1,37 @@
 /**
  * Authentication Utilities
- * Centralized authentication context handling
- * Ensures consistent auth state across the app, including demo/test users
+ * Helper functions for authentication and role management
  */
 
 /**
- * Check if user is authenticated (including demo users)
- * @param {Object} user - User object from store
- * @returns {boolean}
+ * Check if user is a guest (demo) user
+ * @param {Object} user - User object
+ * @param {string} loginMethod - Login method ('demo', 'email', 'google')
+ * @returns {boolean} True if user is a guest
  */
-export function isAuthenticated(user) {
-  return !!user && (!!user.email || !!user.id);
+export function isGuestUser(user, loginMethod) {
+  return loginMethod === 'demo' || (user && (user.email === 'guest@preview.app' || user.email?.includes('guest-')));
 }
 
 /**
- * Get user email, with fallback to id
- * @param {Object} user - User object from store
- * @returns {string|null}
+ * Check if user is an admin
+ * @param {Object} user - User object
+ * @returns {boolean} True if user has admin role
  */
-export function getUserEmail(user) {
-  if (!user) return null;
-  return user.email || user.id || null;
-}
-
-/**
- * Get user ID
- * @param {Object} user - User object from store
- * @returns {string|null}
- */
-export function getUserId(user) {
-  if (!user) return null;
-  return user.id || user.email || null;
+export function isAdmin(user) {
+  if (!user) return false;
+  const roles = user.roles || [];
+  return Array.isArray(roles) ? roles.includes('admin') : false;
 }
 
 /**
  * Check if user has a specific role
- * @param {Object} user - User object from store
- * @param {string|string[]} roles - Role(s) to check
- * @returns {boolean}
+ * @param {Object} user - User object
+ * @param {string} role - Role to check
+ * @returns {boolean} True if user has the role
  */
-export function hasRole(user, roles) {
-  if (!user || !user.roles) return false;
-  const userRoles = Array.isArray(user.roles) ? user.roles : [];
-  const rolesToCheck = Array.isArray(roles) ? roles : [roles];
-  return rolesToCheck.some(role => userRoles.includes(role));
-}
-
-/**
- * Check if user has any of the specified roles
- * @param {Object} user - User object from store
- * @param {string[]} roles - Roles to check
- * @returns {boolean}
- */
-export function hasAnyRole(user, roles) {
-  return hasRole(user, roles);
-}
-
-/**
- * Check if user has all of the specified roles
- * @param {Object} user - User object from store
- * @param {string[]} roles - Roles to check
- * @returns {boolean}
- */
-export function hasAllRoles(user, roles) {
-  if (!user || !user.roles) return false;
-  const userRoles = Array.isArray(user.roles) ? userRoles : [];
-  return roles.every(role => userRoles.includes(role));
-}
-
-/**
- * Check if user is a demo/test user
- * @param {Object} user - User object from store
- * @param {string} loginMethod - Login method from store
- * @returns {boolean}
- */
-export function isDemoUser(user, loginMethod) {
-  return loginMethod === 'demo' || (user && user.email === 'test@demo.com');
-}
-
-/**
- * Validate user object structure
- * @param {Object} user - User object to validate
- * @returns {boolean}
- */
-export function isValidUser(user) {
+export function hasRole(user, role) {
   if (!user) return false;
-  return !!(user.email || user.id);
+  const roles = user.roles || [];
+  return Array.isArray(roles) ? roles.includes(role) : false;
 }
-

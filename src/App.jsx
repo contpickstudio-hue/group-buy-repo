@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
-import { useCurrentScreen, useSetCurrentScreen, useLoading, useError, useNotifications, useRemoveNotification, useUser, useCheckAuthStatus, useLoadProducts, useLoadOrders, useLoadErrands } from './stores';
+import { useCurrentScreen, useSetCurrentScreen, useLoading, useError, useNotifications, useRemoveNotification, useUser, useCheckAuthStatus, useInitializeAuth, useLoadProducts, useLoadOrders, useLoadErrands, useCheckAndTransitionBatchStatuses, useLoadNotifications, useInitializeLanguage } from './stores';
 import { useAuthStore } from './stores/authStore';
 import GlobalErrorBoundary, { SectionErrorBoundary } from './components/ErrorBoundary';
 import Navbar from './components/Navbar';
@@ -25,9 +25,10 @@ import ErrandsPage from './pages/ErrandsPage';
 import DashboardPage from './pages/DashboardPage';
 import ProfilePage from './pages/ProfilePage';
 import SettingsPage from './pages/SettingsPage';
+import ModerationPage from './pages/ModerationPage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import { getCurrentLanguage } from './utils/translations';
-import { useUpdateGroupBuyFilters, useUpdateErrandFilters, useSetUser } from './stores';
-import { StorageKeys } from './services/supabaseService';
+import { useUpdateGroupBuyFilters, useUpdateErrandFilters } from './stores';
 import { getStorageItem } from './utils/storageUtils';
 
 // Loading component
@@ -101,13 +102,16 @@ function AppContent() {
     const error = useError();
     const user = useUser();
     const checkAuthStatus = useCheckAuthStatus();
+    const initializeAuth = useInitializeAuth();
     const loadProducts = useLoadProducts();
     const loadOrders = useLoadOrders();
     const loadErrands = useLoadErrands();
+    const loadNotifications = useLoadNotifications();
+    const initializeLanguage = useInitializeLanguage();
+    const checkAndTransitionBatchStatuses = useCheckAndTransitionBatchStatuses();
     const setCurrentScreen = useSetCurrentScreen();
     const updateGroupBuyFilters = useUpdateGroupBuyFilters();
     const updateErrandFilters = useUpdateErrandFilters();
-    const setUser = useSetUser();
 
     // Check onboarding status
     const [showOnboarding, setShowOnboarding] = React.useState(false);
@@ -120,9 +124,10 @@ function AppContent() {
                 // Initialize error tracking
                 initializeErrorTracking();
                 
-                // Check onboarding status - only show on first visit to start page
+                // Check onboarding status - only show once for first-time visitors
                 const onboardingComplete = await getStorageItem('onboardingComplete');
-                if (!onboardingComplete && currentScreen === 'start' && !user) {
+                if (!onboardingComplete) {
+                    // First-time visitor - show onboarding
                     setShowOnboarding(true);
                     setOnboardingChecked(true);
                     return;
@@ -141,30 +146,17 @@ function AppContent() {
                     console.warn('Failed to apply preferred region filter:', error);
                 }
                 
-                // Restore auth state from storage first (prevent logout on refresh)
-                try {
-                    const storedUser = await getStorageItem(StorageKeys.user);
-                    const storedLoginMethod = await getStorageItem(StorageKeys.loginMethod);
-                    
-                    if (storedUser) {
-                        // Restore user to store immediately
-                        setUser(storedUser);
-                        // If it's a demo user, set login method and skip Supabase check
-                        if (storedLoginMethod === 'demo' || storedUser.email === 'test@demo.com') {
-                            useAuthStore.setState({ loginMethod: 'demo' });
-                            // Skip checkAuthStatus for demo users to prevent overwriting
-                        } else {
-                            // Check authentication status (validates with Supabase)
-                            await checkAuthStatus();
-                        }
-                    } else {
-                        // No stored user - check authentication status
-                        await checkAuthStatus();
-                    }
-                } catch (error) {
-                    console.warn('Failed to restore user from storage:', error);
-                    // If restore fails, still check auth status
-                    await checkAuthStatus();
+                // Initialize language preference
+                await initializeLanguage();
+                
+                // Initialize auth state from storage (restores session on refresh)
+                // This handles both demo users and real Supabase sessions
+                await initializeAuth();
+                
+                // Load notifications for authenticated user
+                const currentUser = useAuthStore.getState().user;
+                if (currentUser) {
+                    await loadNotifications();
                 }
                 
                 // Load initial data
@@ -173,6 +165,9 @@ function AppContent() {
                     loadOrders(),
                     loadErrands()
                 ]);
+                
+                // Check and transition batch statuses at deadline
+                await checkAndTransitionBatchStatuses();
             } catch (error) {
                 console.error('App initialization failed:', error);
                 // Error handling is managed by individual functions
@@ -199,6 +194,15 @@ function AppContent() {
 
         initPushNotifications();
     }, [user]);
+    
+    // Periodically check and transition batch statuses (every 5 minutes)
+    useEffect(() => {
+        const interval = setInterval(async () => {
+            await checkAndTransitionBatchStatuses();
+        }, 5 * 60 * 1000); // 5 minutes
+        
+        return () => clearInterval(interval);
+    }, [checkAndTransitionBatchStatuses]);
 
     // Listen for hash changes to handle detail page routing
     // IMPORTANT: This hook must be called before any conditional returns
@@ -254,6 +258,10 @@ function AppContent() {
                 return <ProfilePage />;
             case 'settings':
                 return <SettingsPage />;
+            case 'moderation':
+                return <ModerationPage />;
+            case 'privacypolicy':
+                return <PrivacyPolicyPage />;
             default:
                 return <StartPage />;
         }

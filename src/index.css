@@ -23,9 +23,48 @@
   }
   
   /* Mobile-first: Ensure touch targets are at least 44x44px */
-  button, a {
+  button:not(.fab-button), a {
     @apply min-h-[44px] min-w-[44px];
     touch-action: manipulation; /* Remove 300ms tap delay on mobile */
+  }
+  
+  /* Ensure FAB doesn't interfere with inputs */
+  input:focus, textarea:focus, select:focus {
+    position: relative;
+    z-index: 10;
+  }
+  
+  /* Add padding when keyboard is visible (mobile) */
+  @media (max-width: 768px) {
+    body.keyboard-visible {
+      padding-bottom: env(keyboard-inset-height, 0px);
+    }
+    
+    /* Ensure forms have enough bottom padding for FAB */
+    form {
+      padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    }
+  }
+  
+  /* Optimize for 360px width (smallest common mobile) */
+  @media (max-width: 360px) {
+    .navbar-container {
+      @apply px-2;
+    }
+    
+    .card {
+      @apply p-3;
+    }
+    
+    /* Reduce gaps in forms */
+    .space-y-4 > * + * {
+      margin-top: 0.75rem;
+    }
+    
+    /* Ensure buttons fit */
+    button {
+      @apply text-sm;
+    }
   }
 
   /* Ensure all containers respect viewport width */
@@ -189,10 +228,12 @@
 
   /* FAB styles - Mobile optimized - positioned above bottom nav */
   .fab-container {
-    @apply fixed z-40;
+    @apply fixed;
     @apply bottom-20 md:bottom-6 right-4 sm:right-6;
     /* Ensure FAB is above bottom nav (64px height + padding) */
     bottom: calc(64px + 1rem + env(safe-area-inset-bottom));
+    /* Lower z-index than modals/panels but above content */
+    z-index: 30;
   }
   
   @media (min-width: 768px) {
@@ -202,12 +243,14 @@
   }
 
   .fab-button {
-    @apply w-16 h-16 sm:w-14 sm:h-14 bg-gradient-to-br from-blue-600 to-blue-700;
+    @apply w-14 h-14 sm:w-14 sm:h-14 bg-gradient-to-br from-blue-600 to-blue-700;
     @apply hover:from-blue-700 hover:to-blue-800 text-white rounded-full;
     @apply shadow-xl shadow-blue-600/30 hover:shadow-2xl hover:shadow-blue-600/40;
     @apply transition-all duration-300 flex items-center justify-center;
     @apply active:scale-95;
-    @apply min-h-[64px] min-w-[64px] sm:min-h-[56px] sm:min-w-[56px];
+    @apply min-h-[56px] min-w-[56px];
+    /* Ensure tap target is at least 44x44px */
+    touch-action: manipulation;
   }
 
   .fab-menu {
