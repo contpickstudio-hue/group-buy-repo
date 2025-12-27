@@ -240,13 +240,17 @@ export const createRegionalBatchSlice = (set, get) => ({
                 return { success: true, batch: newBatch };
             }
         } catch (error) {
-            console.warn('Failed to save batch to backend, trying local storage:', error);
+            if (import.meta.env.DEV) {
+                console.warn('Failed to save batch to backend, trying local storage:', error);
+            }
             try {
                 const currentBatches = get().regionalBatches || [];
                 await dbSaveSlice(StorageKeys.regionalBatches, currentBatches);
                 return { success: true, batch: newBatch };
             } catch (storageError) {
-                console.error('Failed to save batch to local storage:', storageError);
+                if (import.meta.env.DEV) {
+                    console.error('Failed to save batch to local storage:', storageError);
+                }
                 
                 // Remove optimistically added batch
                 set((state) => {
@@ -338,7 +342,9 @@ export const createRegionalBatchSlice = (set, get) => ({
                 return { success: true };
             }
         } catch (error) {
-            console.error('Failed to update batch status:', error);
+            if (import.meta.env.DEV) {
+                console.error('Failed to update batch status:', error);
+            }
             try {
                 const currentBatches = get().regionalBatches || [];
                 await dbSaveSlice(StorageKeys.regionalBatches, currentBatches);
@@ -405,7 +411,9 @@ export const createRegionalBatchSlice = (set, get) => ({
                 return { success: true };
             }
         } catch (error) {
-            console.error('Failed to activate batch:', error);
+            if (import.meta.env.DEV) {
+                console.error('Failed to activate batch:', error);
+            }
             // Revert optimistic update
             set((state) => {
                 const index = state.regionalBatches.findIndex(b => b.id === batchId);
@@ -430,7 +438,9 @@ export const createRegionalBatchSlice = (set, get) => ({
             
             return result;
         } catch (error) {
-            console.error('Failed to check batch statuses:', error);
+            if (import.meta.env.DEV) {
+                console.error('Failed to check batch statuses:', error);
+            }
             return { success: false, error: error.message };
         }
     },
@@ -449,12 +459,18 @@ export const createRegionalBatchSlice = (set, get) => ({
             const refundResult = await refundEscrowToCustomers(batchId);
             
             if (refundResult.success) {
-                console.log(`Refunded ${refundResult.refunded} orders for cancelled batch ${batchId}`);
+                if (import.meta.env.DEV) {
+                    console.log(`Refunded ${refundResult.refunded} orders for cancelled batch ${batchId}`);
+                }
             } else {
-                console.warn('Some refunds failed:', refundResult.errors);
+                if (import.meta.env.DEV) {
+                    console.warn('Some refunds failed:', refundResult.errors);
+                }
             }
         } catch (error) {
-            console.warn('Failed to refund escrow for cancelled batch:', error);
+            if (import.meta.env.DEV) {
+                console.warn('Failed to refund escrow for cancelled batch:', error);
+            }
             // Don't fail the cancellation if refund fails - it will be retried
         }
         
@@ -485,7 +501,9 @@ export const createRegionalBatchSlice = (set, get) => ({
             
             return result;
         } catch (error) {
-            console.error('Failed to aggregate batch quantity:', error);
+            if (import.meta.env.DEV) {
+                console.error('Failed to aggregate batch quantity:', error);
+            }
             return { success: false, error: error.message };
         }
     },

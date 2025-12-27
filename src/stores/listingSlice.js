@@ -192,7 +192,9 @@ export const createListingSlice = (set, get) => ({
             }
         } catch (error) {
             // If backend save fails, try to save to localStorage as fallback
-            console.warn('Failed to save listing to backend, trying local storage:', error);
+            if (import.meta.env.DEV) {
+                console.warn('Failed to save listing to backend, trying local storage:', error);
+            }
             try {
                 const currentListings = get().listings || [];
                 await dbSaveSlice(StorageKeys.listings, currentListings);
@@ -208,7 +210,9 @@ export const createListingSlice = (set, get) => ({
                 return { success: true, listing: newListing };
             } catch (storageError) {
                 // Both backend and localStorage failed - this is a real error
-                console.error('Failed to save listing to local storage:', storageError);
+                if (import.meta.env.DEV) {
+                    console.error('Failed to save listing to local storage:', storageError);
+                }
                 
                 // Remove the optimistically added listing
                 set((state) => {
@@ -255,7 +259,9 @@ export const createListingSlice = (set, get) => ({
                 return { success: true };
             }
         } catch (error) {
-            console.error('Failed to update listing:', error);
+            if (import.meta.env.DEV) {
+                console.error('Failed to update listing:', error);
+            }
             // Try localStorage fallback
             try {
                 const currentListings = get().listings || [];
@@ -294,7 +300,9 @@ export const createListingSlice = (set, get) => ({
                 return { success: true };
             }
         } catch (error) {
-            console.error('Failed to delete listing:', error);
+            if (import.meta.env.DEV) {
+                console.error('Failed to delete listing:', error);
+            }
             return { success: false, error: error.message };
         }
     },

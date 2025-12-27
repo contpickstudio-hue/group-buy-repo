@@ -87,7 +87,9 @@ export const createOrderSlice = (set, get) => ({
           const order = state.orders.find(o => o.id === orderId);
           if (order) {
             // Revert to previous status - we'd need to track this, but for now just log
-            console.error('Failed to update fulfillment status:', result.error);
+            if (import.meta.env.DEV) {
+                console.error('Failed to update fulfillment status:', result.error);
+            }
           }
         });
         return { success: false, error: result.error };
@@ -95,7 +97,9 @@ export const createOrderSlice = (set, get) => ({
       
       return { success: true };
     } catch (error) {
-      console.error('Error updating fulfillment status:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error updating fulfillment status:', error);
+      }
       return { success: false, error: error.message };
     }
   },

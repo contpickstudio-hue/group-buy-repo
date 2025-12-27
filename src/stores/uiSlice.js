@@ -80,7 +80,9 @@ export const createUISlice = (set, get) => ({
           notification.data
         );
       } catch (error) {
-        console.error('Failed to persist notification:', error);
+        if (import.meta.env.DEV) {
+          console.error('Failed to persist notification:', error);
+        }
         // Continue anyway - notification is in local state
       }
     }
@@ -102,7 +104,9 @@ export const createUISlice = (set, get) => ({
       try {
         await deleteNotification(id, userEmail);
       } catch (error) {
-        console.error('Failed to delete notification:', error);
+        if (import.meta.env.DEV) {
+          console.error('Failed to delete notification:', error);
+        }
       }
     }
   },
@@ -130,7 +134,9 @@ export const createUISlice = (set, get) => ({
       try {
         await markNotificationAsRead(id, userEmail);
       } catch (error) {
-        console.error('Failed to mark notification as read:', error);
+        if (import.meta.env.DEV) {
+          console.error('Failed to mark notification as read:', error);
+        }
       }
     }
   },
@@ -151,7 +157,9 @@ export const createUISlice = (set, get) => ({
       try {
         await markAllNotificationsAsRead(userEmail);
       } catch (error) {
-        console.error('Failed to mark all notifications as read:', error);
+        if (import.meta.env.DEV) {
+          console.error('Failed to mark all notifications as read:', error);
+        }
       }
     }
   },

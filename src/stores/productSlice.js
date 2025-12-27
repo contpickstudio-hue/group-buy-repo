@@ -210,7 +210,9 @@ export const createProductSlice = (set, get) => ({
             }
         } catch (error) {
             // If backend save fails, try to save to localStorage as fallback
-            console.warn('Failed to save product to backend, trying local storage:', error);
+            if (import.meta.env.DEV) {
+                console.warn('Failed to save product to backend, trying local storage:', error);
+            }
             try {
                 const currentProducts = get().products || [];
                 await dbSaveSlice(StorageKeys.products, currentProducts);
@@ -226,7 +228,9 @@ export const createProductSlice = (set, get) => ({
                 return { success: true, product: newProduct };
             } catch (storageError) {
                 // Both backend and localStorage failed - this is a real error
-                console.error('Failed to save product to local storage:', storageError);
+                if (import.meta.env.DEV) {
+                    console.error('Failed to save product to local storage:', storageError);
+                }
                 
                 // Remove the optimistically added product
                 set((state) => {

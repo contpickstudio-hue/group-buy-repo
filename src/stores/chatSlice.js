@@ -225,7 +225,9 @@ export const createChatSlice = (set, get) => ({
         get().setUnreadCount(threadId, result.count);
       }
     } catch (error) {
-      console.error('Failed to refresh unread count:', error);
+      if (import.meta.env.DEV) {
+        console.error('Failed to refresh unread count:', error);
+      }
     }
   },
 

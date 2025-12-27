@@ -61,7 +61,9 @@ export const createReferralSlice = (set, get) => ({
       // Authenticated user - referral code will be loaded from database when generateReferralCode is called
       // No need to load from localStorage as referrals now only persist to database
     } catch (error) {
-      console.warn('Failed to load referral code from storage:', error);
+      if (import.meta.env.DEV) {
+        console.warn('Failed to load referral code from storage:', error);
+      }
     }
   },
 

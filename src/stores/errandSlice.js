@@ -98,12 +98,16 @@ export const createErrandSlice = (set, get) => ({
       }
     } catch (error) {
       // If backend save fails, still keep it in local state and localStorage
-      console.warn('Failed to save errand to backend, using local storage:', error);
+      if (import.meta.env.DEV) {
+        console.warn('Failed to save errand to backend, using local storage:', error);
+      }
       try {
         const currentErrands = get().errands || [];
         await dbSaveSlice(StorageKeys.errands, currentErrands);
       } catch (storageError) {
-        console.error('Failed to save errand to local storage:', storageError);
+        if (import.meta.env.DEV) {
+          console.error('Failed to save errand to local storage:', storageError);
+        }
       }
       return { success: true, errand: newErrand }; // Still return success for optimistic UI
     }

@@ -32,7 +32,9 @@ export const createLanguageSlice = (set, get) => ({
       
       return { success: true, language: lang };
     } catch (error) {
-      console.error('Failed to initialize language:', error);
+      if (import.meta.env.DEV) {
+        console.error('Failed to initialize language:', error);
+      }
       set((state) => {
         state.currentLanguage = 'en';
         state.isInitialized = true;
@@ -47,7 +49,9 @@ export const createLanguageSlice = (set, get) => ({
     const lang = available.find(l => l.code === langCode);
     
     if (!lang) {
-      console.warn(`Language ${langCode} not available`);
+      if (import.meta.env.DEV) {
+        console.warn(`Language ${langCode} not available`);
+      }
       return { success: false, error: 'Language not available' };
     }
 
@@ -68,7 +72,9 @@ export const createLanguageSlice = (set, get) => ({
       
       return { success: true, language: langCode };
     } catch (error) {
-      console.error('Failed to set language:', error);
+      if (import.meta.env.DEV) {
+        console.error('Failed to set language:', error);
+      }
       return { success: false, error: error.message };
     }
   },

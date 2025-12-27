@@ -111,7 +111,9 @@ export const useAuthStore = create()(
             }
           }
         } catch (error) {
-          console.error('Failed to initialize auth from storage:', error);
+          if (import.meta.env.DEV) {
+            console.error('Failed to initialize auth from storage:', error);
+          }
           // On error, clear potentially corrupted state
           await removeStorageItem(StorageKeys.user);
           await removeStorageItem(StorageKeys.loginMethod);
@@ -334,7 +336,9 @@ export const useAuthStore = create()(
             }
           } catch (err) {
             // User will be restored on redirect/refresh
-            console.warn('Could not get user immediately after Google sign-in:', err);
+            if (import.meta.env.DEV) {
+              console.warn('Could not get user immediately after Google sign-in:', err);
+            }
           }
           
           return result;
@@ -374,7 +378,9 @@ export const useAuthStore = create()(
               await supabaseSignOut();
             } catch (supabaseError) {
               // Even if Supabase signOut fails, we've cleared local state
-              console.warn('Supabase signOut failed, but local state cleared:', supabaseError);
+              if (import.meta.env.DEV) {
+                console.warn('Supabase signOut failed, but local state cleared:', supabaseError);
+              }
             }
           }
           
