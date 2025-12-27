@@ -98,4 +98,3 @@ $$ LANGUAGE plpgsql;
 -- ============================================
 -- Note: Create the 'verification-documents' storage bucket in Supabase Dashboard
 -- with public access disabled and RLS enabled
-

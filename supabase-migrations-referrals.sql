@@ -132,4 +132,3 @@ BEGIN
   RETURN COALESCE(stats, '{"totalReferrals": 0, "successfulReferrals": 0, "totalCreditsEarned": 0, "pendingReferrals": 0}'::jsonb);
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
-

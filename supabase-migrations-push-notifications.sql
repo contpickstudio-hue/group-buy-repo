@@ -49,4 +49,3 @@ CREATE TRIGGER trigger_update_user_devices_updated_at
 -- ============================================
 -- Setup Complete!
 -- ============================================
-

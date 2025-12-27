@@ -105,4 +105,3 @@ INNER JOIN products p ON p.id = o.product_id
 WHERE o.fulfillment_status = 'completed'
   AND p.current_quantity >= p.target_quantity
   AND p.target_quantity > 0;
-

@@ -376,4 +376,3 @@ async function generateAPNsJWT(keyId: string, teamId: string, key: string): Prom
   // For now, this will fail - you need to properly sign the JWT
   return 'PLACEHOLDER_JWT_TOKEN';
 }
-

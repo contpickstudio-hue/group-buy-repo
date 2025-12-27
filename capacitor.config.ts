@@ -30,13 +30,8 @@ const config: CapacitorConfig = {
     contentInset: 'automatic'
   },
   android: {
-    allowMixedContent: true,
-    buildOptions: {
-      keystorePath: undefined,
-      keystoreAlias: undefined
-    }
+    allowMixedContent: true
   }
 };
 
 export default config;
-
