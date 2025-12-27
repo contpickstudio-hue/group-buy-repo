@@ -36,6 +36,8 @@ const ListingDetailPage = () => {
         quantity: 1
     });
     const [chatOpen, setChatOpen] = useState(false);
+    const [isSuspended, setIsSuspended] = useState(false);
+    const [suspension, setSuspension] = useState(null);
 
     // Get listing ID from URL hash (format: #listing/123)
     useEffect(() => {
@@ -108,7 +110,7 @@ const ListingDetailPage = () => {
         );
     }
 
-    const handleJoinListing = () => {
+    const handleJoinListing = async () => {
         if (!user) {
             toast.error('Please sign in to place an order');
             setCurrentScreen('auth');
@@ -205,9 +207,9 @@ const ListingDetailPage = () => {
                 await createNotification(
                     customerEmail,
                     'success',
-                    `You joined "${listing.title}" in ${batch.region}. Waiting for group buy to reach target.`,
+                    `You joined "${listing.title}" in ${selectedBatch.region}. Waiting for group buy to reach target.`,
                     'Group Buy Joined',
-                    { type: 'group_buy_joined', listingId: listing.id, batchId: batch.id, orderId: order.id }
+                    { type: 'group_buy_joined', listingId: listing.id, batchId: selectedBatch.id, orderId: order.id }
                 );
             }
             
@@ -217,9 +219,9 @@ const ListingDetailPage = () => {
                 await createNotification(
                     listing.ownerEmail,
                     'success',
-                    `${displayName || user.email} joined "${listing.title}" in ${batch.region}`,
+                    `${displayName || user.email} joined "${listing.title}" in ${selectedBatch.region}`,
                     'New Order Received',
-                    { type: 'order_received', listingId: listing.id, batchId: batch.id, orderId: order.id }
+                    { type: 'order_received', listingId: listing.id, batchId: selectedBatch.id, orderId: order.id }
                 );
             }
             
