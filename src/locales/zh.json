@@ -8,6 +8,7 @@
     "profile": "个人资料",
     "settings": "设置",
     "logout": "登出",
+    "login": "登录",
     "save": "保存",
     "cancel": "取消",
     "back": "返回",
@@ -16,7 +17,34 @@
     "done": "完成",
     "change": "更改",
     "edit": "编辑",
-    "signUp": "注册"
+    "delete": "删除",
+    "signUp": "注册",
+    "loginSignUp": "登录 / 注册",
+    "reset": "重置",
+    "logoutShort": "退出",
+    "browse": "浏览",
+    "appName": "韩国社区商务",
+    "appNameShort": "KCC",
+    "language": "语言",
+    "selectLanguage": "选择语言",
+    "loading": "加载中...",
+    "error": "错误",
+    "success": "成功",
+    "warning": "警告",
+    "close": "关闭",
+    "submit": "提交",
+    "search": "搜索",
+    "filter": "筛选",
+    "clear": "清除",
+    "apply": "应用",
+    "confirm": "确认",
+    "yes": "是",
+    "no": "否",
+    "optional": "可选",
+    "required": "必填",
+    "requiredField": "必填",
+    "guest": "访客",
+    "user": "用户"
   },
   "onboarding": {
     "screen1": {
@@ -40,6 +68,226 @@
       "details": "注册以开始节省并与邻居联系。"
     }
   },
+  "start": {
+    "hero": {
+      "tagline": "韩国社区商务平台",
+      "title": "连接、购物和一起节省",
+      "description": "加入团购，请求跑腿，并在您所在地区建立更强大的韩国社区。"
+    },
+    "getStarted": "开始使用",
+    "browseMarketplace": "浏览市场",
+    "featuredGroupBuys": "精选团购",
+    "openErrands": "开放的跑腿",
+    "viewMore": "查看更多",
+    "viewAll": "查看全部"
+  },
+  "auth": {
+    "signIn": "登录",
+    "signUp": "注册",
+    "signInWithGoogle": "使用 Google 登录",
+    "signUpWithGoogle": "使用 Google 注册",
+    "email": "电子邮件",
+    "password": "密码",
+    "name": "姓名",
+    "confirmPassword": "确认密码",
+    "alreadyHaveAccount": "已有账户？",
+    "dontHaveAccount": "没有账户？",
+    "forgotPassword": "忘记密码？",
+    "accountCreated": "账户创建成功！",
+    "welcomeBack": "欢迎回来！",
+    "redirectingGoogle": "正在重定向到 Google...",
+    "signUpToContinue": "注册以继续",
+    "signUpToAccess": "创建账户以访问此功能并加入我们的社区。",
+    "authenticationFailed": "身份验证失败。请重试。",
+    "googleSignInFailed": "Google 登录失败。请检查您的 Supabase 项目中是否启用了 Google OAuth。",
+    "checkEmailVerification": "账户创建成功！请在登录前检查您的电子邮件以进行验证。"
+  },
+  "groupBuy": {
+    "join": "加入团购",
+    "viewDetails": "查看详情",
+    "create": "创建团购",
+    "createTitle": "创建团购",
+    "productTitle": "产品名称",
+    "productTitlePlaceholder": "例如：优质韩国草莓",
+    "pricePerUnit": "单价 ($)",
+    "description": "描述",
+    "descriptionPlaceholder": "描述您的产品...",
+    "region": "地区",
+    "targetQuantity": "目标数量",
+    "deadline": "截止日期",
+    "image": "图片（可选）",
+    "uploadImage": "上传产品图片（可选）",
+    "location": "位置（用于地图发现）",
+    "locationHelp": "添加位置有助于用户在地图上找到您的团购",
+    "useCurrentLocation": "使用当前位置",
+    "searchAddress": "搜索地址",
+    "enterAddress": "输入地址...",
+    "getCurrentLocation": "获取当前位置",
+    "gettingLocation": "正在获取位置...",
+    "searching": "搜索中...",
+    "locationSet": "位置设置成功",
+    "locationFound": "找到位置：{{address}}",
+    "locationError": "无法获取位置：{{error}}",
+    "addressError": "找不到地址：{{error}}",
+    "enterAddressError": "请输入地址",
+    "locationSetLabel": "✓ 位置已设置：{{lat}}, {{lng}}",
+    "creating": "正在创建团购...",
+    "submittingForm": "正在提交表单...",
+    "noGroupBuysYet": "还没有团购",
+    "noGroupBuysAvailable": "没有可用的团购",
+    "createFirstOne": "创建第一个",
+    "browseMarketplace": "浏览市场",
+    "noFeaturedYet": "还没有精选团购",
+    "accessDenied": "访问被拒绝",
+    "vendorRoleRequired": "只有具有商家角色的用户才能创建团购。",
+    "signUpToCreate": "注册以创建团购",
+    "vendorRoleRequiredTitle": "需要商家角色",
+    "vendorRoleDescription": "创建团购仅限商家使用。升级您的账户以开始为您的社区组织团购。",
+    "upgradeToVendor": "升级为商家"
+  },
+  "errand": {
+    "post": "发布跑腿",
+    "create": "创建跑腿",
+    "postNew": "发布新跑腿",
+    "title": "标题",
+    "titlePlaceholder": "例如：每周 H-Mart 购物",
+    "description": "描述",
+    "descriptionPlaceholder": "描述您需要什么帮助...",
+    "budget": "预算 ($)",
+    "deadline": "截止日期",
+    "region": "地区",
+    "postSuccess": "跑腿发布成功！",
+    "postError": "发布跑腿失败。请重试。",
+    "signInToPost": "请登录以发布跑腿",
+    "noErrandsAvailable": "没有可用的跑腿",
+    "postErrand": "发布跑腿",
+    "browseErrands": "浏览跑腿",
+    "signUpToPost": "注册以发布跑腿"
+  },
+  "dashboard": {
+    "welcome": "欢迎，{{name}}",
+    "subtitle": "在一个地方跟踪任务、付款和请求。",
+    "overview": "概览",
+    "orders": "订单",
+    "analytics": "分析",
+    "payoutSettings": "付款设置",
+    "yourAccount": "您的账户",
+    "roles": "角色",
+    "helperStatus": "助手状态",
+    "verified": "已验证 ✅",
+    "pendingVerification": "等待验证",
+    "totalSavings": "总节省",
+    "totalEarnings": "总收入",
+    "groupBuysJoined": "加入的团购",
+    "errandsCompleted": "完成的跑腿",
+    "quickActions": "快速操作",
+    "activeGroupBuys": "活跃的团购",
+    "activeErrands": "活跃的跑腿",
+    "noActiveGroupBuys": "还没有活跃的团购",
+    "noActiveErrands": "还没有活跃的跑腿",
+    "completedItems": "已完成的项目"
+  },
+  "profile": {
+    "title": "我的个人资料",
+    "subtitle": "管理您的账户和偏好设置",
+    "accountSettings": "账户设置",
+    "displayName": "显示名称",
+    "emailAddress": "电子邮件地址",
+    "userRoles": "用户角色",
+    "myOrders": "我的订单",
+    "viewOrderHistory": "查看您的订单历史",
+    "viewOrders": "查看订单",
+    "openSettings": "打开设置",
+    "managePreferences": "管理您的偏好设置",
+    "language": "语言",
+    "communityContribution": "社区贡献",
+    "referrals": "推荐",
+    "credits": "积分",
+    "helperProfile": "助手个人资料",
+    "updateHelperProfile": "更新助手个人资料",
+    "helperVerification": "完成您的助手验证以开始接受跑腿。",
+    "privacySecurity": "隐私和安全",
+    "password": "密码",
+    "changePassword": "更改您的账户密码",
+    "dataExport": "数据导出",
+    "downloadData": "下载您的账户数据",
+    "accountActions": "账户操作",
+    "resetAppData": "重置应用数据",
+    "resetConfirm": "您确定要重置所有应用数据吗？此操作无法撤销。",
+    "signOut": "登出",
+    "backToProfile": "← 返回个人资料"
+  },
+  "emptyState": {
+    "signUpToGetStarted": "注册以开始",
+    "noGroupBuysYet": "还没有团购",
+    "noGroupBuysAvailable": "没有可用的团购",
+    "noErrandsAvailable": "没有可用的跑腿",
+    "noOrdersYet": "还没有订单",
+    "noChatsYet": "还没有聊天",
+    "noCreditHistoryYet": "还没有积分历史",
+    "noBatchesYet": "还没有区域批次",
+    "noBatchesAvailable": "没有可用的批次",
+    "nothingHereYet": "这里还没有内容",
+    "joinGroupBuyOrErrand": "加入团购或跑腿",
+    "joinGroupBuy": "加入团购",
+    "createListing": "创建列表",
+    "browseListings": "浏览列表"
+  },
+  "marketplace": {
+    "title": "区域市场",
+    "tagline": "社区批量订单",
+    "description": "按地区、价格和配送方式查找批量交易",
+    "noListingsAvailable": "没有可用的列表",
+    "noListingsMatchFilters": "没有与筛选条件匹配的列表"
+  },
+  "credits": {
+    "title": "积分",
+    "subtitle": "您的账户余额",
+    "signUpToView": "注册以查看积分",
+    "noHistory": "还没有积分历史"
+  },
+  "orders": {
+    "title": "商家订单",
+    "noOrders": "还没有订单",
+    "willAppear": "一旦客户为您的列表下单，订单将显示在这里。",
+    "loadingOrders": "加载订单中...",
+    "markFulfilled": "标记为已完成",
+    "updating": "更新中...",
+    "fulfilledSuccess": "订单已标记为已完成",
+    "fulfilledError": "标记订单为已完成失败"
+  },
+  "regionalBatch": {
+    "noBatchesYet": "还没有区域批次。",
+    "addFirstBatch": "添加第一批次",
+    "region": "地区",
+    "price": "价格",
+    "locked": "（已锁定）",
+    "minimumQuantity": "最低数量",
+    "currentQuantity": "当前数量",
+    "deliveryMethod": "配送方式",
+    "cutoffDate": "截止日期",
+    "addNew": "添加新区域批次",
+    "cancelBatch": "取消批次",
+    "activateBatch": "激活批次",
+    "batchCancelled": "批次已成功取消。订单已标记为退款。",
+    "batchAdded": "区域批次已成功添加！",
+    "batchActivated": "批次已成功激活！现在正在接受订单。",
+    "fillRequiredFields": "请填写所有必填字段"
+  },
+  "chat": {
+    "loadingChats": "加载聊天中...",
+    "noChats": "还没有聊天",
+    "noMessages": "还没有消息。开始对话吧！",
+    "typeMessage": "输入消息...",
+    "send": "发送"
+  },
+  "regionSelector": {
+    "selectRegion": "选择地区",
+    "demandProgress": "需求进度",
+    "daysRemaining": "还剩 {{count}} 天",
+    "daysRemainingPlural": "还剩 {{count}} 天",
+    "noBatchesAvailable": "此列表没有可用的区域批次。"
+  },
   "settings": {
     "title": "设置",
     "account": {
@@ -47,7 +295,8 @@
       "displayName": "显示名称",
       "email": "电子邮件",
       "profilePicture": "个人资料照片",
-      "manageAccount": "管理账户"
+      "manageAccount": "管理账户",
+      "notSet": "未设置"
     },
     "language": {
       "title": "语言",
@@ -67,7 +316,7 @@
     "region": {
       "title": "地区和位置",
       "preferredRegion": "首选地区",
-      "autoApplyFilter": "在搜索中自动应用地区过滤器"
+      "autoApplyFilter": "在搜索中自动应用地区筛选器"
     },
     "app": {
       "title": "应用信息",
@@ -77,14 +326,26 @@
       "privacy": "隐私政策"
     }
   },
-  "groupBuy": {
-    "join": "加入团购",
-    "viewDetails": "查看详情",
-    "create": "创建团购"
+  "floatingAction": {
+    "createGroupBuy": "创建团购",
+    "postErrand": "发布跑腿",
+    "browseErrands": "浏览跑腿",
+    "browseGroupBuys": "浏览团购"
   },
-  "errand": {
-    "post": "发布跑腿",
-    "create": "创建跑腿"
+  "form": {
+    "validation": {
+      "required": "此字段为必填项",
+      "emailInvalid": "请输入有效的电子邮件地址",
+      "passwordMinLength": "密码必须至少 6 个字符",
+      "passwordsDoNotMatch": "密码不匹配"
+    },
+    "errors": {
+      "fixErrors": "请修复表单中的错误",
+      "waitSubmission": "请稍候，正在提交..."
+    }
+  },
+  "checkout": {
+    "testMode": "测试模式 - 无真实支付",
+    "testModeDescription": "您处于测试模式。不会处理真实支付。这仅用于开发和测试。"
   }
 }
-

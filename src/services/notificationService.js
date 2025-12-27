@@ -12,6 +12,29 @@ import { dbSaveSlice, dbLoadSlice, StorageKeys } from './supabaseService';
  */
 export async function createNotification(userEmail, type, message, title = null, data = null) {
   return await apiCall(async () => {
+    // Also add to local store immediately for instant UI update
+    try {
+      const { useAppStore } = await import('../stores');
+      const appStore = useAppStore.getState();
+      const currentUser = appStore.user?.email || appStore.user?.id;
+      
+      // Only add to store if it's for the current user
+      if (currentUser === userEmail && appStore.addNotification) {
+        const notificationId = Date.now() + Math.random();
+        appStore.addNotification({
+          id: notificationId,
+          type,
+          title,
+          message,
+          data,
+          timestamp: new Date().toISOString(),
+          createdAt: new Date().toISOString()
+        });
+      }
+    } catch (error) {
+      console.warn('Failed to add notification to store:', error);
+    }
+
     if (!supabaseClient) {
       // Demo mode - save to localStorage
       const storedNotifications = await dbLoadSlice(StorageKeys.notifications, []);
@@ -31,15 +54,24 @@ export async function createNotification(userEmail, type, message, title = null,
     }
 
     // Use RPC function if available
-    const { data: notificationId, error: rpcError } = await supabaseClient.rpc('create_notification', {
-      p_user_email: userEmail,
-      p_type: type,
-      p_message: message,
-      p_title: title,
-      p_data: data
-    });
-
-    if (rpcError) {
+    let notificationId;
+    let notificationData;
+    
+    try {
+      const { data: rpcId, error: rpcError } = await supabaseClient.rpc('create_notification', {
+        p_user_email: userEmail,
+        p_type: type,
+        p_message: message,
+        p_title: title,
+        p_data: data
+      });
+      
+      if (!rpcError && rpcId) {
+        notificationId = rpcId;
+      } else {
+        throw new Error('RPC failed');
+      }
+    } catch (rpcErr) {
       // Fallback to direct insert
       const { data, error } = await supabaseClient
         .from('notifications')
@@ -57,24 +89,37 @@ export async function createNotification(userEmail, type, message, title = null,
         throw error;
       }
 
-      return {
-        success: true,
-        notification: {
-          id: data.id,
-          userEmail: data.user_email,
-          type: data.type,
-          title: data.title,
-          message: data.message,
-          read: data.read,
-          data: data.data,
-          createdAt: data.created_at
+      notificationId = data.id;
+      notificationData = data;
+    }
+
+    // Update store if this is for the current user
+    try {
+      const { useAppStore } = await import('../stores');
+      const appStore = useAppStore.getState();
+      const currentUser = appStore.user?.email || appStore.user?.id;
+      if (currentUser === userEmail) {
+        // Reload notifications to sync with database
+        if (appStore.loadNotifications) {
+          appStore.loadNotifications();
         }
-      };
+      }
+    } catch (error) {
+      console.warn('Failed to sync notification to store:', error);
     }
 
     return {
       success: true,
-      notification: { id: notificationId }
+      notification: notificationData ? {
+        id: notificationData.id,
+        userEmail: notificationData.user_email,
+        type: notificationData.type,
+        title: notificationData.title,
+        message: notificationData.message,
+        read: notificationData.read,
+        data: notificationData.data,
+        createdAt: notificationData.created_at
+      } : { id: notificationId }
     };
   }, {
     context: 'Creating notification',

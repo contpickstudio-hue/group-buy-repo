@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { MapPin, Clock } from 'lucide-react';
 import { useListings, useGetBatchesByListing } from '../stores';
 import { canJoinBatch } from '../services/supabaseService';
+import { EmptyStateWithAction } from './EmptyState';
 
 /**
  * Marketplace Component
@@ -152,9 +153,12 @@ const Marketplace = ({ filters = {}, onJoinListing, user }) => {
                     </div>
                 ))
             ) : (
-                <p className="text-gray-600 col-span-full text-center py-8">
-                    {listings.length === 0 ? 'No listings available' : 'No listings match your filters'}
-                </p>
+                <div className="col-span-full py-8">
+                    <EmptyStateWithAction 
+                        type="groupbuys"
+                        message={listings.length === 0 ? 'No listings available' : 'No listings match your filters'}
+                    />
+                </div>
             )}
         </div>
     );

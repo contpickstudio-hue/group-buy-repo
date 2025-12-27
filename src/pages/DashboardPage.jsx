@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { useUser, useProducts, useListings, useOrders, useErrands, useSetCurrentScreen, useAppStore, useLoadProducts, useLoadListings, useGetBatchesByListing, useLoadBatchesForListing } from '../stores';
+import { useUser, useProducts, useListings, useOrders, useErrands, useSetCurrentScreen, useAppStore, useLoadProducts, useLoadListings, useGetBatchesByListing, useLoadBatchesForListing, useAuthStore } from '../stores';
+import { isGuestUser } from '../utils/authUtils';
 import { 
   useCommunitySavings, 
   useUserContribution,
@@ -23,10 +24,15 @@ import CommunitySavings from '../components/CommunitySavings';
 import ReferralShare from '../components/ReferralShare';
 import ReferralBadges from '../components/ReferralBadges';
 import CreditsDisplay from '../components/CreditsDisplay';
+import { getUserDisplayName } from '../utils/authUtils';
+import { EmptyStateWithAction } from '../components/EmptyState';
 
 const DashboardPage = () => {
     try {
         const user = useUser();
+    const loginMethod = useAuthStore((state) => state.loginMethod);
+    const isGuest = isGuestUser(user, loginMethod);
+    const displayName = getUserDisplayName(user, loginMethod);
     const accountSummary = useAccountSummary();
     const products = useProducts();
     const listings = useListings();
@@ -255,8 +261,9 @@ const DashboardPage = () => {
     }, [products, products?.length]);
 
     // Tab configuration based on user roles
+    // Guest users only see overview (no analytics, orders, or payouts)
     const tabs = [];
-    if (roles.includes('vendor')) {
+    if (!isGuest && roles.includes('vendor')) {
         tabs.push({ id: 'overview', label: 'Overview' });
         tabs.push({ id: 'orders', label: 'Orders' });
         tabs.push({ id: 'analytics', label: 'Analytics' });
@@ -270,7 +277,7 @@ const DashboardPage = () => {
             {/* Header */}
             <div className="text-center mb-8">
                 <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                    Welcome, {user.name}
+                    Welcome, {displayName}
                 </h2>
                 <p className="text-gray-600">
                     Track tasks, payouts, and requests in one place.
@@ -363,26 +370,32 @@ const DashboardPage = () => {
                         <ReferralBadges />
                     </div>
 
-                    {/* Quick Actions */}
-                    <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-                        <h3 className="text-xl font-semibold mb-4">Quick Actions</h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <button
-                                onClick={() => setCurrentScreen('groupbuys')}
-                                className="flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors min-h-[48px] font-semibold"
-                            >
-                                <span className="mr-2">🛒</span>
-                                Create Group Buy
-                            </button>
-                            <button
-                                onClick={() => setCurrentScreen('errands')}
-                                className="flex items-center justify-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors min-h-[48px] font-semibold"
-                            >
-                                <span className="mr-2">📝</span>
-                                Post Errand
-                            </button>
+                    {/* Quick Actions - Hidden for guest users */}
+                    {!isGuest && (
+                        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+                            <h3 className="text-xl font-semibold mb-4">Quick Actions</h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {roles.includes('vendor') && (
+                                    <button
+                                        onClick={() => setCurrentScreen('groupbuys')}
+                                        className="flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors min-h-[48px] font-semibold"
+                                    >
+                                        <span className="mr-2">🛒</span>
+                                        Create Group Buy
+                                    </button>
+                                )}
+                                {roles.includes('customer') && (
+                                    <button
+                                        onClick={() => setCurrentScreen('errands')}
+                                        className="flex items-center justify-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors min-h-[48px] font-semibold"
+                                    >
+                                        <span className="mr-2">📝</span>
+                                        Post Errand
+                                    </button>
+                                )}
+                            </div>
                         </div>
-                    </div>
+                    )}
 
                     {/* Active Group Buys - Mobile optimized */}
                     <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6 sm:mb-8">
@@ -410,7 +423,10 @@ const DashboardPage = () => {
                                 ))}
                             </div>
                         ) : (
-                            <p className="text-gray-500 text-center py-4">No active group buys</p>
+                            <EmptyStateWithAction 
+                                type="groupbuys"
+                                message="No active group buys yet"
+                            />
                         )}
                     </div>
 
@@ -431,6 +447,11 @@ const DashboardPage = () => {
                                         </div>
                                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                                             errand.status === 'open' ? 'bg-green-100 text-green-800' :
+                                            errand.status === 'assigned' ? 'bg-blue-100 text-blue-800' :
+                                            errand.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
+                                            errand.status === 'awaiting_confirmation' ? 'bg-yellow-100 text-yellow-800' :
+                                            errand.status === 'completed' ? 'bg-purple-100 text-purple-800' :
+                                            errand.status === 'cancelled' ? 'bg-red-100 text-red-800' :
                                             errand.status === 'matched' ? 'bg-yellow-100 text-yellow-800' :
                                             'bg-blue-100 text-blue-800'
                                         }`}>
@@ -440,7 +461,10 @@ const DashboardPage = () => {
                                 ))}
                             </div>
                         ) : (
-                            <p className="text-gray-500 text-center py-4">No active errands</p>
+                            <EmptyStateWithAction 
+                                type="errands"
+                                message="No active errands yet"
+                            />
                         )}
                     </div>
 
@@ -472,15 +496,15 @@ const DashboardPage = () => {
                 </>
             )}
 
-            {activeTab === 'orders' && roles.includes('vendor') && (
+            {activeTab === 'orders' && !isGuest && roles.includes('vendor') && (
                 <VendorOrdersTab />
             )}
 
-            {activeTab === 'analytics' && roles.includes('vendor') && (
+            {activeTab === 'analytics' && !isGuest && roles.includes('vendor') && (
                 <VendorAnalyticsPage />
             )}
 
-            {activeTab === 'payouts' && roles.includes('vendor') && (
+            {activeTab === 'payouts' && !isGuest && roles.includes('vendor') && (
                 <PayoutSettingsPage />
             )}
         </div>

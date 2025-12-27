@@ -78,7 +78,7 @@ const CheckoutForm = ({
           orderId,
           customerEmail: user.email,
           metadata: {
-            customerName: user.name || user.email,
+            customerName: user.email,
             creditsApplied: creditAmount,
             originalAmount: amount,
             productId,
@@ -297,7 +297,7 @@ const CheckoutForm = ({
   const availableCredits = Math.min(credits?.balance || 0, amount);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6 pb-24 sm:pb-6">
       {/* Credits Section */}
       {credits?.balance > 0 && (
         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
@@ -432,8 +432,8 @@ const CheckoutForm = ({
       </div>
       )}
 
-      {/* Test Mode Warning */}
-      {isTestPaymentMode() && (
+      {/* Test Mode Warning - Only show in development */}
+      {import.meta.env.DEV && isTestPaymentMode() && (
         <div className="bg-yellow-50 border-2 border-yellow-400 rounded-lg p-4">
           <div className="flex items-start">
             <svg className="w-5 h-5 text-yellow-600 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">

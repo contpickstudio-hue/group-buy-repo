@@ -97,6 +97,15 @@ export const createProductSlice = (set, get) => ({
         if (!user || (!user.email && !user.id)) {
             return { success: false, error: 'User not authenticated' };
         }
+
+        // Enforce vendor role requirement - server-side logic check
+        const userRoles = user.roles || [];
+        if (!Array.isArray(userRoles) || !userRoles.includes('vendor')) {
+            return { 
+                success: false, 
+                error: 'Only users with vendor role can create group buys. Please upgrade your account.' 
+            };
+        }
         
         // Get user identifier (email or id)
         const userEmail = user.email || user.id;

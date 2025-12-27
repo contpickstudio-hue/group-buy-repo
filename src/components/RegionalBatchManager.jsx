@@ -3,6 +3,8 @@ import { ChevronDown, ChevronUp, X, Plus, Package, Clock, TrendingUp, Play } fro
 import { useGetBatchesByListing, useCancelRegionalBatch, useCreateRegionalBatch, useActivateRegionalBatch } from '../stores';
 import toast from 'react-hot-toast';
 import DateInput from './DateInput';
+import { EmptyStateWithAction } from './EmptyState';
+import { t } from '../utils/translations';
 
 /**
  * RegionalBatchManager Component
@@ -156,14 +158,10 @@ const RegionalBatchManager = ({ listingId, onBatchAdded }) => {
     if (batches.length === 0) {
         return (
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <p className="text-gray-600 text-sm mb-3">No regional batches yet.</p>
-                <button
-                    onClick={() => setShowAddBatch(true)}
-                    className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
-                >
-                    <Plus size={16} />
-                    Add First Batch
-                </button>
+                <EmptyStateWithAction 
+                    type="batches"
+                    message="No regional batches yet"
+                />
             </div>
         );
     }

@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useLoadNotifications } from '../stores';
 import { X, Check, CheckCheck, Trash2, Bell } from 'lucide-react';
 import { 
   useNotifications, 
@@ -37,10 +38,20 @@ const NotificationPanel = ({ isOpen, onClose }) => {
   const markNotificationAsRead = useMarkNotificationAsRead();
   const markAllNotificationsAsRead = useMarkAllNotificationsAsRead();
   const removeNotification = useRemoveNotification();
+  const { useLoadNotifications } = require('../stores');
 
+  const loadNotifications = useLoadNotifications();
+  
   const unreadCount = notifications.filter(n => !n.read).length;
   const unreadNotifications = notifications.filter(n => !n.read);
   const readNotifications = notifications.filter(n => n.read);
+  
+  // Load notifications when panel opens
+  useEffect(() => {
+    if (isOpen) {
+      loadNotifications();
+    }
+  }, [isOpen, loadNotifications]);
 
   const handleMarkAsRead = async (id) => {
     await markNotificationAsRead(id);
@@ -91,11 +102,11 @@ const NotificationPanel = ({ isOpen, onClose }) => {
       />
 
       {/* Panel */}
-      <div className="absolute right-0 top-0 bottom-0 w-full sm:w-96 bg-white shadow-xl flex flex-col">
+      <div className="absolute right-0 top-0 bottom-0 w-full sm:w-96 bg-white shadow-xl flex flex-col max-h-screen">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50 flex-shrink-0">
           <div className="flex items-center gap-2">
-            <Bell size={20} className="text-gray-700" />
+            <Bell size={20} className="text-gray-700 flex-shrink-0" />
             <h2 className="text-lg font-semibold text-gray-900">Notifications</h2>
             {unreadCount > 0 && (
               <span className="px-2 py-1 bg-red-600 text-white text-xs font-bold rounded-full">
@@ -103,11 +114,11 @@ const NotificationPanel = ({ isOpen, onClose }) => {
               </span>
             )}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             {unreadCount > 0 && (
               <button
                 onClick={handleMarkAllAsRead}
-                className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded-md transition-colors"
+                className="p-2.5 sm:p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded-md transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation"
                 title="Mark all as read"
                 aria-label="Mark all as read"
               >
@@ -116,7 +127,7 @@ const NotificationPanel = ({ isOpen, onClose }) => {
             )}
             <button
               onClick={onClose}
-              className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded-md transition-colors"
+              className="p-2.5 sm:p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded-md transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation"
               aria-label="Close notifications"
             >
               <X size={20} />
@@ -149,7 +160,10 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                       key={notification.id}
                       notification={notification}
                       onMarkAsRead={() => handleMarkAsRead(notification.id)}
-                      onDelete={() => handleDelete(notification.id)}
+                      onDelete={(e) => {
+                        e.stopPropagation();
+                        handleDelete(notification.id);
+                      }}
                       getNotificationIcon={getNotificationIcon}
                       getNotificationColor={getNotificationColor}
                     />
@@ -199,10 +213,20 @@ const NotificationItem = ({
 }) => {
   const timeAgo = formatTimeAgo(notification.createdAt || notification.timestamp);
 
+  const handleClick = () => {
+    // Mark as read when notification is clicked/opened
+    if (!notification.read) {
+      onMarkAsRead();
+    }
+  };
+
   return (
-    <div className={`p-4 border-l-4 ${getNotificationColor(notification.type)} ${
-      !notification.read ? 'bg-white' : 'bg-gray-50'
-    } hover:bg-gray-50 transition-colors`}>
+    <div 
+      onClick={handleClick}
+      className={`p-4 border-l-4 ${getNotificationColor(notification.type)} ${
+        !notification.read ? 'bg-white cursor-pointer' : 'bg-gray-50'
+      } hover:bg-gray-50 transition-colors`}
+    >
       <div className="flex items-start gap-3">
         <div className="flex-shrink-0 text-lg">
           {getNotificationIcon(notification.type)}
@@ -226,11 +250,14 @@ const NotificationItem = ({
           </p>
         </div>
 
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1.5 sm:gap-1">
           {!notification.read && (
             <button
-              onClick={onMarkAsRead}
-              className="p-1.5 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                onMarkAsRead();
+              }}
+              className="p-2 sm:p-1.5 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors min-w-[40px] min-h-[40px] sm:min-w-[32px] sm:min-h-[32px] flex items-center justify-center touch-manipulation"
               title="Mark as read"
               aria-label="Mark as read"
             >
@@ -238,8 +265,11 @@ const NotificationItem = ({
             </button>
           )}
           <button
-            onClick={onDelete}
-            className="p-1.5 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            className="p-2 sm:p-1.5 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors min-w-[40px] min-h-[40px] sm:min-w-[32px] sm:min-h-[32px] flex items-center justify-center touch-manipulation"
             title="Delete"
             aria-label="Delete notification"
           >

@@ -5,7 +5,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useListings, useGetBatchesByListing, useUser, useSetCurrentScreen, useAddOrder } from '../stores';
+import { useListings, useGetBatchesByListing, useUser, useSetCurrentScreen, useAddOrder, useAuthStore } from '../stores';
 import RegionSelector from '../components/RegionSelector';
 import CheckoutModal from '../components/CheckoutModal';
 import ChatModal from '../components/ChatModal';
@@ -15,6 +15,7 @@ import { canJoinBatch } from '../services/supabaseService';
 import ReportButton from '../components/ReportButton';
 import { checkListingSuspension } from '../services/moderationService';
 import toast from 'react-hot-toast';
+import { getUserDisplayName } from '../utils/authUtils';
 
 const ListingDetailPage = () => {
     // Get listingId from URL hash (e.g., #listing/123)
@@ -22,6 +23,8 @@ const ListingDetailPage = () => {
     const listings = useListings();
     const getBatchesByListing = useGetBatchesByListing();
     const user = useUser();
+    const loginMethod = useAuthStore((state) => state.loginMethod);
+    const displayName = getUserDisplayName(user, loginMethod);
     const setCurrentScreen = useSetCurrentScreen();
     const addOrder = useAddOrder();
     
@@ -150,7 +153,7 @@ const ListingDetailPage = () => {
                 listingId: listing.id,
                 regionalBatchId: selectedBatch.id,
                 customerEmail: user.email || user.id,
-                customerName: user.name || user.email || user.id,
+                customerName: displayName || user.email || user.id,
                 quantity: checkoutState.quantity,
                 totalPrice: selectedBatch.price * checkoutState.quantity,
                 total: selectedBatch.price * checkoutState.quantity,
@@ -178,16 +181,30 @@ const ListingDetailPage = () => {
             
             addOrder(order);
             
-            // Notify vendor about new order
+            // Notify customer they joined the group buy
             const { useAppStore } = await import('../stores');
+            const { createNotification } = await import('../services/notificationService');
+            const customerEmail = user.email || user.id;
+            if (customerEmail) {
+                await createNotification(
+                    customerEmail,
+                    'success',
+                    `You joined "${listing.title}" in ${batch.region}. Waiting for group buy to reach target.`,
+                    'Group Buy Joined',
+                    { type: 'group_buy_joined', listingId: listing.id, batchId: batch.id, orderId: order.id }
+                );
+            }
+            
+            // Notify vendor about new order
             const appStore = useAppStore.getState();
-            if (listing.ownerEmail && appStore.addNotification) {
-                appStore.addNotification({
-                    type: 'success',
-                    title: 'New Order Received',
-                    message: `${user.name || user.email} joined "${listing.title}" in ${batch.region}`,
-                    data: { type: 'group_buy_joined', listingId: listing.id, batchId: batch.id, orderId: order.id }
-                });
+            if (listing.ownerEmail && listing.ownerEmail !== customerEmail) {
+                await createNotification(
+                    listing.ownerEmail,
+                    'success',
+                    `${displayName || user.email} joined "${listing.title}" in ${batch.region}`,
+                    'New Order Received',
+                    { type: 'order_received', listingId: listing.id, batchId: batch.id, orderId: order.id }
+                );
             }
             
             toast.success(`Order placed! Funds held in escrow until group buy succeeds.`);

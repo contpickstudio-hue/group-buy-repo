@@ -3,15 +3,17 @@ import {
   useUser, 
   useOrders, 
   useListings, 
+  useErrands,
   useGetBatchesByListing,
   useGetListingsByOwner,
   useLoadOrders,
   useLoadListings,
-  useLoadBatchesForListing
+  useLoadBatchesForListing,
+  useLoadErrands
 } from '../stores';
 import { useAuthStore } from '../stores/authStore';
 import { isGuestUser } from '../utils/authUtils';
-import { DollarSign, ShoppingCart, Package, CheckCircle, Clock } from 'lucide-react';
+import { DollarSign, ShoppingCart, Package, CheckCircle, Clock, Briefcase } from 'lucide-react';
 
 const VendorAnalyticsPage = () => {
   const user = useUser();
@@ -20,11 +22,13 @@ const VendorAnalyticsPage = () => {
   
   const orders = useOrders();
   const listings = useListings();
+  const errands = useErrands();
   const getBatchesByListing = useGetBatchesByListing();
   const getListingsByOwner = useGetListingsByOwner();
   const loadOrders = useLoadOrders();
   const loadListings = useLoadListings();
   const loadBatchesForListing = useLoadBatchesForListing();
+  const loadErrands = useLoadErrands();
   
   const [timeFilter, setTimeFilter] = useState('all'); // '7d', '30d', 'all'
   const [loading, setLoading] = useState(true);
@@ -36,7 +40,8 @@ const VendorAnalyticsPage = () => {
       try {
         await Promise.all([
           loadOrders(),
-          loadListings()
+          loadListings(),
+          loadErrands()
         ]);
         
         // Load batches for vendor's listings
@@ -54,7 +59,7 @@ const VendorAnalyticsPage = () => {
     if (user && !isGuest) {
       loadData();
     }
-  }, [user, isGuest, loadOrders, loadListings, loadBatchesForListing, getListingsByOwner]);
+  }, [user, isGuest, loadOrders, loadListings, loadErrands, loadBatchesForListing, getListingsByOwner]);
 
   // Get vendor's listings
   const vendorListings = useMemo(() => {
@@ -148,6 +153,13 @@ const VendorAnalyticsPage = () => {
              order.fulfillmentStatus !== 'cancelled';
     });
 
+    // Get errands completed count (where user is requester and status is completed)
+    const userEmail = user?.email || user?.id;
+    const completedErrands = errands.filter(e => 
+      e.requesterEmail === userEmail && 
+      e.status === 'completed'
+    ).length;
+
     return {
       totalRevenue,
       totalOrders,
@@ -155,9 +167,10 @@ const VendorAnalyticsPage = () => {
       completedBatches: completedBatches.length,
       avgOrderValue,
       fulfilledOrders: fulfilledOrders.length,
-      pendingOrders: pendingOrders.length
+      pendingOrders: pendingOrders.length,
+      completedErrands
     };
-  }, [vendorOrders, vendorBatches]);
+  }, [vendorOrders, vendorBatches, errands, user]);
 
   if (isGuest) {
     return (
@@ -230,7 +243,7 @@ const VendorAnalyticsPage = () => {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {/* Total Revenue */}
         <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
           <div className="flex items-center justify-between mb-2">
@@ -245,6 +258,34 @@ const VendorAnalyticsPage = () => {
           </p>
         </div>
 
+        {/* Completed Group Buys */}
+        <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-medium text-gray-600">Completed Group Buys</h3>
+            <CheckCircle size={20} className="text-green-600" />
+          </div>
+          <p className="text-3xl font-bold text-gray-900">
+            {analytics.completedBatches}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            {analytics.activeBatches} active
+          </p>
+        </div>
+
+        {/* Errands Completed */}
+        <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-medium text-gray-600">Errands Completed</h3>
+            <Briefcase size={20} className="text-purple-600" />
+          </div>
+          <p className="text-3xl font-bold text-gray-900">
+            {analytics.completedErrands}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            As requester
+          </p>
+        </div>
+
         {/* Total Orders */}
         <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
           <div className="flex items-center justify-between mb-2">
@@ -256,20 +297,6 @@ const VendorAnalyticsPage = () => {
           </p>
           <p className="text-xs text-gray-500 mt-1">
             Avg: ${analytics.avgOrderValue.toFixed(2)} per order
-          </p>
-        </div>
-
-        {/* Active Group Buys */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-gray-600">Active Group Buys</h3>
-            <Clock size={20} className="text-yellow-600" />
-          </div>
-          <p className="text-3xl font-bold text-gray-900">
-            {analytics.activeBatches}
-          </p>
-          <p className="text-xs text-gray-500 mt-1">
-            {analytics.completedBatches} completed
           </p>
         </div>
       </div>

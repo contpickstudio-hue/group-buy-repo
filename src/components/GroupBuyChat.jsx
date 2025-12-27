@@ -3,6 +3,8 @@ import { useUser, useActiveChats, useSetActiveThread, useSendMessage, useLoadCha
 import { useGroupBuyChatRealtime } from '../hooks/useRealtime';
 import { getGroupBuyThreadId } from '../services/chatService';
 import VerifiedBadge from './VerifiedBadge';
+import { t } from '../utils/translations';
+import EmptyState from './EmptyState';
 
 /**
  * GroupBuyChat Component
@@ -84,8 +86,11 @@ const GroupBuyChat = ({ productId, onClose }) => {
       {/* Messages List */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 ? (
-          <div className="text-center text-gray-500 py-8">
-            No messages yet. Start the conversation!
+          <div className="text-center py-8">
+            <EmptyState 
+              message={t('chat.noMessages')}
+              className="text-gray-500"
+            />
           </div>
         ) : (
           messages.map((message) => {
@@ -135,7 +140,7 @@ const GroupBuyChat = ({ productId, onClose }) => {
             type="text"
             value={messageInput}
             onChange={(e) => setMessageInput(e.target.value)}
-            placeholder="Type a message..."
+            placeholder={t('chat.typeMessage')}
             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button

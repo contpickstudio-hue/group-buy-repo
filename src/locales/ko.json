@@ -8,6 +8,7 @@
     "profile": "프로필",
     "settings": "설정",
     "logout": "로그아웃",
+    "login": "로그인",
     "save": "저장",
     "cancel": "취소",
     "back": "뒤로",
@@ -16,7 +17,34 @@
     "done": "완료",
     "change": "변경",
     "edit": "편집",
-    "signUp": "가입하기"
+    "delete": "삭제",
+    "signUp": "가입하기",
+    "loginSignUp": "로그인 / 가입하기",
+    "reset": "재설정",
+    "logoutShort": "나가기",
+    "browse": "둘러보기",
+    "appName": "한국 커뮤니티 커머스",
+    "appNameShort": "KCC",
+    "language": "언어",
+    "selectLanguage": "언어 선택",
+    "loading": "로딩 중...",
+    "error": "오류",
+    "success": "성공",
+    "warning": "경고",
+    "close": "닫기",
+    "submit": "제출",
+    "search": "검색",
+    "filter": "필터",
+    "clear": "지우기",
+    "apply": "적용",
+    "confirm": "확인",
+    "yes": "예",
+    "no": "아니오",
+    "optional": "선택사항",
+    "required": "필수",
+    "requiredField": "필수",
+    "guest": "게스트",
+    "user": "사용자"
   },
   "onboarding": {
     "screen1": {
@@ -40,6 +68,226 @@
       "details": "가입하여 절약하고 이웃들과 연결하세요."
     }
   },
+  "start": {
+    "hero": {
+      "tagline": "한국 커뮤니티 커머스 플랫폼",
+      "title": "함께 연결하고 쇼핑하며 절약하세요",
+      "description": "공동구매에 참여하고, 심부름을 요청하며, 지역의 더 강한 한국 커뮤니티를 구축하세요."
+    },
+    "getStarted": "시작하기",
+    "browseMarketplace": "마켓플레이스 둘러보기",
+    "featuredGroupBuys": "추천 공동구매",
+    "openErrands": "진행 중인 심부름",
+    "viewMore": "더 보기",
+    "viewAll": "전체 보기"
+  },
+  "auth": {
+    "signIn": "로그인",
+    "signUp": "가입하기",
+    "signInWithGoogle": "Google로 로그인",
+    "signUpWithGoogle": "Google로 가입하기",
+    "email": "이메일",
+    "password": "비밀번호",
+    "name": "이름",
+    "confirmPassword": "비밀번호 확인",
+    "alreadyHaveAccount": "이미 계정이 있으신가요?",
+    "dontHaveAccount": "계정이 없으신가요?",
+    "forgotPassword": "비밀번호를 잊으셨나요?",
+    "accountCreated": "계정이 성공적으로 생성되었습니다!",
+    "welcomeBack": "다시 오신 것을 환영합니다!",
+    "redirectingGoogle": "Google로 리디렉션 중...",
+    "signUpToContinue": "계속하려면 가입하세요",
+    "signUpToAccess": "이 기능에 액세스하고 커뮤니티에 참여하려면 계정을 만드세요.",
+    "authenticationFailed": "인증에 실패했습니다. 다시 시도해 주세요.",
+    "googleSignInFailed": "Google 로그인에 실패했습니다. Supabase 프로젝트에서 Google OAuth가 활성화되어 있는지 확인하세요.",
+    "checkEmailVerification": "계정이 성공적으로 생성되었습니다! 로그인하기 전에 이메일에서 인증을 확인해 주세요."
+  },
+  "groupBuy": {
+    "join": "공동구매 참여",
+    "viewDetails": "자세히 보기",
+    "create": "공동구매 만들기",
+    "createTitle": "공동구매 만들기",
+    "productTitle": "제품명",
+    "productTitlePlaceholder": "예: 프리미엄 한국 딸기",
+    "pricePerUnit": "단위당 가격 ($)",
+    "description": "설명",
+    "descriptionPlaceholder": "제품을 설명하세요...",
+    "region": "지역",
+    "targetQuantity": "목표 수량",
+    "deadline": "마감일",
+    "image": "이미지 (선택사항)",
+    "uploadImage": "제품 이미지 업로드 (선택사항)",
+    "location": "위치 (지도 검색용)",
+    "locationHelp": "위치를 추가하면 사용자가 지도에서 공동구매를 찾을 수 있습니다",
+    "useCurrentLocation": "현재 위치 사용",
+    "searchAddress": "주소 검색",
+    "enterAddress": "주소를 입력하세요...",
+    "getCurrentLocation": "현재 위치 가져오기",
+    "gettingLocation": "위치를 가져오는 중...",
+    "searching": "검색 중...",
+    "locationSet": "위치가 성공적으로 설정되었습니다",
+    "locationFound": "위치를 찾았습니다: {{address}}",
+    "locationError": "위치를 가져올 수 없습니다: {{error}}",
+    "addressError": "주소를 찾을 수 없습니다: {{error}}",
+    "enterAddressError": "주소를 입력해 주세요",
+    "locationSetLabel": "✓ 위치 설정됨: {{lat}}, {{lng}}",
+    "creating": "공동구매 생성 중...",
+    "submittingForm": "양식 제출 중...",
+    "noGroupBuysYet": "아직 공동구매가 없습니다",
+    "noGroupBuysAvailable": "사용 가능한 공동구매가 없습니다",
+    "createFirstOne": "첫 번째 만들기",
+    "browseMarketplace": "마켓플레이스 둘러보기",
+    "noFeaturedYet": "아직 추천 공동구매가 없습니다",
+    "accessDenied": "액세스 거부됨",
+    "vendorRoleRequired": "판매자 역할을 가진 사용자만 공동구매를 만들 수 있습니다.",
+    "signUpToCreate": "공동구매를 만들려면 가입하세요",
+    "vendorRoleRequiredTitle": "판매자 역할 필요",
+    "vendorRoleDescription": "공동구매 생성은 판매자만 사용할 수 있습니다. 커뮤니티를 위한 공동구매를 조직하기 시작하려면 계정을 업그레이드하세요.",
+    "upgradeToVendor": "판매자로 업그레이드"
+  },
+  "errand": {
+    "post": "심부름 게시",
+    "create": "심부름 만들기",
+    "postNew": "새 심부름 게시",
+    "title": "제목",
+    "titlePlaceholder": "예: 주간 H마트 장보기",
+    "description": "설명",
+    "descriptionPlaceholder": "도움이 필요한 내용을 설명하세요...",
+    "budget": "예산 ($)",
+    "deadline": "마감일",
+    "region": "지역",
+    "postSuccess": "심부름이 성공적으로 게시되었습니다!",
+    "postError": "심부름 게시에 실패했습니다. 다시 시도해 주세요.",
+    "signInToPost": "심부름을 게시하려면 로그인해 주세요",
+    "noErrandsAvailable": "사용 가능한 심부름이 없습니다",
+    "postErrand": "심부름 게시",
+    "browseErrands": "심부름 둘러보기",
+    "signUpToPost": "심부름을 게시하려면 가입하세요"
+  },
+  "dashboard": {
+    "welcome": "환영합니다, {{name}}",
+    "subtitle": "한 곳에서 작업, 지급, 요청을 추적하세요.",
+    "overview": "개요",
+    "orders": "주문",
+    "analytics": "분석",
+    "payoutSettings": "지급 설정",
+    "yourAccount": "귀하의 계정",
+    "roles": "역할",
+    "helperStatus": "도우미 상태",
+    "verified": "인증됨 ✅",
+    "pendingVerification": "인증 대기 중",
+    "totalSavings": "총 절약액",
+    "totalEarnings": "총 수익",
+    "groupBuysJoined": "참여한 공동구매",
+    "errandsCompleted": "완료한 심부름",
+    "quickActions": "빠른 작업",
+    "activeGroupBuys": "진행 중인 공동구매",
+    "activeErrands": "진행 중인 심부름",
+    "noActiveGroupBuys": "아직 진행 중인 공동구매가 없습니다",
+    "noActiveErrands": "아직 진행 중인 심부름이 없습니다",
+    "completedItems": "완료된 항목"
+  },
+  "profile": {
+    "title": "내 프로필",
+    "subtitle": "계정 및 설정 관리",
+    "accountSettings": "계정 설정",
+    "displayName": "표시 이름",
+    "emailAddress": "이메일 주소",
+    "userRoles": "사용자 역할",
+    "myOrders": "내 주문",
+    "viewOrderHistory": "주문 내역 보기",
+    "viewOrders": "주문 보기",
+    "openSettings": "설정 열기",
+    "managePreferences": "설정 관리",
+    "language": "언어",
+    "communityContribution": "커뮤니티 기여",
+    "referrals": "추천",
+    "credits": "크레딧",
+    "helperProfile": "도우미 프로필",
+    "updateHelperProfile": "도우미 프로필 업데이트",
+    "helperVerification": "심부름 수락을 시작하려면 도우미 인증을 완료하세요.",
+    "privacySecurity": "개인정보 보호 및 보안",
+    "password": "비밀번호",
+    "changePassword": "계정 비밀번호 변경",
+    "dataExport": "데이터 내보내기",
+    "downloadData": "계정 데이터 다운로드",
+    "accountActions": "계정 작업",
+    "resetAppData": "앱 데이터 재설정",
+    "resetConfirm": "모든 앱 데이터를 재설정하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+    "signOut": "로그아웃",
+    "backToProfile": "← 프로필로 돌아가기"
+  },
+  "emptyState": {
+    "signUpToGetStarted": "시작하려면 가입하세요",
+    "noGroupBuysYet": "아직 공동구매가 없습니다",
+    "noGroupBuysAvailable": "사용 가능한 공동구매가 없습니다",
+    "noErrandsAvailable": "사용 가능한 심부름이 없습니다",
+    "noOrdersYet": "아직 주문이 없습니다",
+    "noChatsYet": "아직 채팅이 없습니다",
+    "noCreditHistoryYet": "아직 크레딧 내역이 없습니다",
+    "noBatchesYet": "아직 지역 배치가 없습니다",
+    "noBatchesAvailable": "사용 가능한 배치가 없습니다",
+    "nothingHereYet": "아직 아무것도 없습니다",
+    "joinGroupBuyOrErrand": "공동구매 또는 심부름에 참여하세요",
+    "joinGroupBuy": "공동구매에 참여하세요",
+    "createListing": "상품 등록 만들기",
+    "browseListings": "상품 등록 둘러보기"
+  },
+  "marketplace": {
+    "title": "지역 마켓플레이스",
+    "tagline": "커뮤니티 대량 주문",
+    "description": "지역, 가격 및 배송 방법별로 대량 거래 찾기",
+    "noListingsAvailable": "사용 가능한 상품 등록이 없습니다",
+    "noListingsMatchFilters": "필터와 일치하는 상품 등록이 없습니다"
+  },
+  "credits": {
+    "title": "크레딧",
+    "subtitle": "계정 잔액",
+    "signUpToView": "크레딧을 보려면 가입하세요",
+    "noHistory": "아직 크레딧 내역이 없습니다"
+  },
+  "orders": {
+    "title": "판매자 주문",
+    "noOrders": "아직 주문이 없습니다",
+    "willAppear": "고객이 상품 등록에 주문을 하면 여기에 주문이 표시됩니다.",
+    "loadingOrders": "주문 로딩 중...",
+    "markFulfilled": "완료 처리",
+    "updating": "업데이트 중...",
+    "fulfilledSuccess": "주문이 완료 처리되었습니다",
+    "fulfilledError": "주문 완료 처리에 실패했습니다"
+  },
+  "regionalBatch": {
+    "noBatchesYet": "아직 지역 배치가 없습니다.",
+    "addFirstBatch": "첫 번째 배치 추가",
+    "region": "지역",
+    "price": "가격",
+    "locked": "(잠김)",
+    "minimumQuantity": "최소 수량",
+    "currentQuantity": "현재 수량",
+    "deliveryMethod": "배송 방법",
+    "cutoffDate": "마감일",
+    "addNew": "새 지역 배치 추가",
+    "cancelBatch": "배치 취소",
+    "activateBatch": "배치 활성화",
+    "batchCancelled": "배치가 성공적으로 취소되었습니다. 주문에 환불 플래그가 설정되었습니다.",
+    "batchAdded": "지역 배치가 성공적으로 추가되었습니다!",
+    "batchActivated": "배치가 성공적으로 활성화되었습니다! 이제 주문을 받고 있습니다.",
+    "fillRequiredFields": "모든 필수 필드를 입력해 주세요"
+  },
+  "chat": {
+    "loadingChats": "채팅 로딩 중...",
+    "noChats": "아직 채팅이 없습니다",
+    "noMessages": "아직 메시지가 없습니다. 대화를 시작하세요!",
+    "typeMessage": "메시지 입력...",
+    "send": "보내기"
+  },
+  "regionSelector": {
+    "selectRegion": "지역 선택",
+    "demandProgress": "수요 진행률",
+    "daysRemaining": "{{count}}일 남음",
+    "daysRemainingPlural": "{{count}}일 남음",
+    "noBatchesAvailable": "이 상품 등록에 대한 지역 배치가 없습니다."
+  },
   "settings": {
     "title": "설정",
     "account": {
@@ -47,7 +295,8 @@
       "displayName": "표시 이름",
       "email": "이메일",
       "profilePicture": "프로필 사진",
-      "manageAccount": "계정 관리"
+      "manageAccount": "계정 관리",
+      "notSet": "설정되지 않음"
     },
     "language": {
       "title": "언어",
@@ -77,14 +326,26 @@
       "privacy": "개인정보 보호정책"
     }
   },
-  "groupBuy": {
-    "join": "공동구매 참여",
-    "viewDetails": "자세히 보기",
-    "create": "공동구매 만들기"
+  "floatingAction": {
+    "createGroupBuy": "공동구매 만들기",
+    "postErrand": "심부름 게시",
+    "browseErrands": "심부름 둘러보기",
+    "browseGroupBuys": "공동구매 둘러보기"
   },
-  "errand": {
-    "post": "심부름 게시",
-    "create": "심부름 만들기"
+  "form": {
+    "validation": {
+      "required": "이 필드는 필수입니다",
+      "emailInvalid": "유효한 이메일 주소를 입력해 주세요",
+      "passwordMinLength": "비밀번호는 최소 6자 이상이어야 합니다",
+      "passwordsDoNotMatch": "비밀번호가 일치하지 않습니다"
+    },
+    "errors": {
+      "fixErrors": "양식의 오류를 수정해 주세요",
+      "waitSubmission": "잠시 기다려 주세요. 제출 중입니다..."
+    }
+  },
+  "checkout": {
+    "testMode": "테스트 모드 - 실제 결제 없음",
+    "testModeDescription": "테스트 모드입니다. 실제 결제는 처리되지 않습니다. 이것은 개발 및 테스트 전용입니다."
   }
 }
-

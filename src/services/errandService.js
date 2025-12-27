@@ -17,7 +17,42 @@ export async function applyToErrand(errandId, helperEmail, offerAmount = null, m
   return await apiCall(async () => {
     if (!supabaseClient) {
       // Demo mode - save to localStorage
+      // Check if errand is still open
+      const { useAppStore } = await import('../stores');
+      const appStore = useAppStore.getState();
+      const errand = appStore.errands?.find(e => e.id === errandId);
+      
+      if (!errand) {
+        return { success: false, error: 'Errand not found' };
+      }
+
+      if (errand.status !== 'open' || errand.assignedHelperEmail) {
+        return { success: false, error: 'This errand is no longer accepting applications' };
+      }
+
+      // Check if helper already applied
       const storedApplications = await dbLoadSlice(StorageKeys.applications, []);
+      const existingApp = storedApplications.find(a => 
+        a.errandId === errandId && a.helperEmail === helperEmail
+      );
+      
+      if (existingApp) {
+        return { success: false, error: 'You have already applied to this errand' };
+      }
+
+      // Check helper active count
+      const activeCount = (appStore.errands || []).filter(e => 
+        e.assignedHelperEmail === helperEmail &&
+        ['assigned', 'in_progress', 'awaiting_confirmation'].includes(e.status)
+      ).length;
+
+      if (activeCount >= MAX_ACTIVE_ERRANDS_PER_HELPER) {
+        return {
+          success: false,
+          error: `You can only have ${MAX_ACTIVE_ERRANDS_PER_HELPER} active errands at a time`
+        };
+      }
+
       const newApplication = {
         id: Date.now(),
         errandId,
@@ -31,9 +66,6 @@ export async function applyToErrand(errandId, helperEmail, offerAmount = null, m
       await dbSaveSlice(StorageKeys.applications, storedApplications);
       
       // Notify requester about new application
-      const { useAppStore } = await import('../stores');
-      const appStore = useAppStore.getState();
-      const errand = appStore.errands?.find(e => e.id === errandId);
       if (errand?.requesterEmail && appStore.addNotification) {
         appStore.addNotification({
           type: 'info',
@@ -44,6 +76,21 @@ export async function applyToErrand(errandId, helperEmail, offerAmount = null, m
       }
       
       return { success: true, application: newApplication };
+    }
+
+    // Check if errand is still open and not assigned
+    const { data: errandCheck } = await supabaseClient
+      .from('errands')
+      .select('status, assigned_helper_email')
+      .eq('id', errandId)
+      .single();
+
+    if (!errandCheck) {
+      return { success: false, error: 'Errand not found' };
+    }
+
+    if (errandCheck.status !== 'open' || errandCheck.assigned_helper_email) {
+      return { success: false, error: 'This errand is no longer accepting applications' };
     }
 
     // Check if helper already applied
@@ -97,16 +144,14 @@ export async function applyToErrand(errandId, helperEmail, offerAmount = null, m
       .single();
 
     if (errand?.requester_email) {
-      const { useAppStore } = await import('../stores');
-      const appStore = useAppStore.getState();
-      if (appStore.addNotification) {
-        appStore.addNotification({
-          type: 'info',
-          title: 'New Errand Application',
-          message: `${helperEmail} applied to help with "${errand.title}"`,
-          data: { type: 'errand_application', errandId, applicationId: data.id }
-        });
-      }
+      const { createNotification } = await import('../services/notificationService');
+      await createNotification(
+        errand.requester_email,
+        'info',
+        `${helperEmail.split('@')[0]} applied to help with "${errand.title}"`,
+        'New Errand Application',
+        { type: 'errand_application', errandId, applicationId: data.id }
+      );
     }
 
     return {
@@ -142,9 +187,18 @@ export async function acceptHelperApplication(errandId, applicationId, requester
         return { success: false, error: 'Application not found' };
       }
 
-      // Check helper active count
+      // Verify errand is still open
+      if (errand.status !== 'open' || errand.assignedHelperEmail) {
+        return {
+          success: false,
+          error: 'This errand is no longer accepting applications'
+        };
+      }
+
+      // Check helper active count (excluding current errand)
       const activeCount = storedErrands.filter(e => 
         e.assignedHelperEmail === application.helperEmail &&
+        e.id !== errandId &&
         ['assigned', 'in_progress', 'awaiting_confirmation'].includes(e.status)
       ).length;
 
@@ -163,23 +217,20 @@ export async function acceptHelperApplication(errandId, applicationId, requester
         }
       });
 
-      // Update errand
-      const errand = storedErrands.find(e => e.id === errandId);
+      // Update errand (already retrieved above)
       if (errand) {
         errand.assignedHelperEmail = application.helperEmail;
         errand.status = 'assigned';
         
         // Notify helper about acceptance
-        const { useAppStore } = await import('../stores');
-        const appStore = useAppStore.getState();
-        if (appStore.addNotification) {
-          appStore.addNotification({
-            type: 'success',
-            title: 'Application Accepted!',
-            message: `Your application for "${errand.title}" was accepted!`,
-            data: { type: 'errand_accepted', errandId }
-          });
-        }
+        const { createNotification } = await import('../services/notificationService');
+        await createNotification(
+          application.helperEmail,
+          'success',
+          `Your application for "${errand.title}" was accepted! The errand is now assigned to you.`,
+          'Application Accepted!',
+          { type: 'errand_accepted', errandId }
+        );
       }
 
       await dbSaveSlice(StorageKeys.applications, storedApplications);
@@ -208,11 +259,27 @@ export async function acceptHelperApplication(errandId, applicationId, requester
         throw new Error('Application not found');
       }
 
-      // Check helper active count
+      // Verify errand is still open
+      const { data: errandCheck } = await supabaseClient
+        .from('errands')
+        .select('status, assigned_helper_email')
+        .eq('id', errandId)
+        .single();
+
+      if (!errandCheck) {
+        throw new Error('Errand not found');
+      }
+
+      if (errandCheck.status !== 'open' || errandCheck.assigned_helper_email) {
+        throw new Error('This errand is no longer accepting applications');
+      }
+
+      // Check helper active count (excluding current errand)
       const { data: activeErrands } = await supabaseClient
         .from('errands')
         .select('id')
         .eq('assigned_helper_email', application.helper_email)
+        .neq('id', errandId)
         .in('status', ['assigned', 'in_progress', 'awaiting_confirmation']);
 
       if (activeErrands && activeErrands.length >= MAX_ACTIVE_ERRANDS_PER_HELPER) {
@@ -248,17 +315,15 @@ export async function acceptHelperApplication(errandId, applicationId, requester
         .eq('id', errandId)
         .single();
       
-      if (errand) {
-        const { useAppStore } = await import('../stores');
-        const appStore = useAppStore.getState();
-        if (appStore.addNotification) {
-          appStore.addNotification({
-            type: 'success',
-            title: 'Application Accepted!',
-            message: `Your application for "${errand.title}" was accepted!`,
-            data: { type: 'errand_accepted', errandId }
-          });
-        }
+      if (errand && application.helper_email) {
+        const { createNotification } = await import('../services/notificationService');
+        await createNotification(
+          application.helper_email,
+          'success',
+          `Your application for "${errand.title}" was accepted! The errand is now assigned to you.`,
+          'Application Accepted!',
+          { type: 'errand_accepted', errandId }
+        );
       }
     }
 
@@ -296,25 +361,24 @@ export async function confirmErrandCompletion(errandId, userEmail, isRequester) 
         // Payment release handled separately
         
         // Notify both parties about completion
-        const { useAppStore } = await import('../stores');
-        const appStore = useAppStore.getState();
-        if (appStore.addNotification) {
-          if (errand.requesterEmail) {
-            appStore.addNotification({
-              type: 'success',
-              title: 'Errand Completed!',
-              message: `"${errand.title}" has been completed!`,
-              data: { type: 'errand_completed', errandId }
-            });
-          }
-          if (errand.assignedHelperEmail) {
-            appStore.addNotification({
-              type: 'success',
-              title: 'Errand Completed!',
-              message: `"${errand.title}" has been completed! Payment will be released.`,
-              data: { type: 'errand_completed', errandId }
-            });
-          }
+        const { createNotification } = await import('../services/notificationService');
+        if (errand.requesterEmail) {
+          await createNotification(
+            errand.requesterEmail,
+            'success',
+            `"${errand.title}" has been completed! You can now rate the helper.`,
+            'Errand Completed!',
+            { type: 'errand_completed', errandId }
+          );
+        }
+        if (errand.assignedHelperEmail) {
+          await createNotification(
+            errand.assignedHelperEmail,
+            'success',
+            `"${errand.title}" has been completed! Payment will be released to your account.`,
+            'Errand Completed!',
+            { type: 'errand_completed', errandId }
+          );
         }
       } else {
         errand.status = 'awaiting_confirmation';

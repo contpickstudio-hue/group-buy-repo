@@ -66,7 +66,7 @@ const ChatIcon = () => {
       >
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className={`relative p-3 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center ${
+          className={`relative p-2.5 sm:p-3 transition-colors min-w-[48px] min-h-[48px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center touch-manipulation ${
             hasChats 
               ? 'text-gray-600 hover:text-gray-900' 
               : 'text-gray-400 hover:text-gray-500 opacity-75'
@@ -74,9 +74,9 @@ const ChatIcon = () => {
           aria-label={hasChats ? "Chat" : "Chat (no chats yet)"}
           title={!hasChats ? "No chats yet. Join a group buy or errand to start chatting." : undefined}
         >
-          <MessageCircle size={20} />
+          <MessageCircle size={20} className="flex-shrink-0" />
           {unreadCount > 0 && (
-            <span className="absolute top-0 right-0 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+            <span className="absolute top-0.5 right-0.5 sm:top-0 sm:right-0 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
               {unreadCount > 99 ? '99+' : unreadCount}
             </span>
           )}

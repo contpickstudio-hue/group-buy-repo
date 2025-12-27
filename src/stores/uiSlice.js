@@ -44,6 +44,14 @@ export const createUISlice = (set, get) => ({
     const user = useAuthStore.getState().user;
     const userEmail = user?.email || user?.id;
     
+    // Only add notification if it's for the current user (check if userEmail matches notification target)
+    // If notification has targetUserEmail, only add if it matches current user
+    if (notification.targetUserEmail && notification.targetUserEmail !== userEmail) {
+      // This notification is for a different user, skip local state update
+      // It will be persisted to database for that user
+      return id;
+    }
+    
     // Optimistically add to local state
     const newNotification = {
       ...notification,
@@ -54,14 +62,18 @@ export const createUISlice = (set, get) => ({
     };
     
     set((state) => {
-      state.notifications.unshift(newNotification); // Add to beginning
+      // Check if notification already exists (avoid duplicates)
+      const exists = state.notifications.some(n => n.id === id);
+      if (!exists) {
+        state.notifications.unshift(newNotification); // Add to beginning
+      }
     });
 
-    // Persist to database if user is logged in
-    if (userEmail) {
+    // Persist to database if user is logged in and notification has message
+    if (userEmail && notification.message) {
       try {
         await createNotification(
-          userEmail,
+          notification.targetUserEmail || userEmail,
           notification.type || 'info',
           notification.message,
           notification.title,

@@ -8,6 +8,7 @@
     "profile": "प्रोफ़ाइल",
     "settings": "सेटिंग्स",
     "logout": "लॉग आउट",
+    "login": "लॉग इन",
     "save": "सहेजें",
     "cancel": "रद्द करें",
     "back": "वापस",
@@ -16,7 +17,34 @@
     "done": "पूर्ण",
     "change": "बदलें",
     "edit": "संपादित करें",
-    "signUp": "साइन अप करें"
+    "delete": "हटाएं",
+    "signUp": "साइन अप करें",
+    "loginSignUp": "लॉग इन / साइन अप",
+    "reset": "रीसेट",
+    "logoutShort": "बाहर",
+    "browse": "ब्राउज़ करें",
+    "appName": "कोरियाई समुदाय कॉमर्स",
+    "appNameShort": "KCC",
+    "language": "भाषा",
+    "selectLanguage": "भाषा चुनें",
+    "loading": "लोड हो रहा है...",
+    "error": "त्रुटि",
+    "success": "सफलता",
+    "warning": "चेतावनी",
+    "close": "बंद करें",
+    "submit": "सबमिट करें",
+    "search": "खोजें",
+    "filter": "फ़िल्टर",
+    "clear": "साफ़ करें",
+    "apply": "लागू करें",
+    "confirm": "पुष्टि करें",
+    "yes": "हां",
+    "no": "नहीं",
+    "optional": "वैकल्पिक",
+    "required": "आवश्यक",
+    "requiredField": "आवश्यक",
+    "guest": "अतिथि",
+    "user": "उपयोगकर्ता"
   },
   "onboarding": {
     "screen1": {
@@ -40,6 +68,226 @@
       "details": "बचत शुरू करने और पड़ोसियों से जुड़ने के लिए साइन अप करें।"
     }
   },
+  "start": {
+    "hero": {
+      "tagline": "कोरियाई समुदाय कॉमर्स प्लेटफ़ॉर्म",
+      "title": "कनेक्ट करें, खरीदारी करें और एक साथ बचत करें",
+      "description": "समूह खरीदारी में शामिल हों, काम का अनुरोध करें, और अपने क्षेत्र में एक मजबूत कोरियाई समुदाय बनाएं।"
+    },
+    "getStarted": "शुरू करें",
+    "browseMarketplace": "बाज़ार ब्राउज़ करें",
+    "featuredGroupBuys": "फ़ीचर्ड समूह खरीदारी",
+    "openErrands": "खुले काम",
+    "viewMore": "और देखें",
+    "viewAll": "सभी देखें"
+  },
+  "auth": {
+    "signIn": "लॉग इन करें",
+    "signUp": "साइन अप करें",
+    "signInWithGoogle": "Google के साथ लॉग इन करें",
+    "signUpWithGoogle": "Google के साथ साइन अप करें",
+    "email": "ईमेल",
+    "password": "पासवर्ड",
+    "name": "नाम",
+    "confirmPassword": "पासवर्ड की पुष्टि करें",
+    "alreadyHaveAccount": "पहले से खाता है?",
+    "dontHaveAccount": "खाता नहीं है?",
+    "forgotPassword": "पासवर्ड भूल गए?",
+    "accountCreated": "खाता सफलतापूर्वक बनाया गया!",
+    "welcomeBack": "वापसी पर स्वागत है!",
+    "redirectingGoogle": "Google पर रीडायरेक्ट हो रहा है...",
+    "signUpToContinue": "जारी रखने के लिए साइन अप करें",
+    "signUpToAccess": "इस सुविधा तक पहुंचने और हमारे समुदाय में शामिल होने के लिए एक खाता बनाएं।",
+    "authenticationFailed": "प्रमाणीकरण विफल। कृपया पुनः प्रयास करें।",
+    "googleSignInFailed": "Google लॉग इन विफल। कृपया जांचें कि आपके Supabase प्रोजेक्ट में Google OAuth सक्षम है या नहीं।",
+    "checkEmailVerification": "खाता सफलतापूर्वक बनाया गया! लॉग इन करने से पहले कृपया सत्यापन के लिए अपना ईमेल जांचें।"
+  },
+  "groupBuy": {
+    "join": "समूह खरीदारी में शामिल हों",
+    "viewDetails": "विवरण देखें",
+    "create": "समूह खरीदारी बनाएं",
+    "createTitle": "समूह खरीदारी बनाएं",
+    "productTitle": "उत्पाद शीर्षक",
+    "productTitlePlaceholder": "उदा।, प्रीमियम कोरियाई स्ट्रॉबेरी",
+    "pricePerUnit": "प्रति यूनिट मूल्य ($)",
+    "description": "विवरण",
+    "descriptionPlaceholder": "अपने उत्पाद का वर्णन करें...",
+    "region": "क्षेत्र",
+    "targetQuantity": "लक्ष्य मात्रा",
+    "deadline": "समय सीमा",
+    "image": "छवि (वैकल्पिक)",
+    "uploadImage": "उत्पाद छवि अपलोड करें (वैकल्पिक)",
+    "location": "स्थान (मानचित्र खोज के लिए)",
+    "locationHelp": "स्थान जोड़ने से उपयोगकर्ताओं को मानचित्र पर आपकी समूह खरीदारी खोजने में मदद मिलती है",
+    "useCurrentLocation": "वर्तमान स्थान का उपयोग करें",
+    "searchAddress": "पता खोजें",
+    "enterAddress": "पता दर्ज करें...",
+    "getCurrentLocation": "वर्तमान स्थान प्राप्त करें",
+    "gettingLocation": "स्थान प्राप्त किया जा रहा है...",
+    "searching": "खोज रहे हैं...",
+    "locationSet": "स्थान सफलतापूर्वक सेट किया गया",
+    "locationFound": "स्थान मिल गया: {{address}}",
+    "locationError": "स्थान प्राप्त नहीं किया जा सका: {{error}}",
+    "addressError": "पता नहीं मिला: {{error}}",
+    "enterAddressError": "कृपया एक पता दर्ज करें",
+    "locationSetLabel": "✓ स्थान सेट: {{lat}}, {{lng}}",
+    "creating": "समूह खरीदारी बनाई जा रही है...",
+    "submittingForm": "फॉर्म सबमिट किया जा रहा है...",
+    "noGroupBuysYet": "अभी तक कोई समूह खरीदारी नहीं",
+    "noGroupBuysAvailable": "कोई समूह खरीदारी उपलब्ध नहीं",
+    "createFirstOne": "पहली बनाएं",
+    "browseMarketplace": "बाज़ार ब्राउज़ करें",
+    "noFeaturedYet": "अभी तक कोई फ़ीचर्ड समूह खरीदारी नहीं",
+    "accessDenied": "अभिगम अस्वीकृत",
+    "vendorRoleRequired": "केवल विक्रेता भूमिका वाले उपयोगकर्ता समूह खरीदारी बना सकते हैं।",
+    "signUpToCreate": "समूह खरीदारी बनाने के लिए साइन अप करें",
+    "vendorRoleRequiredTitle": "विक्रेता भूमिका आवश्यक",
+    "vendorRoleDescription": "समूह खरीदारी बनाना केवल विक्रेताओं के लिए उपलब्ध है। अपने समुदाय के लिए समूह खरीदारी आयोजित करना शुरू करने के लिए अपने खाते को अपग्रेड करें।",
+    "upgradeToVendor": "विक्रेता में अपग्रेड करें"
+  },
+  "errand": {
+    "post": "काम पोस्ट करें",
+    "create": "काम बनाएं",
+    "postNew": "नया काम पोस्ट करें",
+    "title": "शीर्षक",
+    "titlePlaceholder": "उदा।, साप्ताहिक H-Mart किराने की खरीदारी",
+    "description": "विवरण",
+    "descriptionPlaceholder": "बताएं कि आपको किस चीज़ में मदद चाहिए...",
+    "budget": "बजट ($)",
+    "deadline": "समय सीमा",
+    "region": "क्षेत्र",
+    "postSuccess": "काम सफलतापूर्वक पोस्ट किया गया!",
+    "postError": "काम पोस्ट करने में विफल। कृपया पुनः प्रयास करें।",
+    "signInToPost": "काम पोस्ट करने के लिए कृपया लॉग इन करें",
+    "noErrandsAvailable": "कोई काम उपलब्ध नहीं",
+    "postErrand": "काम पोस्ट करें",
+    "browseErrands": "काम ब्राउज़ करें",
+    "signUpToPost": "काम पोस्ट करने के लिए साइन अप करें"
+  },
+  "dashboard": {
+    "welcome": "स्वागत है, {{name}}",
+    "subtitle": "एक जगह पर कार्य, भुगतान और अनुरोध ट्रैक करें।",
+    "overview": "अवलोकन",
+    "orders": "ऑर्डर",
+    "analytics": "विश्लेषण",
+    "payoutSettings": "भुगतान सेटिंग्स",
+    "yourAccount": "आपका खाता",
+    "roles": "भूमिकाएं",
+    "helperStatus": "सहायक स्थिति",
+    "verified": "सत्यापित ✅",
+    "pendingVerification": "सत्यापन लंबित",
+    "totalSavings": "कुल बचत",
+    "totalEarnings": "कुल आय",
+    "groupBuysJoined": "समूह खरीदारी में शामिल",
+    "errandsCompleted": "पूर्ण काम",
+    "quickActions": "त्वरित कार्य",
+    "activeGroupBuys": "सक्रिय समूह खरीदारी",
+    "activeErrands": "सक्रिय काम",
+    "noActiveGroupBuys": "अभी तक कोई सक्रिय समूह खरीदारी नहीं",
+    "noActiveErrands": "अभी तक कोई सक्रिय काम नहीं",
+    "completedItems": "पूर्ण आइटम"
+  },
+  "profile": {
+    "title": "मेरी प्रोफ़ाइल",
+    "subtitle": "अपने खाते और प्राथमिकताओं को प्रबंधित करें",
+    "accountSettings": "खाता सेटिंग्स",
+    "displayName": "प्रदर्शन नाम",
+    "emailAddress": "ईमेल पता",
+    "userRoles": "उपयोगकर्ता भूमिकाएं",
+    "myOrders": "मेरे ऑर्डर",
+    "viewOrderHistory": "अपना ऑर्डर इतिहास देखें",
+    "viewOrders": "ऑर्डर देखें",
+    "openSettings": "सेटिंग्स खोलें",
+    "managePreferences": "अपनी प्राथमिकताएं प्रबंधित करें",
+    "language": "भाषा",
+    "communityContribution": "समुदाय योगदान",
+    "referrals": "रेफ़रल",
+    "credits": "क्रेडिट",
+    "helperProfile": "सहायक प्रोफ़ाइल",
+    "updateHelperProfile": "सहायक प्रोफ़ाइल अपडेट करें",
+    "helperVerification": "काम स्वीकार करना शुरू करने के लिए अपना सहायक सत्यापन पूरा करें।",
+    "privacySecurity": "गोपनीयता और सुरक्षा",
+    "password": "पासवर्ड",
+    "changePassword": "अपना खाता पासवर्ड बदलें",
+    "dataExport": "डेटा निर्यात",
+    "downloadData": "अपना खाता डेटा डाउनलोड करें",
+    "accountActions": "खाता कार्य",
+    "resetAppData": "ऐप डेटा रीसेट करें",
+    "resetConfirm": "क्या आप वाकई सभी ऐप डेटा रीसेट करना चाहते हैं? इसे पूर्ववत नहीं किया जा सकता।",
+    "signOut": "साइन आउट करें",
+    "backToProfile": "← प्रोफ़ाइल पर वापस जाएं"
+  },
+  "emptyState": {
+    "signUpToGetStarted": "शुरू करने के लिए साइन अप करें",
+    "noGroupBuysYet": "अभी तक कोई समूह खरीदारी नहीं",
+    "noGroupBuysAvailable": "कोई समूह खरीदारी उपलब्ध नहीं",
+    "noErrandsAvailable": "कोई काम उपलब्ध नहीं",
+    "noOrdersYet": "अभी तक कोई ऑर्डर नहीं",
+    "noChatsYet": "अभी तक कोई चैट नहीं",
+    "noCreditHistoryYet": "अभी तक कोई क्रेडिट इतिहास नहीं",
+    "noBatchesYet": "अभी तक कोई क्षेत्रीय बैच नहीं",
+    "noBatchesAvailable": "कोई बैच उपलब्ध नहीं",
+    "nothingHereYet": "यहां अभी कुछ नहीं है",
+    "joinGroupBuyOrErrand": "समूह खरीदारी या काम में शामिल हों",
+    "joinGroupBuy": "समूह खरीदारी में शामिल हों",
+    "createListing": "लिस्टिंग बनाएं",
+    "browseListings": "लिस्टिंग ब्राउज़ करें"
+  },
+  "marketplace": {
+    "title": "क्षेत्रीय बाज़ार",
+    "tagline": "समुदाय थोक ऑर्डर",
+    "description": "क्षेत्र, मूल्य और वितरण विधि के अनुसार थोक सौदे खोजें",
+    "noListingsAvailable": "कोई लिस्टिंग उपलब्ध नहीं",
+    "noListingsMatchFilters": "कोई लिस्टिंग आपके फ़िल्टर से मेल नहीं खाती"
+  },
+  "credits": {
+    "title": "क्रेडिट",
+    "subtitle": "आपका खाता शेष",
+    "signUpToView": "क्रेडिट देखने के लिए साइन अप करें",
+    "noHistory": "अभी तक कोई क्रेडिट इतिहास नहीं"
+  },
+  "orders": {
+    "title": "विक्रेता ऑर्डर",
+    "noOrders": "अभी तक कोई ऑर्डर नहीं",
+    "willAppear": "एक बार ग्राहक आपकी लिस्टिंग के लिए ऑर्डर देते हैं, ऑर्डर यहां दिखाई देंगे।",
+    "loadingOrders": "ऑर्डर लोड हो रहे हैं...",
+    "markFulfilled": "पूर्ण के रूप में चिह्नित करें",
+    "updating": "अपडेट हो रहा है...",
+    "fulfilledSuccess": "ऑर्डर पूर्ण के रूप में चिह्नित किया गया",
+    "fulfilledError": "ऑर्डर को पूर्ण के रूप में चिह्नित करने में विफल"
+  },
+  "regionalBatch": {
+    "noBatchesYet": "अभी तक कोई क्षेत्रीय बैच नहीं।",
+    "addFirstBatch": "पहला बैच जोड़ें",
+    "region": "क्षेत्र",
+    "price": "मूल्य",
+    "locked": "(लॉक किया गया)",
+    "minimumQuantity": "न्यूनतम मात्रा",
+    "currentQuantity": "वर्तमान मात्रा",
+    "deliveryMethod": "वितरण विधि",
+    "cutoffDate": "कटऑफ तिथि",
+    "addNew": "नया क्षेत्रीय बैच जोड़ें",
+    "cancelBatch": "बैच रद्द करें",
+    "activateBatch": "बैच सक्रिय करें",
+    "batchCancelled": "बैच सफलतापूर्वक रद्द किया गया। ऑर्डर पर धनवापसी के लिए फ्लैग किया गया।",
+    "batchAdded": "क्षेत्रीय बैच सफलतापूर्वक जोड़ा गया!",
+    "batchActivated": "बैच सफलतापूर्वक सक्रिय किया गया! अब यह ऑर्डर स्वीकार कर रहा है।",
+    "fillRequiredFields": "कृपया सभी आवश्यक फ़ील्ड भरें"
+  },
+  "chat": {
+    "loadingChats": "चैट लोड हो रहे हैं...",
+    "noChats": "अभी तक कोई चैट नहीं",
+    "noMessages": "अभी तक कोई संदेश नहीं। बातचीत शुरू करें!",
+    "typeMessage": "संदेश टाइप करें...",
+    "send": "भेजें"
+  },
+  "regionSelector": {
+    "selectRegion": "क्षेत्र चुनें",
+    "demandProgress": "मांग प्रगति",
+    "daysRemaining": "{{count}} दिन शेष",
+    "daysRemainingPlural": "{{count}} दिन शेष",
+    "noBatchesAvailable": "इस लिस्टिंग के लिए कोई क्षेत्रीय बैच उपलब्ध नहीं है।"
+  },
   "settings": {
     "title": "सेटिंग्स",
     "account": {
@@ -47,7 +295,8 @@
       "displayName": "प्रदर्शन नाम",
       "email": "ईमेल",
       "profilePicture": "प्रोफ़ाइल चित्र",
-      "manageAccount": "खाता प्रबंधन"
+      "manageAccount": "खाता प्रबंधन",
+      "notSet": "सेट नहीं"
     },
     "language": {
       "title": "भाषा",
@@ -77,14 +326,26 @@
       "privacy": "गोपनीयता नीति"
     }
   },
-  "groupBuy": {
-    "join": "समूह खरीदारी में शामिल हों",
-    "viewDetails": "विवरण देखें",
-    "create": "समूह खरीदारी बनाएं"
+  "floatingAction": {
+    "createGroupBuy": "समूह खरीदारी बनाएं",
+    "postErrand": "काम पोस्ट करें",
+    "browseErrands": "काम ब्राउज़ करें",
+    "browseGroupBuys": "समूह खरीदारी ब्राउज़ करें"
   },
-  "errand": {
-    "post": "काम पोस्ट करें",
-    "create": "काम बनाएं"
+  "form": {
+    "validation": {
+      "required": "यह फ़ील्ड आवश्यक है",
+      "emailInvalid": "कृपया एक वैध ईमेल पता दर्ज करें",
+      "passwordMinLength": "पासवर्ड कम से कम 6 अक्षरों का होना चाहिए",
+      "passwordsDoNotMatch": "पासवर्ड मेल नहीं खाते"
+    },
+    "errors": {
+      "fixErrors": "कृपया फॉर्म में त्रुटियों को ठीक करें",
+      "waitSubmission": "कृपया प्रतीक्षा करें, सबमिशन प्रगति पर है..."
+    }
+  },
+  "checkout": {
+    "testMode": "टेस्ट मोड - कोई वास्तविक भुगतान नहीं",
+    "testModeDescription": "आप टेस्ट मोड में हैं। कोई वास्तविक भुगतान प्रसंस्कृत नहीं किया जाएगा। यह केवल विकास और परीक्षण के लिए है।"
   }
 }
-

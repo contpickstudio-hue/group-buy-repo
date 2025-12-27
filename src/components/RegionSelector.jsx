@@ -1,5 +1,7 @@
 import React from 'react';
 import { MapPin, Clock, Package } from 'lucide-react';
+import { t } from '../utils/translations';
+import { EmptyStateWithAction } from './EmptyState';
 
 /**
  * RegionSelector Component
@@ -14,9 +16,10 @@ const RegionSelector = ({
     if (!batches || batches.length === 0) {
         return (
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <p className="text-yellow-800 text-sm">
-                    No regional batches available for this listing.
-                </p>
+                <EmptyStateWithAction 
+                    type="batches"
+                    message={t('regionSelector.noBatchesAvailable')}
+                />
             </div>
         );
     }
@@ -36,7 +39,7 @@ const RegionSelector = ({
             {/* Region Selection */}
             <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Select Region
+                    {t('regionSelector.selectRegion')}
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {batches.map((batch) => {
@@ -97,7 +100,7 @@ const RegionSelector = ({
                     {/* Progress */}
                     <div>
                         <div className="flex items-center justify-between text-sm mb-1">
-                            <span className="text-gray-600">Demand Progress</span>
+                            <span className="text-gray-600">{t('regionSelector.demandProgress')}</span>
                             <span className="font-medium text-gray-900">
                                 {selectedBatch.currentQuantity} / {selectedBatch.minimumQuantity} units
                             </span>
@@ -124,7 +127,7 @@ const RegionSelector = ({
                             <span>
                                 {daysRemaining !== null && daysRemaining > 0 ? (
                                     <>
-                                        <strong className="text-gray-900">{daysRemaining}</strong> day{daysRemaining !== 1 ? 's' : ''} remaining
+                                        <strong className="text-gray-900">{daysRemaining}</strong> {daysRemaining !== 1 ? t('regionSelector.daysRemainingPlural', { count: daysRemaining }) : t('regionSelector.daysRemaining', { count: daysRemaining })}
                                         <span className="text-gray-500 ml-2">
                                             (until {cutoffDate.toLocaleDateString()})
                                         </span>

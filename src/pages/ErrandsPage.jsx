@@ -1,12 +1,17 @@
 import React, { useState, useMemo } from 'react';
-import { useErrands, useAddErrand, useUser, useUpdateErrandFilters, useAppStore } from '../stores';
+import { useErrands, useAddErrand, useUser, useUpdateErrandFilters, useAppStore, useAuthStore } from '../stores';
 import toast from 'react-hot-toast';
 import DateInput from '../components/DateInput';
+import { isGuestUser } from '../utils/authUtils';
+import SignUpCTA from '../components/SignUpCTA';
+import { EmptyStateWithAction } from '../components/EmptyState';
 
 const ErrandsPage = () => {
     // Hooks must be at top level - cannot be inside try-catch
     const errands = useErrands();
     const user = useUser();
+    const loginMethod = useAuthStore((state) => state.loginMethod);
+    const isGuest = isGuestUser(user, loginMethod);
     const addErrand = useAddErrand();
     const updateErrandFilters = useUpdateErrandFilters();
     
@@ -214,7 +219,10 @@ const ErrandsPage = () => {
             {/* Create Errand Form - Mobile optimized, single screen */}
             <div className="card mb-6 sm:mb-8 pb-24 sm:pb-6" data-testid="create-errand-form" data-coach-target="post-errand-form">
                 <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-gray-900">Post a New Errand</h3>
-                <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+                {isGuest ? (
+                    <SignUpCTA message="Sign up to post errands" />
+                ) : (
+                <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5 pb-24 sm:pb-6">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Title <span className="text-red-500">*</span>
@@ -320,6 +328,7 @@ const ErrandsPage = () => {
                         )}
                     </button>
                 </form>
+                )}
             </div>
 
             {/* Errands List */}
@@ -378,11 +387,20 @@ const ErrandsPage = () => {
                                     </div>
                                     <span className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap flex-shrink-0 ${
                                         errand.status === 'open' ? 'bg-green-100 text-green-800' :
-                                        errand.status === 'matched' ? 'bg-yellow-100 text-yellow-800' :
+                                        errand.status === 'assigned' ? 'bg-blue-100 text-blue-800' :
                                         errand.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
+                                        errand.status === 'awaiting_confirmation' ? 'bg-yellow-100 text-yellow-800' :
+                                        errand.status === 'completed' ? 'bg-purple-100 text-purple-800' :
+                                        errand.status === 'cancelled' ? 'bg-red-100 text-red-800' :
                                         'bg-gray-100 text-gray-800'
                                     }`}>
-                                        {errand.status}
+                                        {errand.status === 'open' ? 'Open' :
+                                         errand.status === 'assigned' ? 'Assigned' :
+                                         errand.status === 'in_progress' ? 'In Progress' :
+                                         errand.status === 'awaiting_confirmation' ? 'Awaiting Confirmation' :
+                                         errand.status === 'completed' ? 'Completed' :
+                                         errand.status === 'cancelled' ? 'Cancelled' :
+                                         errand.status}
                                     </span>
                                 </div>
                                 <div className="flex flex-col sm:flex-row gap-2 sm:justify-end pt-4 border-t border-gray-100">
@@ -394,24 +412,34 @@ const ErrandsPage = () => {
                                     >
                                         View Details
                                     </button>
-                                    {errand.status === 'open' && (
-                                        <button className="btn-primary text-sm sm:text-base py-3 w-full sm:w-auto min-h-[48px]">
+                                    {errand.status === 'open' && !errand.assignedHelperEmail && (
+                                        <button 
+                                            onClick={() => {
+                                                window.location.hash = `#errand/${errand.id}`;
+                                            }}
+                                            className="btn-primary text-sm sm:text-base py-3 w-full sm:w-auto min-h-[48px]"
+                                        >
                                             Apply to Help
                                         </button>
                                     )}
+                                    {errand.status === 'assigned' || errand.status === 'in_progress' || (errand.assignedHelperEmail && errand.status !== 'completed' && errand.status !== 'cancelled') ? (
+                                        <span className="text-sm text-gray-600 flex items-center gap-1">
+                                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                                            </svg>
+                                            Locked
+                                        </span>
+                                    ) : null}
                                 </div>
                             </div>
                         ))}
                     </div>
                 ) : (
-                    <div className="card-empty text-center animate-fade-in">
-                        <div className="text-6xl mb-4">🤝</div>
-                        <h3 className="text-xl font-semibold text-gray-700 mb-2">
-                            No errands available
-                        </h3>
-                        <p className="text-gray-500 text-sm sm:text-base">
-                            Be the first to post one!
-                        </p>
+                    <div className="card-empty animate-fade-in">
+                        <EmptyStateWithAction 
+                            type="errands"
+                            message="No errands available"
+                        />
                     </div>
                 )}
             </div>

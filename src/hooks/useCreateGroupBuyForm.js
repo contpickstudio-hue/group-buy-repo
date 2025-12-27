@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useCreateProduct } from '../stores';
+import { useCreateProduct, useUser, useAuthStore } from '../stores';
+import { hasRole } from '../utils/authUtils';
 import toast from 'react-hot-toast';
 
 /**
@@ -48,6 +49,15 @@ const useCreateGroupBuyForm = () => {
         // Prevent duplicate submissions - early return with visual feedback
         if (isSubmitting) {
             toast.error('Please wait, submission in progress...', { duration: 2000 });
+            return;
+        }
+
+        // Enforce vendor role at hook level - additional security check
+        const user = useUser();
+        if (!user || !hasRole(user, 'vendor')) {
+            const errorMsg = 'Only users with vendor role can create group buys. Please upgrade your account.';
+            setError(errorMsg);
+            toast.error(errorMsg, { duration: 5000 });
             return;
         }
         

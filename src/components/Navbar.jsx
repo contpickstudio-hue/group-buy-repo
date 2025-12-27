@@ -1,10 +1,10 @@
 import React from 'react';
-import { useUser, useSignOut, useCurrentScreen, useSetCurrentScreen } from '../stores';
+import { useUser, useSignOut, useCurrentScreen, useSetCurrentScreen, useAuthStore } from '../stores';
 import NotificationIcon from './NotificationIcon';
 import ChatIcon from './ChatIcon';
 import LanguageDropdown from './LanguageDropdown';
 import { useTranslation } from '../contexts/TranslationProvider';
-import { isAdmin } from '../utils/authUtils';
+import { isAdmin, getUserDisplayName } from '../utils/authUtils';
 
 const Navbar = () => {
     const user = useUser();
@@ -12,6 +12,9 @@ const Navbar = () => {
     const handleSignOut = useSignOut();
     const setCurrentScreen = useSetCurrentScreen();
     const { t } = useTranslation();
+    const loginMethod = useAuthStore((state) => state.loginMethod);
+    const isDevelopment = import.meta.env.DEV;
+    const displayName = getUserDisplayName(user, loginMethod);
 
     const handleNavigation = (screen) => {
         setCurrentScreen(screen);
@@ -94,11 +97,11 @@ const Navbar = () => {
                                 <div className="flex items-center gap-1.5 sm:gap-2">
                                     <div className="avatar-circle w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center shadow-md ring-2 ring-white min-w-[36px] min-h-[36px] sm:min-w-[40px] sm:min-h-[40px]">
                                         <span className="text-sm sm:text-base font-bold text-white">
-                                            {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                                            {displayName ? displayName.charAt(0).toUpperCase() : 'U'}
                                         </span>
                                     </div>
                                     <div className="hidden sm:block">
-                                        <div className="text-sm font-semibold text-gray-900">{user.name}</div>
+                                        <div className="text-sm font-semibold text-gray-900">{displayName}</div>
                                         <div className="flex flex-wrap gap-1 mt-0.5">
                                             {user.roles?.map(role => (
                                                 <span
@@ -124,12 +127,14 @@ const Navbar = () => {
 
                                 {/* Action Buttons - Mobile optimized with consistent spacing */}
                                 <div className="flex items-center gap-1.5 sm:gap-2">
-                                    <button
-                                        onClick={() => window.location.reload()}
-                                        className="btn-reset hidden sm:inline-flex px-3 py-2 text-sm min-h-[44px] min-w-[44px]"
-                                    >
-                                        {t('common.reset') || 'Reset'}
-                                    </button>
+                                    {isDevelopment && (
+                                        <button
+                                            onClick={() => window.location.reload()}
+                                            className="btn-reset hidden sm:inline-flex px-3 py-2 text-sm min-h-[44px] min-w-[44px]"
+                                        >
+                                            {t('common.reset') || 'Reset'}
+                                        </button>
+                                    )}
                                     <button
                                         onClick={handleLogout}
                                         className="btn-primary px-3 sm:px-4 py-2 text-xs sm:text-sm min-h-[44px] min-w-[44px]"

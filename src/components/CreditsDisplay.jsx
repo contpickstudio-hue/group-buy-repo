@@ -9,6 +9,7 @@ import {
 import { useAuthStore } from '../stores/authStore';
 import { useUser } from '../stores';
 import { isGuestUser } from '../utils/authUtils';
+import { t } from '../utils/translations';
 
 /**
  * CreditsDisplay Component
@@ -37,7 +38,7 @@ const CreditsDisplay = ({ showHistory = true, compact = false }) => {
     return (
       <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg border border-gray-200">
         <Gift size={18} className="text-gray-400" />
-        <span className="text-sm text-gray-500">Sign up to view credits</span>
+        <span className="text-sm text-gray-500">{t('credits.signUpToView')}</span>
       </div>
     );
   }
@@ -98,8 +99,8 @@ const CreditsDisplay = ({ showHistory = true, compact = false }) => {
           <DollarSign size={24} className="text-green-600" />
         </div>
         <div>
-          <h3 className="text-xl font-semibold">Credits</h3>
-          <p className="text-sm text-gray-600">Your account balance</p>
+          <h3 className="text-xl font-semibold">{t('credits.title')}</h3>
+          <p className="text-sm text-gray-600">{t('credits.subtitle')}</p>
         </div>
       </div>
 
@@ -156,10 +157,10 @@ const CreditsDisplay = ({ showHistory = true, compact = false }) => {
       )}
 
       {showHistory && (!creditsHistory || creditsHistory.length === 0) && (
-        <div className="text-center py-8 text-gray-500">
-          <Clock size={48} className="mx-auto mb-2 opacity-50" />
-          <p>No credit history yet</p>
-        </div>
+        <EmptyStateWithAction 
+          type="credits"
+          message="No credit history yet"
+        />
       )}
     </div>
   );

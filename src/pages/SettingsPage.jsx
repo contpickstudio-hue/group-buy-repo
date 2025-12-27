@@ -11,6 +11,7 @@ import MobileHeader from '../components/mobile/MobileHeader';
 import NotificationIcon from '../components/NotificationIcon';
 import { signOut as supabaseSignOut } from '../services/supabaseService';
 import toast from 'react-hot-toast';
+import { getUserDisplayName } from '../utils/authUtils';
 
 const SettingsPage = () => {
     const user = useUser();
@@ -18,7 +19,8 @@ const SettingsPage = () => {
     const setCurrentScreen = useSetCurrentScreen();
     const updateGroupBuyFilters = useUpdateGroupBuyFilters();
     const updateErrandFilters = useUpdateErrandFilters();
-    
+    const loginMethod = useAuthStore((state) => state.loginMethod);
+    const displayName = getUserDisplayName(user, loginMethod);
     const { currentLanguage, setLanguage } = useTranslation();
     const [preferredRegion, setPreferredRegion] = useState(() => {
         try {
@@ -189,7 +191,7 @@ const SettingsPage = () => {
                         <div className="flex items-center space-x-4">
                             <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
                                 <span className="text-2xl font-bold text-white">
-                                    {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                                    {displayName ? displayName.charAt(0).toUpperCase() : 'U'}
                                 </span>
                             </div>
                             <button className="btn-secondary text-sm min-h-[44px]">
@@ -204,7 +206,7 @@ const SettingsPage = () => {
                             {t('settings.account.displayName')}
                         </label>
                         <div className="flex items-center justify-between">
-                            <span className="text-gray-900">{user.name || 'Not set'}</span>
+                            <span className="text-gray-900">{displayName || 'Not set'}</span>
                             <button className="text-blue-600 hover:text-blue-700 font-medium text-sm min-h-[44px] px-3">
                                 {t('common.edit')}
                             </button>

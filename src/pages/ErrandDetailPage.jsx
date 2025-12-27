@@ -140,11 +140,12 @@ const ErrandDetailPage = () => {
     const isExpired = daysLeft !== null && daysLeft <= 0;
     const isCompleted = errand.status === 'completed';
     const isCancelled = errand.status === 'cancelled';
-    const isAssigned = errand.status === 'assigned' || errand.status === 'in_progress';
+    const isAssigned = errand.status === 'assigned' || errand.status === 'in_progress' || errand.assignedHelperEmail;
     const isAwaitingConfirmation = errand.status === 'awaiting_confirmation';
+    const isLocked = errand.assignedHelperEmail || errand.status === 'assigned' || errand.status === 'in_progress' || errand.status === 'awaiting_confirmation' || errand.status === 'completed';
     const isAssignedHelper = user && errand.assignedHelperEmail && 
         (errand.assignedHelperEmail === user.email || errand.assignedHelperEmail === user.id);
-    const canApply = !isMyErrand && !isAssigned && !isCompleted && !isCancelled && !myApplication;
+    const canApply = !isMyErrand && !isLocked && !isCompleted && !isCancelled && !myApplication && errand.status === 'open';
     const maxActive = getMaxActiveErrandsPerHelper();
     const canApplyDueToLimit = helperActiveCount === null || helperActiveCount < maxActive;
 

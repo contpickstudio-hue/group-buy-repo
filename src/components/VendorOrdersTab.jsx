@@ -140,7 +140,7 @@ const VendorOrdersTab = () => {
       if (result.success) {
         toast.success('Order marked as fulfilled');
       } else {
-        throw new Error(result.error || 'Failed to update order');
+        throw new Error(result.error || 'Failed to mark order as fulfilled');
       }
     } catch (error) {
       toast.error(error.message || 'Failed to mark order as fulfilled');
@@ -207,12 +207,11 @@ const VendorOrdersTab = () => {
     return (
       <div className="p-4">
         <h2 className="text-xl font-bold mb-4">Vendor Orders</h2>
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
-          <Package size={48} className="mx-auto text-gray-400 mb-4" />
-          <p className="text-gray-600 mb-2">No orders yet</p>
-          <p className="text-sm text-gray-500">
-            Orders will appear here once customers place orders for your listings.
-          </p>
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-8">
+          <EmptyStateWithAction 
+            type="orders"
+            type="orders"
+          />
         </div>
       </div>
     );
@@ -294,91 +293,102 @@ const VendorOrdersTab = () => {
                       No orders for this batch
                     </div>
                   ) : (
-                    <div className="divide-y divide-gray-200">
-                      {group.orders.map((order) => {
-                        const isFulfilled = order.fulfillmentStatus === 'fulfilled';
-                        const isUpdating = updatingOrders.has(order.id);
-                        
-                        return (
-                          <div 
-                            key={order.id} 
-                            className={`p-4 ${isFulfilled ? 'bg-green-50' : 'bg-white'}`}
-                          >
-                            <div className="flex items-start justify-between gap-4">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <h4 className="font-medium text-gray-900">
-                                    {order.customerName || order.customerEmail || 'Customer'}
-                                  </h4>
-                                  {isFulfilled && (
-                                    <CheckCircle size={16} className="text-green-600" />
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Buyer
+                            </th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Quantity
+                            </th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Total Price
+                            </th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Status
+                            </th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Payment
+                            </th>
+                            <th scope="col" className="relative px-6 py-3">
+                              <span className="sr-only">Actions</span>
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {group.orders.map((order) => {
+                            const isFulfilled = order.fulfillmentStatus === 'fulfilled';
+                            const isUpdating = updatingOrders.has(order.id);
+                            
+                            return (
+                              <tr key={order.id} className={isFulfilled ? 'bg-green-50' : ''}>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <div className="flex items-center gap-2">
+                                    <h4 className="text-sm font-medium text-gray-900">
+                                      {order.customerName || order.customerEmail?.split('@')[0] || 'Customer'}
+                                    </h4>
+                                    {isFulfilled && (
+                                      <CheckCircle size={16} className="text-green-600" />
+                                    )}
+                                  </div>
+                                  {order.createdAt && (
+                                    <div className="text-xs text-gray-500 mt-1">
+                                      {new Date(order.createdAt).toLocaleDateString()}
+                                    </div>
                                   )}
-                                </div>
-                                
-                                <div className="grid grid-cols-2 gap-2 text-sm mb-2">
-                                  <div>
-                                    <span className="text-gray-600">Quantity:</span>
-                                    <span className="ml-2 font-medium text-gray-900">
-                                      {order.quantity || 1}
-                                    </span>
-                                  </div>
-                                  <div>
-                                    <span className="text-gray-600">Total:</span>
-                                    <span className="ml-2 font-medium text-gray-900">
-                                      ${parseFloat(order.totalPrice || order.total || 0).toFixed(2)}
-                                    </span>
-                                  </div>
-                                </div>
-                                
-                                <div className="flex flex-wrap gap-2 mt-2">
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                  {order.quantity || 1}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                  ${parseFloat(order.totalPrice || order.total || 0).toFixed(2)}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
                                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${getFulfillmentStatusColor(order.fulfillmentStatus)}`}>
                                     {getFulfillmentStatusLabel(order.fulfillmentStatus)}
                                   </span>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
                                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPaymentStatusColor(order.paymentStatus)}`}>
                                     {order.paymentStatus === 'authorized' ? 'In Escrow' : 
                                      order.paymentStatus === 'paid' ? 'Paid' :
                                      order.paymentStatus === 'refunded' ? 'Refunded' :
                                      order.paymentStatus || 'Pending'}
                                   </span>
-                                </div>
-                                
-                                {order.createdAt && (
-                                  <div className="text-xs text-gray-500 mt-2">
-                                    Ordered: {new Date(order.createdAt).toLocaleDateString()}
-                                  </div>
-                                )}
-                              </div>
-                              
-                              {!isFulfilled && (
-                                <button
-                                  onClick={() => handleMarkFulfilled(order.id)}
-                                  disabled={isUpdating}
-                                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium flex items-center gap-2 whitespace-nowrap"
-                                >
-                                  {isUpdating ? (
-                                    <>
-                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                                      Updating...
-                                    </>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                  {!isFulfilled ? (
+                                    <button
+                                      onClick={() => handleMarkFulfilled(order.id)}
+                                      disabled={isUpdating}
+                                      className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium flex items-center gap-2 whitespace-nowrap"
+                                    >
+                                      {isUpdating ? (
+                                        <>
+                                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                          Updating...
+                                        </>
+                                      ) : (
+                                        <>
+                                          <CheckCircle size={16} />
+                                          Mark Fulfilled
+                                        </>
+                                      )}
+                                    </button>
                                   ) : (
-                                    <>
+                                    <div className="px-4 py-2 bg-green-100 text-green-800 rounded-md text-sm font-medium flex items-center gap-2 whitespace-nowrap">
                                       <CheckCircle size={16} />
-                                      Mark Fulfilled
-                                    </>
+                                      Fulfilled
+                                    </div>
                                   )}
-                                </button>
-                              )}
-                              
-                              {isFulfilled && (
-                                <div className="px-4 py-2 bg-green-100 text-green-800 rounded-md text-sm font-medium flex items-center gap-2 whitespace-nowrap">
-                                  <CheckCircle size={16} />
-                                  Fulfilled
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
                     </div>
                   )}
                 </div>

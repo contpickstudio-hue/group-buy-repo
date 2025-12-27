@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { MessageCircle, ShoppingBag, Briefcase, Loader2 } from 'lucide-react';
 import { useChatThreads, useLoadChatThreads, useGetUnreadCount, useSetActiveThread, useSetCurrentScreen, useChatLoading } from '../stores';
+import { t } from '../utils/translations';
+import { EmptyStateWithAction } from './EmptyState';
 
 /**
  * ChatList Component
@@ -62,7 +64,7 @@ const ChatList = ({ onSelectChat }) => {
     return (
       <div className="flex flex-col items-center justify-center p-8 h-full min-h-[300px] text-center">
         <Loader2 size={48} className="mx-auto text-blue-600 animate-spin mb-4" />
-        <p className="text-gray-600 text-sm">Loading chats...</p>
+        <p className="text-gray-600 text-sm">{t('chat.loadingChats')}</p>
       </div>
     );
   }
@@ -70,54 +72,14 @@ const ChatList = ({ onSelectChat }) => {
   // Show empty state when no chats (after loading is complete)
   if (threads.length === 0 && hasLoaded) {
     return (
-      <div className="flex flex-col items-center justify-center p-8 h-full min-h-[300px] text-center">
-        <div className="mb-6">
-          <MessageCircle size={64} className="mx-auto text-gray-300" />
-        </div>
-        <h3 className="text-lg font-semibold text-gray-700 mb-2">
-          No chats yet
-        </h3>
-        <p className="text-gray-500 max-w-sm mb-6">
-          Chats will appear once you join a group buy or errand
-        </p>
-        
-        {/* Action Buttons */}
-        <div className="flex flex-col gap-3 w-full max-w-sm">
-          <button
-            onClick={() => {
-              setCurrentScreen('groupbuys');
-              if (onSelectChat) {
-                // Close the chat panel if callback is available
-                onSelectChat(null);
-              }
-            }}
-            className="flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-          >
-            <ShoppingBag size={20} />
-            <span>Browse Group Buys</span>
-          </button>
-          <button
-            onClick={() => {
-              setCurrentScreen('errands');
-              if (onSelectChat) {
-                // Close the chat panel if callback is available
-                onSelectChat(null);
-              }
-            }}
-            className="flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
-          >
-            <Briefcase size={20} />
-            <span>Browse Errands</span>
-          </button>
-        </div>
-        
-        <div className="mt-6 p-4 bg-blue-50 rounded-lg max-w-sm">
-          <p className="text-sm text-blue-800">
-            💡 <strong>Tip:</strong> Join a group buy or post an errand to start chatting with other community members!
-          </p>
-        </div>
+      <div className="flex flex-col items-center justify-center p-8 h-full min-h-[300px]">
+        <EmptyStateWithAction 
+          type="chats"
+          message="No chats yet"
+        />
       </div>
     );
+  }
   }
 
   return (

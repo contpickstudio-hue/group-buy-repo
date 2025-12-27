@@ -46,12 +46,12 @@ const LanguageDropdown = () => {
         <div className="relative" ref={dropdownRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors min-h-[44px] min-w-[44px]"
+                className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-2.5 sm:py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors min-h-[48px] min-w-[48px] sm:min-h-[44px] sm:min-w-[44px] touch-manipulation"
                 aria-label={t('common.language') || 'Language'}
                 aria-expanded={isOpen}
                 aria-haspopup="true"
             >
-                <Globe size={18} className="text-gray-600" />
+                <Globe size={18} className="text-gray-600 flex-shrink-0" />
                 <span className="hidden sm:inline text-sm font-medium">
                     {currentLang.flag} {currentLang.nativeName}
                 </span>
@@ -61,20 +61,20 @@ const LanguageDropdown = () => {
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-                    <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase border-b border-gray-100">
+                <div className="absolute right-0 mt-2 w-56 sm:w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 max-h-[80vh] overflow-y-auto">
+                    <div className="px-3 py-2.5 text-xs font-semibold text-gray-500 uppercase border-b border-gray-100 sticky top-0 bg-white">
                         {t('common.selectLanguage') || 'Select Language'}
                     </div>
                     {availableLanguages.map((lang) => (
                         <button
                             key={lang.code}
                             onClick={() => handleLanguageChange(lang.code)}
-                            className={`w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-50 transition-colors ${
+                            className={`w-full flex items-center justify-between px-4 py-4 sm:py-3 text-left hover:bg-gray-50 active:bg-gray-100 transition-colors min-h-[56px] sm:min-h-[48px] touch-manipulation ${
                                 lang.code === currentLanguage ? 'bg-blue-50' : ''
                             }`}
                         >
                             <div className="flex items-center gap-3">
-                                <span className="text-lg">{lang.flag}</span>
+                                <span className="text-lg flex-shrink-0">{lang.flag}</span>
                                 <div className="flex flex-col">
                                     <span className="text-sm font-medium text-gray-900">
                                         {lang.nativeName}
@@ -85,7 +85,7 @@ const LanguageDropdown = () => {
                                 </div>
                             </div>
                             {lang.code === currentLanguage && (
-                                <Check size={18} className="text-blue-600" />
+                                <Check size={18} className="text-blue-600 flex-shrink-0" />
                             )}
                         </button>
                     ))}

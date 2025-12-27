@@ -307,27 +307,32 @@ export const createRegionalBatchSlice = (set, get) => ({
                     const listing = appStore.listings?.find(l => l.id === batch?.listingId);
                     const batchOrders = appStore.orders?.filter(o => String(o.regionalBatchId) === String(batchId)) || [];
                     
+                    // Notify vendor and buyers using notification service (targeted per user)
+                    const { createNotification } = await import('../services/notificationService');
+                    
                     // Notify vendor
-                    if (listing?.ownerEmail && appStore.addNotification) {
-                        appStore.addNotification({
-                            type: status === 'successful' ? 'success' : 'warning',
-                            title: status === 'successful' ? 'Group Buy Successful!' : 'Group Buy Failed',
-                            message: `"${listing.title}" in ${batch.region} ${status === 'successful' ? 'reached its target!' : 'did not reach its target.'}`,
-                            data: { type: 'group_buy_status', listingId: listing.id, batchId, status }
-                        });
+                    if (listing?.ownerEmail) {
+                        await createNotification(
+                            listing.ownerEmail,
+                            status === 'successful' ? 'success' : 'warning',
+                            `"${listing.title}" in ${batch.region} ${status === 'successful' ? 'reached its target!' : 'did not reach its target.'}`,
+                            status === 'successful' ? 'Group Buy Successful!' : 'Group Buy Failed',
+                            { type: 'group_buy_status', listingId: listing.id, batchId, status }
+                        );
                     }
                     
                     // Notify buyers
-                    batchOrders.forEach(order => {
-                        if (order.customerEmail && order.customerEmail !== listing?.ownerEmail && appStore.addNotification) {
-                            appStore.addNotification({
-                                type: status === 'successful' ? 'success' : 'warning',
-                                title: status === 'successful' ? 'Group Buy Successful!' : 'Group Buy Failed',
-                                message: `"${listing.title}" in ${batch.region} ${status === 'successful' ? 'succeeded! Your order will be processed.' : 'failed. You will be refunded.'}`,
-                                data: { type: 'group_buy_status', listingId: listing.id, batchId, orderId: order.id, status }
-                            });
+                    for (const order of batchOrders) {
+                        if (order.customerEmail && order.customerEmail !== listing?.ownerEmail) {
+                            await createNotification(
+                                order.customerEmail,
+                                status === 'successful' ? 'success' : 'warning',
+                                `"${listing.title}" in ${batch.region} ${status === 'successful' ? 'succeeded! Your order will be processed.' : 'failed. You will be refunded.'}`,
+                                status === 'successful' ? 'Group Buy Successful!' : 'Group Buy Failed',
+                                { type: 'group_buy_status', listingId: listing.id, batchId, orderId: order.id, status }
+                            );
                         }
-                    });
+                    }
                 }
                 
                 return { success: true };

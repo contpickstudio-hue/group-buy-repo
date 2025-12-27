@@ -8,6 +8,7 @@
     "profile": "Profile",
     "settings": "Settings",
     "logout": "Logout",
+    "login": "Login",
     "save": "Save",
     "cancel": "Cancel",
     "back": "Back",
@@ -16,6 +17,7 @@
     "done": "Done",
     "change": "Change",
     "edit": "Edit",
+    "delete": "Delete",
     "signUp": "Sign Up",
     "loginSignUp": "Login / Sign Up",
     "reset": "Reset",
@@ -24,7 +26,25 @@
     "appName": "Korean Community Commerce",
     "appNameShort": "KCC",
     "language": "Language",
-    "selectLanguage": "Select Language"
+    "selectLanguage": "Select Language",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning",
+    "close": "Close",
+    "submit": "Submit",
+    "search": "Search",
+    "filter": "Filter",
+    "clear": "Clear",
+    "apply": "Apply",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No",
+    "optional": "Optional",
+    "required": "Required",
+    "requiredField": "Required",
+    "guest": "Guest",
+    "user": "User"
   },
   "onboarding": {
     "screen1": {
@@ -48,6 +68,226 @@
       "details": "Sign up to start saving and connecting with neighbors."
     }
   },
+  "start": {
+    "hero": {
+      "tagline": "Korean Community Commerce Platform",
+      "title": "Connect, Shop, & Save Together",
+      "description": "Join group buys, request errands, and build a stronger Korean community in your area."
+    },
+    "getStarted": "Get Started",
+    "browseMarketplace": "Browse Marketplace",
+    "featuredGroupBuys": "Featured Group Buys",
+    "openErrands": "Open Errands",
+    "viewMore": "View more",
+    "viewAll": "View all"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signInWithGoogle": "Sign in with Google",
+    "signUpWithGoogle": "Sign up with Google",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "confirmPassword": "Confirm Password",
+    "alreadyHaveAccount": "Already have an account?",
+    "dontHaveAccount": "Don't have an account?",
+    "forgotPassword": "Forgot password?",
+    "accountCreated": "Account created successfully!",
+    "welcomeBack": "Welcome back!",
+    "redirectingGoogle": "Redirecting to Google...",
+    "signUpToContinue": "Sign up to continue",
+    "signUpToAccess": "Create an account to access this feature and join our community.",
+    "authenticationFailed": "Authentication failed. Please try again.",
+    "googleSignInFailed": "Google sign in failed. Please check if Google OAuth is enabled in your Supabase project.",
+    "checkEmailVerification": "Account created successfully! Please check your email for verification before signing in."
+  },
+  "groupBuy": {
+    "join": "Join Group Buy",
+    "viewDetails": "View Details",
+    "create": "Create Group Buy",
+    "createTitle": "Create Group Buy",
+    "productTitle": "Product Title",
+    "productTitlePlaceholder": "e.g., Premium Korean Strawberries",
+    "pricePerUnit": "Price per Unit ($)",
+    "description": "Description",
+    "descriptionPlaceholder": "Describe your product...",
+    "region": "Region",
+    "targetQuantity": "Target Quantity",
+    "deadline": "Deadline",
+    "image": "Image (Optional)",
+    "uploadImage": "Upload a product image (optional)",
+    "location": "Location (for map discovery)",
+    "locationHelp": "Adding a location helps users find your group buy on the map",
+    "useCurrentLocation": "Use Current Location",
+    "searchAddress": "Search Address",
+    "enterAddress": "Enter address...",
+    "getCurrentLocation": "Get Current Location",
+    "gettingLocation": "Getting location...",
+    "searching": "Searching...",
+    "locationSet": "Location set successfully",
+    "locationFound": "Location found: {{address}}",
+    "locationError": "Could not get location: {{error}}",
+    "addressError": "Could not find address: {{error}}",
+    "enterAddressError": "Please enter an address",
+    "locationSetLabel": "✓ Location set: {{lat}}, {{lng}}",
+    "creating": "Creating Group Buy...",
+    "submittingForm": "Submitting form...",
+    "noGroupBuysYet": "No group buys yet",
+    "noGroupBuysAvailable": "No group buys available",
+    "createFirstOne": "Create the first one",
+    "browseMarketplace": "Browse marketplace",
+    "noFeaturedYet": "No featured group buys yet",
+    "accessDenied": "Access Denied",
+    "vendorRoleRequired": "Only users with vendor role can create group buys.",
+    "signUpToCreate": "Sign up to create group buys",
+    "vendorRoleRequiredTitle": "Vendor Role Required",
+    "vendorRoleDescription": "Creating group buys is available to vendors only. Upgrade your account to start organizing group purchases for your community.",
+    "upgradeToVendor": "Upgrade to Vendor"
+  },
+  "errand": {
+    "post": "Post Errand",
+    "create": "Create Errand",
+    "postNew": "Post a New Errand",
+    "title": "Title",
+    "titlePlaceholder": "e.g., Weekly H-Mart Grocery Run",
+    "description": "Description",
+    "descriptionPlaceholder": "Describe what you need help with...",
+    "budget": "Budget ($)",
+    "deadline": "Deadline",
+    "region": "Region",
+    "postSuccess": "Errand posted successfully!",
+    "postError": "Failed to post errand. Please try again.",
+    "signInToPost": "Please sign in to post an errand",
+    "noErrandsAvailable": "No errands available",
+    "postErrand": "Post an errand",
+    "browseErrands": "Browse errands",
+    "signUpToPost": "Sign up to post errands"
+  },
+  "dashboard": {
+    "welcome": "Welcome, {{name}}",
+    "subtitle": "Track tasks, payouts, and requests in one place.",
+    "overview": "Overview",
+    "orders": "Orders",
+    "analytics": "Analytics",
+    "payoutSettings": "Payout Settings",
+    "yourAccount": "Your Account",
+    "roles": "Roles",
+    "helperStatus": "Helper Status",
+    "verified": "Verified ✅",
+    "pendingVerification": "Pending Verification",
+    "totalSavings": "Total Savings",
+    "totalEarnings": "Total Earnings",
+    "groupBuysJoined": "Group Buys Joined",
+    "errandsCompleted": "Errands Completed",
+    "quickActions": "Quick Actions",
+    "activeGroupBuys": "Active Group Buys",
+    "activeErrands": "Active Errands",
+    "noActiveGroupBuys": "No active group buys yet",
+    "noActiveErrands": "No active errands yet",
+    "completedItems": "Completed Items"
+  },
+  "profile": {
+    "title": "My Profile",
+    "subtitle": "Manage your account and preferences",
+    "accountSettings": "Account Settings",
+    "displayName": "Display Name",
+    "emailAddress": "Email Address",
+    "userRoles": "User Roles",
+    "myOrders": "My Orders",
+    "viewOrderHistory": "View your order history",
+    "viewOrders": "View Orders",
+    "openSettings": "Open Settings",
+    "managePreferences": "Manage your preferences",
+    "language": "Language",
+    "communityContribution": "Community Contribution",
+    "referrals": "Referrals",
+    "credits": "Credits",
+    "helperProfile": "Helper Profile",
+    "updateHelperProfile": "Update Helper Profile",
+    "helperVerification": "Complete your helper verification to start accepting errands.",
+    "privacySecurity": "Privacy & Security",
+    "password": "Password",
+    "changePassword": "Change your account password",
+    "dataExport": "Data Export",
+    "downloadData": "Download your account data",
+    "accountActions": "Account Actions",
+    "resetAppData": "Reset App Data",
+    "resetConfirm": "Are you sure you want to reset all app data? This cannot be undone.",
+    "signOut": "Sign Out",
+    "backToProfile": "← Back to Profile"
+  },
+  "emptyState": {
+    "signUpToGetStarted": "Sign up to get started",
+    "noGroupBuysYet": "No group buys yet",
+    "noGroupBuysAvailable": "No group buys available",
+    "noErrandsAvailable": "No errands available",
+    "noOrdersYet": "No orders yet",
+    "noChatsYet": "No chats yet",
+    "noCreditHistoryYet": "No credit history yet",
+    "noBatchesYet": "No regional batches yet",
+    "noBatchesAvailable": "No batches available",
+    "nothingHereYet": "Nothing here yet",
+    "joinGroupBuyOrErrand": "Join a group buy or errand",
+    "joinGroupBuy": "Join a group buy",
+    "createListing": "Create a listing",
+    "browseListings": "Browse listings"
+  },
+  "marketplace": {
+    "title": "Regional Marketplace",
+    "tagline": "Community bulk orders",
+    "description": "Find bulk deals by region, price, and delivery method",
+    "noListingsAvailable": "No listings available",
+    "noListingsMatchFilters": "No listings match your filters"
+  },
+  "credits": {
+    "title": "Credits",
+    "subtitle": "Your account balance",
+    "signUpToView": "Sign up to view credits",
+    "noHistory": "No credit history yet"
+  },
+  "orders": {
+    "title": "Vendor Orders",
+    "noOrders": "No orders yet",
+    "willAppear": "Orders will appear here once customers place orders for your listings.",
+    "loadingOrders": "Loading orders...",
+    "markFulfilled": "Mark as Fulfilled",
+    "updating": "Updating...",
+    "fulfilledSuccess": "Order marked as fulfilled",
+    "fulfilledError": "Failed to mark order as fulfilled"
+  },
+  "regionalBatch": {
+    "noBatchesYet": "No regional batches yet.",
+    "addFirstBatch": "Add First Batch",
+    "region": "Region",
+    "price": "Price",
+    "locked": "(Locked)",
+    "minimumQuantity": "Minimum Quantity",
+    "currentQuantity": "Current Quantity",
+    "deliveryMethod": "Delivery Method",
+    "cutoffDate": "Cutoff Date",
+    "addNew": "Add New Regional Batch",
+    "cancelBatch": "Cancel Batch",
+    "activateBatch": "Activate Batch",
+    "batchCancelled": "Batch cancelled successfully. Orders flagged for refund.",
+    "batchAdded": "Regional batch added successfully!",
+    "batchActivated": "Batch activated successfully! It is now accepting orders.",
+    "fillRequiredFields": "Please fill in all required fields"
+  },
+  "chat": {
+    "loadingChats": "Loading chats...",
+    "noChats": "No chats yet",
+    "noMessages": "No messages yet. Start the conversation!",
+    "typeMessage": "Type a message...",
+    "send": "Send"
+  },
+  "regionSelector": {
+    "selectRegion": "Select Region",
+    "demandProgress": "Demand Progress",
+    "daysRemaining": "{{count}} day remaining",
+    "daysRemainingPlural": "{{count}} days remaining",
+    "noBatchesAvailable": "No regional batches available for this listing."
+  },
   "settings": {
     "title": "Settings",
     "account": {
@@ -55,7 +295,8 @@
       "displayName": "Display Name",
       "email": "Email",
       "profilePicture": "Profile Picture",
-      "manageAccount": "Manage Account"
+      "manageAccount": "Manage Account",
+      "notSet": "Not set"
     },
     "language": {
       "title": "Language",
@@ -85,14 +326,26 @@
       "privacy": "Privacy Policy"
     }
   },
-  "groupBuy": {
-    "join": "Join Group Buy",
-    "viewDetails": "View Details",
-    "create": "Create Group Buy"
+  "floatingAction": {
+    "createGroupBuy": "Create Group Buy",
+    "postErrand": "Post Errand",
+    "browseErrands": "Browse Errands",
+    "browseGroupBuys": "Browse Group Buys"
   },
-  "errand": {
-    "post": "Post Errand",
-    "create": "Create Errand"
+  "form": {
+    "validation": {
+      "required": "This field is required",
+      "emailInvalid": "Please enter a valid email address",
+      "passwordMinLength": "Password must be at least 6 characters",
+      "passwordsDoNotMatch": "Passwords do not match"
+    },
+    "errors": {
+      "fixErrors": "Please fix the errors in the form",
+      "waitSubmission": "Please wait, submission in progress..."
+    }
+  },
+  "checkout": {
+    "testMode": "TEST MODE - NO REAL PAYMENTS",
+    "testModeDescription": "You are in test mode. No real payments will be processed. This is for development and testing only."
   }
 }
-

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useProducts, useErrands, useSetCurrentScreen } from '../stores';
+import { EmptyStateWithAction } from '../components/EmptyState';
 
 const BrowsePage = () => {
     const products = useProducts();
@@ -106,14 +107,11 @@ const BrowsePage = () => {
                         ))}
                     </div>
                 ) : (
-                    <div className="card-empty text-center">
-                        <div className="text-6xl mb-4">🛒</div>
-                        <h3 className="text-xl font-semibold text-gray-700 mb-2">
-                            No featured group buys yet
-                        </h3>
-                        <p className="text-gray-500 text-sm sm:text-base">
-                            Vendors can add products from the dashboard.
-                        </p>
+                    <div className="card-empty">
+                        <EmptyStateWithAction 
+                            type="groupbuys"
+                            message="No featured group buys yet"
+                        />
                     </div>
                 )}
             </div>
@@ -175,20 +173,11 @@ const BrowsePage = () => {
                         ))}
                     </div>
                 ) : (
-                    <div className="card-empty text-center">
-                        <div className="text-6xl mb-4">🤝</div>
-                        <h3 className="text-xl font-semibold text-gray-700 mb-2">
-                            No errands available
-                        </h3>
-                        <p className="text-gray-500 text-sm sm:text-base mb-4">
-                            Post one to get help fast.
-                        </p>
-                        <button 
-                            onClick={() => setCurrentScreen('errands')}
-                            className="btn-primary text-sm sm:text-base"
-                        >
-                            Post an Errand
-                        </button>
+                    <div className="card-empty">
+                        <EmptyStateWithAction 
+                            type="errands"
+                            message="No errands available"
+                        />
                     </div>
                 )}
             </div>

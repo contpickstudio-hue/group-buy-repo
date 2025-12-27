@@ -10,14 +10,14 @@ const CheckoutModal = ({ isOpen, onClose, product, quantity = 1, orderId, onPaym
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="fixed inset-0 bg-black bg-opacity-50" onClick={onClose}></div>
-      <div className="flex items-center justify-center min-h-screen px-4">
-        <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 relative">
+      <div className="flex items-center justify-center min-h-screen px-4 py-4 sm:py-8">
+        <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-4 sm:p-6 relative max-h-[90vh] overflow-y-auto my-auto">
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+            className="absolute top-3 right-3 sm:top-4 sm:right-4 text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100 min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation"
             aria-label="Close"
           >
-            ×
+            <span className="text-2xl leading-none">×</span>
           </button>
           
           <div className="mb-4">

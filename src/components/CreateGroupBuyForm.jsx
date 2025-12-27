@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { useUser } from '../stores';
+import { useUser, useAuthStore } from '../stores';
 import useCreateGroupBuyForm from '../hooks/useCreateGroupBuyForm';
 import { getCurrentLocation, geocodeAddress } from '../services/geolocationService';
 import toast from 'react-hot-toast';
 import DateInput from './DateInput';
+import { isGuestUser, hasRole } from '../utils/authUtils';
+import SignUpCTA from './SignUpCTA';
+import UpgradeToVendorCTA from './UpgradeToVendorCTA';
+import { t } from '../utils/translations';
 
 const CreateGroupBuyForm = () => {
     const user = useUser();
+    const loginMethod = useAuthStore((state) => state.loginMethod);
+    const isGuest = isGuestUser(user, loginMethod);
     const {
         formData,
         isSubmitting,
@@ -23,14 +29,41 @@ const CreateGroupBuyForm = () => {
     // Note: Toast notifications are now handled in the hook for better control
     // This useEffect is kept for backward compatibility but may not be needed
 
-    if (!user || !user.roles?.includes('vendor')) {
-        return null;
+    // Show CTA for guest users instead of form
+    if (!user || isGuest) {
+        return (
+            <div className="bg-white rounded-lg shadow-md p-6 mb-8" data-testid="create-product-form">
+                <h3 className="text-xl font-semibold mb-4">{t('groupBuy.createTitle')}</h3>
+                <SignUpCTA message={t('groupBuy.signUpToCreate')} />
+            </div>
+        );
+    }
+
+    // Enforce vendor role requirement - show upgrade CTA for non-vendors
+    if (!hasRole(user, 'vendor')) {
+        return (
+            <div className="bg-white rounded-lg shadow-md p-6 mb-8" data-testid="create-product-form">
+                <h3 className="text-xl font-semibold mb-4">{t('groupBuy.createTitle')}</h3>
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                    <div className="flex items-start">
+                        <svg className="w-5 h-5 text-red-600 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                        </svg>
+                        <div className="text-sm text-red-800">
+                            <p className="font-semibold">{t('groupBuy.accessDenied')}</p>
+                            <p className="mt-1">{t('groupBuy.vendorRoleRequired')}</p>
+                        </div>
+                    </div>
+                </div>
+                <UpgradeToVendorCTA />
+            </div>
+        );
     }
 
     return (
         <div className="bg-white rounded-lg shadow-md p-6 mb-8" data-testid="create-product-form">
-            <h3 className="text-xl font-semibold mb-4">Create Group Buy</h3>
-            <form className="space-y-4" onSubmit={handleSubmit}>
+            <h3 className="text-xl font-semibold mb-4">{t('groupBuy.createTitle')}</h3>
+            <form className="space-y-4 pb-24 sm:pb-6" onSubmit={handleSubmit}>
                 {error && (
                     <div className="bg-red-50 border border-red-200 rounded-md p-3 text-red-700 text-sm">
                         {error}
@@ -39,7 +72,7 @@ const CreateGroupBuyForm = () => {
                 <div className="grid md:grid-cols-2 gap-4">
                     <div>
                         <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-                            Product Title
+                            {t('groupBuy.productTitle')}
                         </label>
                         <input
                             id="title"
@@ -47,14 +80,14 @@ const CreateGroupBuyForm = () => {
                             name="title"
                             value={formData.title}
                             onChange={handleChange}
-                            placeholder="e.g., Premium Korean Strawberries"
+                            placeholder={t('groupBuy.productTitlePlaceholder')}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                             required
                         />
                     </div>
                     <div>
                         <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">
-                            Price per Unit ($)
+                            {t('groupBuy.pricePerUnit')}
                         </label>
                         <input
                             id="price"
@@ -72,7 +105,7 @@ const CreateGroupBuyForm = () => {
                 </div>
                 <div>
                     <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-                        Description
+                        {t('groupBuy.description')}
                     </label>
                     <textarea
                         id="description"
@@ -80,14 +113,14 @@ const CreateGroupBuyForm = () => {
                         value={formData.description}
                         onChange={handleChange}
                         rows={3}
-                        placeholder="Describe your product..."
+                        placeholder={t('groupBuy.descriptionPlaceholder')}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                     />
                 </div>
                 <div className="grid md:grid-cols-3 gap-4">
                     <div>
                         <label htmlFor="region" className="block text-sm font-medium text-gray-700 mb-1">
-                            Region
+                            {t('groupBuy.region')}
                         </label>
                         <select 
                             id="region"
@@ -103,7 +136,7 @@ const CreateGroupBuyForm = () => {
                     </div>
                     <div>
                         <label htmlFor="targetQuantity" className="block text-sm font-medium text-gray-700 mb-1">
-                            Target Quantity
+                            {t('groupBuy.targetQuantity')}
                         </label>
                         <input
                             id="targetQuantity"
@@ -120,7 +153,7 @@ const CreateGroupBuyForm = () => {
                         <DateInput
                             id="deadline"
                             name="deadline"
-                            label="Deadline"
+                            label={t('groupBuy.deadline')}
                             value={formData.deadline}
                             onChange={handleChange}
                             min={new Date().toISOString().split('T')[0]}
@@ -132,7 +165,7 @@ const CreateGroupBuyForm = () => {
                 </div>
                 <div>
                     <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-1">
-                        Image (Optional)
+                        {t('groupBuy.image')}
                     </label>
                     <input
                         id="image"
@@ -156,26 +189,26 @@ const CreateGroupBuyForm = () => {
                         }}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Upload a product image (optional)</p>
+                    <p className="text-xs text-gray-500 mt-1">{t('groupBuy.uploadImage')}</p>
                 </div>
                 
                 {/* Location Picker */}
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Location (for map discovery)
+                        {t('groupBuy.location')}
                     </label>
                     <div className="space-y-3">
                         <div className="flex gap-3">
                             <button
                                 type="button"
                                 onClick={() => setLocationMethod('current')}
-                                className={`px-3 py-2 text-sm rounded-md border ${
+                                    className={`px-3 py-2 text-sm rounded-md border ${
                                     locationMethod === 'current'
                                         ? 'bg-blue-50 border-blue-500 text-blue-700'
                                         : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
                                 }`}
                             >
-                                Use Current Location
+                                {t('groupBuy.useCurrentLocation')}
                             </button>
                             <button
                                 type="button"
@@ -186,7 +219,7 @@ const CreateGroupBuyForm = () => {
                                         : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
                                 }`}
                             >
-                                Search Address
+                                {t('groupBuy.searchAddress')}
                             </button>
                         </div>
                         
@@ -210,10 +243,10 @@ const CreateGroupBuyForm = () => {
                                                     value: result.location.longitude
                                                 }
                                             });
-                                            toast.success('Location set successfully');
+                                            toast.success(t('groupBuy.locationSet'));
                                         }
                                     } catch (error) {
-                                        toast.error('Could not get location: ' + error.message);
+                                        toast.error(t('groupBuy.locationError', { error: error.message }));
                                     } finally {
                                         setLocationLoading(false);
                                     }
@@ -221,7 +254,7 @@ const CreateGroupBuyForm = () => {
                                 disabled={locationLoading}
                                 className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400"
                             >
-                                {locationLoading ? 'Getting location...' : 'Get Current Location'}
+                                {locationLoading ? t('groupBuy.gettingLocation') : t('groupBuy.getCurrentLocation')}
                             </button>
                         )}
                         
@@ -231,14 +264,14 @@ const CreateGroupBuyForm = () => {
                                     type="text"
                                     value={addressInput}
                                     onChange={(e) => setAddressInput(e.target.value)}
-                                    placeholder="Enter address..."
+                                    placeholder={t('groupBuy.enterAddress')}
                                     className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
                                 <button
                                     type="button"
                                     onClick={async () => {
                                         if (!addressInput.trim()) {
-                                            toast.error('Please enter an address');
+                                            toast.error(t('groupBuy.enterAddressError'));
                                             return;
                                         }
                                         setLocationLoading(true);
@@ -257,10 +290,10 @@ const CreateGroupBuyForm = () => {
                                                         value: result.location.longitude
                                                     }
                                                 });
-                                                toast.success('Location found: ' + result.location.formattedAddress);
+                                                toast.success(t('groupBuy.locationFound', { address: result.location.formattedAddress }));
                                             }
                                         } catch (error) {
-                                            toast.error('Could not find address: ' + error.message);
+                                            toast.error(t('groupBuy.addressError', { error: error.message }));
                                         } finally {
                                             setLocationLoading(false);
                                         }
@@ -268,19 +301,19 @@ const CreateGroupBuyForm = () => {
                                     disabled={locationLoading}
                                     className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400"
                                 >
-                                    {locationLoading ? 'Searching...' : 'Search'}
+                                    {locationLoading ? t('groupBuy.searching') : t('common.search')}
                                 </button>
                             </div>
                         )}
                         
                         {(formData.latitude && formData.longitude) && (
                             <div className="text-sm text-green-600 bg-green-50 p-2 rounded">
-                                ✓ Location set: {formData.latitude.toFixed(6)}, {formData.longitude.toFixed(6)}
+                                {t('groupBuy.locationSetLabel', { lat: formData.latitude.toFixed(6), lng: formData.longitude.toFixed(6) })}
                             </div>
                         )}
                     </div>
                     <p className="text-xs text-gray-500 mt-1">
-                        Adding a location helps users find your group buy on the map
+                        {t('groupBuy.locationHelp')}
                     </p>
                 </div>
                 
@@ -292,14 +325,14 @@ const CreateGroupBuyForm = () => {
                     {isSubmitting ? (
                         <div className="flex items-center justify-center gap-2">
                             <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
-                            <span>Creating Group Buy...</span>
+                            <span>{t('groupBuy.creating')}</span>
                         </div>
                     ) : (
-                        <span>Create Group Buy</span>
+                        <span>{t('groupBuy.create')}</span>
                     )}
                     {isSubmitting && (
                         <span className="absolute inset-0 flex items-center justify-center bg-blue-600 bg-opacity-75 rounded-md">
-                            <span className="sr-only">Submitting form...</span>
+                            <span className="sr-only">{t('groupBuy.submittingForm')}</span>
                         </span>
                     )}
                 </button>

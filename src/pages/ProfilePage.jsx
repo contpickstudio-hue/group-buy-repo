@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useUser, useSignOut, useSetCurrentScreen, useSetUser, useAppStore } from '../stores';
+import { useUser, useSignOut, useSetCurrentScreen, useSetUser, useAppStore, useAuthStore } from '../stores';
 import { 
   useCommunitySavings,
   useUserContribution,
@@ -17,6 +17,7 @@ import CommunitySavings from '../components/CommunitySavings';
 import ReferralShare from '../components/ReferralShare';
 import ReferralBadges from '../components/ReferralBadges';
 import CreditsDisplay from '../components/CreditsDisplay';
+import { getUserDisplayName } from '../utils/authUtils';
 
 const ProfilePage = () => {
     try {
@@ -25,6 +26,9 @@ const ProfilePage = () => {
         const setCurrentScreen = useSetCurrentScreen();
         const setUser = useSetUser();
         const resetStore = useAppStore((state) => state.resetStore);
+        const loginMethod = useAuthStore((state) => state.loginMethod);
+        const isDevelopment = import.meta.env.DEV;
+        const displayName = getUserDisplayName(user, loginMethod);
         const [showOrders, setShowOrders] = React.useState(false);
         
         // Community stats hooks
@@ -106,11 +110,11 @@ const ProfilePage = () => {
                 <div className="flex items-center space-x-4">
                     <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
                         <span className="text-2xl font-bold">
-                            {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                            {displayName ? displayName.charAt(0).toUpperCase() : 'U'}
                         </span>
                     </div>
                     <div>
-                        <h3 className="text-xl font-semibold">{user.name}</h3>
+                        <h3 className="text-xl font-semibold">{displayName}</h3>
                         <p className="opacity-90">{user.email}</p>
                         <div className="flex space-x-2 mt-2">
                             {roles.map(role => (
@@ -140,7 +144,7 @@ const ProfilePage = () => {
                     <div className="p-6 flex justify-between items-center">
                         <div>
                             <div className="font-medium">Display Name</div>
-                            <div className="text-gray-500 text-sm">{user.name}</div>
+                            <div className="text-gray-500 text-sm">{displayName}</div>
                         </div>
                         <button className="text-blue-600 hover:text-blue-700 font-medium">
                             Edit
@@ -294,12 +298,14 @@ const ProfilePage = () => {
                     <h3 className="text-lg font-semibold">Account Actions</h3>
                 </div>
                 <div className="p-6 space-y-4">
-                    <button
-                        onClick={handleResetApp}
-                        className="w-full md:w-auto px-4 py-2 border border-red-300 text-red-700 rounded-md hover:bg-red-50 transition-colors"
-                    >
-                        Reset App Data
-                    </button>
+                    {isDevelopment && (
+                        <button
+                            onClick={handleResetApp}
+                            className="w-full md:w-auto px-4 py-2 border border-red-300 text-red-700 rounded-md hover:bg-red-50 transition-colors"
+                        >
+                            Reset App Data
+                        </button>
+                    )}
                     <button
                         onClick={handleLogout}
                         className="w-full md:w-auto px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors ml-0 md:ml-4"

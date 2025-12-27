@@ -139,8 +139,8 @@ const ReportModal = ({ isOpen, onClose, reportType, targetId, targetTitle }) => 
       />
       
       {/* Modal */}
-      <div className="flex min-h-full items-center justify-center p-4">
-        <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+      <div className="flex min-h-full items-center justify-center p-4 py-4 sm:py-8">
+        <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full p-4 sm:p-6 max-h-[90vh] overflow-y-auto my-auto">
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
@@ -177,7 +177,7 @@ const ReportModal = ({ isOpen, onClose, reportType, targetId, targetTitle }) => 
               </button>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4 pb-4">
               {targetTitle && (
                 <div className="bg-gray-50 rounded-md p-3 mb-4">
                   <p className="text-sm text-gray-600 mb-1">Reporting:</p>
@@ -237,14 +237,14 @@ const ReportModal = ({ isOpen, onClose, reportType, targetId, targetTitle }) => 
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors min-h-[44px]"
+                  className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors min-h-[48px] touch-manipulation"
                   disabled={isSubmitting}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-3 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors min-h-[48px] disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
                   disabled={isSubmitting || !reason || description.trim().length < 10}
                 >
                   {isSubmitting ? 'Submitting...' : 'Submit Report'}

@@ -88,7 +88,7 @@ const ChatModal = ({
             </h2>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full hover:bg-gray-100 min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation"
               aria-label="Close chat"
             >
               <X size={24} />

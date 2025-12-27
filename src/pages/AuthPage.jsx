@@ -178,7 +178,7 @@ const AuthPage = () => {
 
                 {/* Error display is now handled by AsyncErrorBoundary */}
 
-                <form onSubmit={handleFormSubmit} className="space-y-4">
+                <form onSubmit={handleFormSubmit} className="space-y-4 pb-24 sm:pb-4">
                     {isSignUp && (
                         <div>
                             <label htmlFor="name-input" className="block text-sm font-medium text-gray-700 mb-1">
