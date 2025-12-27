@@ -16,12 +16,13 @@ const ChatIcon = () => {
   const loadChatThreads = useLoadChatThreads();
   const chatThreads = useChatThreads();
 
-  const unreadCount = getTotalUnreadCount();
+  // Safety checks for hooks that might not be initialized yet after login
+  const unreadCount = typeof getTotalUnreadCount === 'function' ? getTotalUnreadCount() : 0;
   const hasChats = Array.isArray(chatThreads) && chatThreads.length > 0;
 
   useEffect(() => {
     // Load chat threads when icon is clicked
-    if (isOpen) {
+    if (isOpen && typeof loadChatThreads === 'function') {
       loadChatThreads();
     }
   }, [isOpen, loadChatThreads]);
@@ -138,7 +139,7 @@ const ChatIcon = () => {
       )}
 
       {/* Chat Modal for selected chat */}
-      {selectedChat && (
+      {selectedChat && selectedChat.chatType && (
         <ChatModal
           isOpen={!!selectedChat}
           onClose={handleCloseChat}

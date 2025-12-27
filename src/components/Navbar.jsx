@@ -16,6 +16,16 @@ const Navbar = () => {
     const isDevelopment = import.meta.env.DEV;
     const displayName = getUserDisplayName(user, loginMethod);
 
+    // Safety wrapper for translation function
+    const safeTranslate = (key, fallback) => {
+        try {
+            return t && typeof t === 'function' ? t(key) || fallback : fallback;
+        } catch (error) {
+            console.warn('Translation error:', error);
+            return fallback;
+        }
+    };
+
     const handleNavigation = (screen) => {
         setCurrentScreen(screen);
     };
@@ -29,16 +39,16 @@ const Navbar = () => {
 
     const navItems = user
         ? [
-            { key: 'browse', label: t('common.browse') || 'Browse', screen: 'browse' },
-            { key: 'groupbuys', label: t('common.groupBuys') || 'Group Buys', screen: 'groupbuys' },
-            { key: 'errands', label: t('common.errands') || 'Errands', screen: 'errands' },
-            { key: 'dashboard', label: t('common.dashboard') || 'Dashboard', screen: 'dashboard' },
+            { key: 'browse', label: safeTranslate('common.browse', 'Browse'), screen: 'browse' },
+            { key: 'groupbuys', label: safeTranslate('common.groupBuys', 'Group Buys'), screen: 'groupbuys' },
+            { key: 'errands', label: safeTranslate('common.errands', 'Errands'), screen: 'errands' },
+            { key: 'dashboard', label: safeTranslate('common.dashboard', 'Dashboard'), screen: 'dashboard' },
             ...(isAdmin(user) ? [{ key: 'moderation', label: 'Moderation', screen: 'moderation' }] : [])
         ]
         : [
-            { key: 'start', label: t('common.home') || 'Home', screen: 'start' },
-            { key: 'groupbuys', label: t('common.groupBuys') || 'Group Buys', screen: 'groupbuys' },
-            { key: 'errands', label: t('common.errands') || 'Errands', screen: 'errands' }
+            { key: 'start', label: safeTranslate('common.home', 'Home'), screen: 'start' },
+            { key: 'groupbuys', label: safeTranslate('common.groupBuys', 'Group Buys'), screen: 'groupbuys' },
+            { key: 'errands', label: safeTranslate('common.errands', 'Errands'), screen: 'errands' }
         ];
 
     return (
@@ -51,8 +61,8 @@ const Navbar = () => {
                             onClick={() => handleNavigation('start')}
                             className="navbar-brand text-base sm:text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent hover:from-blue-700 hover:to-indigo-700 transition-all"
                         >
-                            <span className="hidden sm:inline">{t('common.appName') || 'Korean Community Commerce'}</span>
-                            <span className="sm:hidden">{t('common.appNameShort') || 'KCC'}</span>
+                            <span className="hidden sm:inline">{safeTranslate('common.appName', 'Korean Community Commerce')}</span>
+                            <span className="sm:hidden">{safeTranslate('common.appNameShort', 'KCC')}</span>
                         </button>
                     </div>
 
@@ -132,15 +142,15 @@ const Navbar = () => {
                                             onClick={() => window.location.reload()}
                                             className="btn-reset hidden sm:inline-flex px-3 py-2 text-sm min-h-[44px] min-w-[44px]"
                                         >
-                                            {t('common.reset') || 'Reset'}
+                                            {safeTranslate('common.reset', 'Reset')}
                                         </button>
                                     )}
                                     <button
                                         onClick={handleLogout}
                                         className="btn-primary px-3 sm:px-4 py-2 text-xs sm:text-sm min-h-[44px] min-w-[44px]"
                                     >
-                                        <span className="hidden sm:inline">{t('common.logout') || 'Logout'}</span>
-                                        <span className="sm:hidden">{t('common.logoutShort') || 'Out'}</span>
+                                        <span className="hidden sm:inline">{safeTranslate('common.logout', 'Logout')}</span>
+                                        <span className="sm:hidden">{safeTranslate('common.logoutShort', 'Out')}</span>
                                     </button>
                                 </div>
                             </>
@@ -149,8 +159,8 @@ const Navbar = () => {
                                 onClick={() => handleNavigation('auth')}
                                 className="btn-primary px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors min-h-[44px] min-w-[44px] text-sm sm:text-base"
                             >
-                                <span className="hidden sm:inline">{t('common.loginSignUp') || 'Login / Sign Up'}</span>
-                                <span className="sm:hidden">{t('common.login') || 'Login'}</span>
+                                <span className="hidden sm:inline">{safeTranslate('common.loginSignUp', 'Login / Sign Up')}</span>
+                                <span className="sm:hidden">{safeTranslate('common.login', 'Login')}</span>
                             </button>
                         )}
                     </div>
