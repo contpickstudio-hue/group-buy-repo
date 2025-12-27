@@ -15,6 +15,15 @@ const MAX_ACTIVE_ERRANDS_PER_HELPER = 3;
  */
 export async function applyToErrand(errandId, helperEmail, offerAmount = null, message = null) {
   return await apiCall(async () => {
+    // Enforce helper role requirement - RBAC check (action level)
+    const { useAuthStore } = await import('../stores/authStore');
+    const { checkPermission } = await import('../utils/rbacUtils');
+    const user = useAuthStore.getState().user;
+    const loginMethod = useAuthStore.getState().loginMethod;
+    const permissionCheck = checkPermission(user, loginMethod, 'helper');
+    if (!permissionCheck.allowed) {
+      return { success: false, error: permissionCheck.error };
+    }
     if (!supabaseClient) {
       // Demo mode - save to localStorage
       // Check if errand is still open

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useUser, useSetCurrentScreen, useProducts, useErrands } from '../stores';
 import { ShoppingCart, Package, ArrowRight, Users, Sparkles } from 'lucide-react';
+import { t } from '../utils/translations';
 
 const StartPage = () => {
     const user = useUser();
@@ -17,13 +18,13 @@ const StartPage = () => {
             <div className="text-center mb-12 sm:mb-16 animate-fade-in">
                 <div className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-700 text-sm font-semibold mb-4">
                     <Sparkles className="w-4 h-4 mr-2" />
-                    <span>Korean Community Commerce Platform</span>
+                    <span>{t('startPage.platformTagline')}</span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight">
-                    Connect, Shop, & Save Together
+                    {t('startPage.connectShopSave')}
                 </h1>
                 <p className="text-gray-600 text-lg sm:text-xl max-w-3xl mx-auto mb-8 px-4">
-                    Join group buys, request errands, and build a stronger Korean community in your area.
+                    {t('startPage.joinDescription')}
                 </p>
                 {!user && (
                     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -31,14 +32,14 @@ const StartPage = () => {
                             onClick={() => setCurrentScreen('auth')}
                             className="btn-primary px-8 py-4 text-lg flex items-center gap-2 group"
                         >
-                            Get Started
+                            {t('startPage.getStarted')}
                             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                         </button>
                         <button
                             onClick={() => setCurrentScreen('browse')}
                             className="btn-secondary px-8 py-4 text-lg"
                         >
-                            Browse Marketplace
+                            {t('startPage.browseMarketplace')}
                         </button>
                     </div>
                 )}
@@ -56,19 +57,19 @@ const StartPage = () => {
                             <ShoppingCart className="w-6 h-6 text-blue-600" />
                         </div>
                         <div className="flex-1">
-                            <h2 className="text-2xl font-bold text-gray-900 mb-2">Group Buys</h2>
+                            <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('startPage.groupBuys')}</h2>
                             <p className="text-gray-600 mb-4">
-                                Join collective purchases and save money by buying in bulk with your community.
+                                {t('startPage.groupBuysDescription')}
                             </p>
                             <button className="text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1 group">
-                                Explore Group Buys
+                                {t('startPage.exploreGroupBuys')}
                                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                             </button>
                         </div>
                     </div>
                     {featuredProducts.length > 0 && (
                         <div className="mt-6 pt-6 border-t border-gray-200">
-                            <p className="text-sm text-gray-500 mb-3">Featured:</p>
+                            <p className="text-sm text-gray-500 mb-3">{t('startPage.featured')}</p>
                             <div className="space-y-2">
                                 {featuredProducts.slice(0, 2).map((product) => (
                                     <div key={product.id} className="flex items-center justify-between text-sm">
@@ -91,19 +92,19 @@ const StartPage = () => {
                             <Package className="w-6 h-6 text-green-600" />
                         </div>
                         <div className="flex-1">
-                            <h2 className="text-2xl font-bold text-gray-900 mb-2">Errands</h2>
+                            <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('startPage.errands')}</h2>
                             <p className="text-gray-600 mb-4">
-                                Request help with tasks or offer your services to the community.
+                                {t('startPage.errandsDescription')}
                             </p>
                             <button className="text-green-600 hover:text-green-700 font-medium flex items-center gap-1 group">
-                                Explore Errands
+                                {t('startPage.exploreErrands')}
                                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                             </button>
                         </div>
                     </div>
                     {featuredErrands.length > 0 && (
                         <div className="mt-6 pt-6 border-t border-gray-200">
-                            <p className="text-sm text-gray-500 mb-3">Open requests:</p>
+                            <p className="text-sm text-gray-500 mb-3">{t('startPage.openRequests')}</p>
                             <div className="space-y-2">
                                 {featuredErrands.slice(0, 2).map((errand) => (
                                     <div key={errand.id} className="flex items-center justify-between text-sm">
@@ -121,17 +122,17 @@ const StartPage = () => {
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 sm:p-12 text-center">
                 <div className="flex items-center justify-center gap-2 mb-4">
                     <Users className="w-6 h-6 text-blue-600" />
-                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Join Our Community</h2>
+                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('startPage.joinCommunity')}</h2>
                 </div>
                 <p className="text-gray-600 text-lg mb-6 max-w-2xl mx-auto">
-                    Connect with Korean community members in your area. Together we can save money, help each other, and build a stronger community.
+                    {t('startPage.connectDescription')}
                 </p>
                 {!user && (
                     <button
                         onClick={() => setCurrentScreen('auth')}
                         className="btn-primary px-8 py-3 text-base"
                     >
-                        Sign Up Free
+                        {t('startPage.signUpFree')}
                     </button>
                 )}
             </div>

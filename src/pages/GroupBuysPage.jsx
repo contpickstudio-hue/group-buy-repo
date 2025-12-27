@@ -3,6 +3,7 @@ import { useAppStore } from '../stores';
 import { useListings, useLoadListings, useGetBatchesByListing, useLoadBatchesForListing, useAddOrder, useUpdatePaymentStatus, useUser, useOrders, useProcessReferralOrder, useApplyCredits, useSetCurrentScreen } from '../stores';
 import CheckoutModal from '../components/CheckoutModal';
 import Marketplace from '../components/Marketplace';
+import { t } from '../utils/translations';
 import toast from 'react-hot-toast';
 
 const GroupBuysPage = () => {
@@ -32,7 +33,7 @@ const GroupBuysPage = () => {
             }
         }).catch((error) => {
             console.error('Error loading listings:', error);
-            toast.error('Failed to load listings. Please try again.');
+            toast.error(t('groupBuysPage.failedToLoadListings'));
         });
     }, [loadListings, loadBatchesForListing]);
 
@@ -40,8 +41,18 @@ const GroupBuysPage = () => {
 
     const handleJoinListing = async (listing) => {
         if (!user) {
-            toast.error('Please sign in to place an order');
+            toast.error(t('groupBuysPage.pleaseSignInToOrder'));
             setCurrentScreen('auth');
+            return;
+        }
+
+        // RBAC check: Only CUSTOMER can join group buys (action level)
+        const { useAuthStore } = await import('../stores/authStore');
+        const { checkPermission } = await import('../utils/rbacUtils');
+        const loginMethod = useAuthStore.getState().loginMethod;
+        const permissionCheck = checkPermission(user, loginMethod, 'customer');
+        if (!permissionCheck.allowed) {
+            toast.error(permissionCheck.error);
             return;
         }
 
@@ -58,13 +69,13 @@ const GroupBuysPage = () => {
             <div className="text-center mb-6 sm:mb-8 animate-fade-in">
                 <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold mb-3">
                     <span className="w-2 h-2 bg-blue-600 rounded-full mr-2 animate-pulse-slow"></span>
-                    Community bulk orders
+                    {t('groupBuysPage.communityBulkOrders')}
                 </div>
                 <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight">
-                    Regional Marketplace
+                    {t('groupBuysPage.regionalMarketplace')}
                 </h1>
                 <p className="text-gray-600 text-base sm:text-lg">
-                    Find bulk deals by region, price, and delivery method
+                    {t('groupBuysPage.findBulkDeals')}
                 </p>
             </div>
 

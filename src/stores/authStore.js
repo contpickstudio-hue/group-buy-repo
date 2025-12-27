@@ -55,12 +55,13 @@ export const useAuthStore = create()(
                 await removeStorageItem(StorageKeys.loginMethod);
               } else {
                 // Session is valid - update user profile from Supabase
+                // Only registered users can have roles - guest users never get roles
                 const userProfile = {
                   id: supabaseUser.id,
                   email: supabaseUser.email,
                   name: supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0] || 'User',
-                  roles: supabaseUser.user_metadata?.roles || ['customer'],
-                  helperVerified: supabaseUser.user_metadata?.helperVerified || false
+                  roles: Array.isArray(supabaseUser.user_metadata?.roles) ? supabaseUser.user_metadata.roles : [],
+                  helperVerified: supabaseUser.user_metadata?.helperVerified === true
                 };
                 
                 set((state) => {
@@ -91,12 +92,13 @@ export const useAuthStore = create()(
             
             if (!error && supabaseUser) {
               // Active Supabase session found
+              // Only registered users can have roles - get from database, no defaults
               const userProfile = {
                 id: supabaseUser.id,
                 email: supabaseUser.email,
                 name: supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0] || 'User',
-                roles: supabaseUser.user_metadata?.roles || ['customer'],
-                helperVerified: supabaseUser.user_metadata?.helperVerified || false
+                roles: Array.isArray(supabaseUser.user_metadata?.roles) ? supabaseUser.user_metadata.roles : [],
+                helperVerified: supabaseUser.user_metadata?.helperVerified === true
               };
               
               set((state) => {
@@ -143,13 +145,13 @@ export const useAuthStore = create()(
           if (error) throw error;
           
           if (user) {
-            // Load user profile from metadata or create default
+            // Load user profile from metadata - roles come from database, no defaults
             const userProfile = {
               id: user.id,
               email: user.email,
               name: user.user_metadata?.name || user.email?.split('@')[0] || 'User',
-              roles: user.user_metadata?.roles || ['customer'],
-              helperVerified: user.user_metadata?.helperVerified || false
+              roles: Array.isArray(user.user_metadata?.roles) ? user.user_metadata.roles : [],
+              helperVerified: user.user_metadata?.helperVerified === true
             };
             
             set((state) => {
@@ -195,12 +197,13 @@ export const useAuthStore = create()(
           
           if (result.success && user) {
             // User is available immediately (email confirmation may be disabled)
+            // Roles must come from database, not defaults - only use metadata if it exists
             const userProfile = {
               id: user.id,
               email: user.email,
               name: metadata.name || user.user_metadata?.name || email.split('@')[0],
-              roles: metadata.roles || user.user_metadata?.roles || ['customer'],
-              helperVerified: user.user_metadata?.helperVerified || false
+              roles: Array.isArray(metadata.roles) ? metadata.roles : (Array.isArray(user.user_metadata?.roles) ? user.user_metadata.roles : []),
+              helperVerified: user.user_metadata?.helperVerified === true
             };
             
             set((state) => {
@@ -251,12 +254,13 @@ export const useAuthStore = create()(
           const result = await signInWithEmail(email, password);
           if (result.success && result.data?.data?.user) {
             const user = result.data.data.user;
+            // Roles must come from database, no defaults
             const userProfile = {
               id: user.id,
               email: user.email,
               name: user.user_metadata?.name || user.email?.split('@')[0] || 'User',
-              roles: user.user_metadata?.roles || ['customer'],
-              helperVerified: user.user_metadata?.helperVerified || false
+              roles: Array.isArray(user.user_metadata?.roles) ? user.user_metadata.roles : [],
+              helperVerified: user.user_metadata?.helperVerified === true
             };
             
             set((state) => {
@@ -310,12 +314,13 @@ export const useAuthStore = create()(
           try {
             const { user: supabaseUser } = await getCurrentUser();
             if (supabaseUser) {
+              // Roles must come from database, no defaults
               const userProfile = {
                 id: supabaseUser.id,
                 email: supabaseUser.email,
                 name: supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0] || 'User',
-                roles: supabaseUser.user_metadata?.roles || ['customer'],
-                helperVerified: supabaseUser.user_metadata?.helperVerified || false
+                roles: Array.isArray(supabaseUser.user_metadata?.roles) ? supabaseUser.user_metadata.roles : [],
+                helperVerified: supabaseUser.user_metadata?.helperVerified === true
               };
               
               set((state) => {
@@ -421,13 +426,13 @@ export const useAuthStore = create()(
       },
 
       skipLogin: async () => {
-        // Create a guest preview account with all roles
+        // Create a guest preview account with NO roles
         const demoUser = {
           id: 'guest-' + Date.now(),
           email: 'guest@preview.app',
           name: 'Guest User',
-          roles: ['customer', 'vendor', 'helper'],
-          helperVerified: true
+          roles: [], // Guest users have NO roles
+          helperVerified: false // Guest users are NOT verified
         };
         
         set((state) => {

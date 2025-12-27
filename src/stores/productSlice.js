@@ -98,12 +98,13 @@ export const createProductSlice = (set, get) => ({
             return { success: false, error: 'User not authenticated' };
         }
 
-        // Enforce vendor role requirement - server-side logic check
-        const userRoles = user.roles || [];
-        if (!Array.isArray(userRoles) || !userRoles.includes('vendor')) {
+        // Enforce vendor role requirement - RBAC check (action level)
+        const { checkPermission } = await import('../utils/rbacUtils');
+        const permissionCheck = checkPermission(user, loginMethod, 'vendor');
+        if (!permissionCheck.allowed) {
             return { 
                 success: false, 
-                error: 'Only users with vendor role can create group buys. Please upgrade your account.' 
+                error: permissionCheck.error
             };
         }
         

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useUser, useCreateListing, useCreateRegionalBatch } from '../stores';
+import { useUser, useCreateListing, useCreateRegionalBatch, useAuthStore } from '../stores';
+import { hasRole } from '../utils/authUtils';
 import { Plus, X, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import DateInput from './DateInput';
@@ -30,7 +31,9 @@ const CreateListingForm = () => {
         }
     ]);
     
-    if (!user || !user.roles?.includes('vendor')) {
+    // Guest users have NO roles - use hasRole for proper guest handling
+    const loginMethod = useAuthStore((state) => state.loginMethod);
+    if (!user || !hasRole(user, 'vendor', loginMethod)) {
         return null;
     }
     

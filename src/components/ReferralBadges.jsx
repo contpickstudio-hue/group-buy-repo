@@ -1,44 +1,54 @@
 import React from 'react';
 import { Award, Users, Star, Crown } from 'lucide-react';
-import { useReferralStats } from '../stores';
+import { useReferralStats, useUser, useAuthStore } from '../stores';
+import { isGuestUser } from '../utils/authUtils';
+import { t } from '../utils/translations';
 
 /**
  * ReferralBadges Component
  * Displays referral achievement badges
  */
 const ReferralBadges = () => {
+  const user = useUser();
+  const loginMethod = useAuthStore((state) => state.loginMethod);
+  const isGuest = isGuestUser(user, loginMethod);
   const referralStats = useReferralStats();
   const successfulReferrals = referralStats.successfulReferrals || 0;
+
+  // Hide referral badges for guests
+  if (!user || isGuest) {
+    return null;
+  }
 
   const badges = [
     {
       id: 'first-friend',
-      name: 'First Friend',
-      description: 'Invited 1 friend',
+      name: t('referral.firstFriend'),
+      description: t('referral.invited1Friend'),
       icon: Award,
       threshold: 1,
       color: 'bg-blue-500'
     },
     {
       id: 'community-builder',
-      name: 'Community Builder',
-      description: 'Invited 5 friends',
+      name: t('referral.communityBuilder'),
+      description: t('referral.invited5Friends'),
       icon: Users,
       threshold: 5,
       color: 'bg-green-500'
     },
     {
       id: 'neighborhood-champion',
-      name: 'Neighborhood Champion',
-      description: 'Invited 10 friends',
+      name: t('referral.neighborhoodChampion'),
+      description: t('referral.invited10Friends'),
       icon: Star,
       threshold: 10,
       color: 'bg-purple-500'
     },
     {
       id: 'local-legend',
-      name: 'Local Legend',
-      description: 'Invited 25 friends',
+      name: t('referral.localLegend'),
+      description: t('referral.invited25Friends'),
       icon: Crown,
       threshold: 25,
       color: 'bg-yellow-500'
@@ -50,7 +60,7 @@ const ReferralBadges = () => {
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
-      <h3 className="text-xl font-semibold mb-4">Referral Badges</h3>
+      <h3 className="text-xl font-semibold mb-4">{t('referral.referralBadges')}</h3>
       
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
         {badges.map((badge) => {
@@ -94,7 +104,7 @@ const ReferralBadges = () => {
       {nextBadge && (
         <div className="p-3 bg-blue-50 rounded-lg">
           <p className="text-sm text-blue-800">
-            <strong>Next badge:</strong> {nextBadge.name} - Invite {nextBadge.threshold - successfulReferrals} more friend{nextBadge.threshold - successfulReferrals !== 1 ? 's' : ''}!
+            <strong>{t('referral.nextBadge')}</strong> {nextBadge.name} - {t('referral.inviteMoreFriends', { count: nextBadge.threshold - successfulReferrals })}
           </p>
         </div>
       )}

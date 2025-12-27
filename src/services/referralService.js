@@ -51,9 +51,16 @@ export async function generateReferralCode(userEmail) {
 
 /**
  * Get or create a referral code for a user
+ * Only works for authenticated users - requires valid Supabase session
  */
 export async function getUserReferralCode(userEmail) {
   return await apiCall(async () => {
+    // Ensure user is authenticated - check for session
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) {
+      throw new Error('Referral codes are only available for registered users with active sessions');
+    }
+
     // Check if user already has a referral code (any referral where they are the referrer)
     const { data: existing, error: selectError } = await supabaseClient
       .from('referrals')
@@ -71,6 +78,7 @@ export async function getUserReferralCode(userEmail) {
     
     // Create a placeholder referral record to store the code
     // This ensures the code is reserved for this user
+    // Only persists to database for authenticated users
     const { error: insertError } = await supabaseClient
       .from('referrals')
       .insert({

@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useUser } from '../stores';
+import { useUser, useAuthStore } from '../stores';
 import { isAdmin } from '../utils/authUtils';
 import { 
   getReportsForModeration, 
@@ -33,6 +33,7 @@ import toast from 'react-hot-toast';
 
 const ModerationPage = () => {
   const user = useUser();
+  const loginMethod = useAuthStore((state) => state.loginMethod);
   const [reports, setReports] = useState([]);
   const [repeatOffenders, setRepeatOffenders] = useState([]);
   const [activeSuspensions, setActiveSuspensions] = useState({ users: [], listings: [], errands: [] });
@@ -52,20 +53,20 @@ const ModerationPage = () => {
 
   // Check admin access
   useEffect(() => {
-    if (user && !isAdmin(user)) {
+    if (user && !isAdmin(user, loginMethod)) {
       toast.error('Access denied. Admin privileges required.');
     }
-  }, [user]);
+  }, [user, loginMethod]);
 
   // Load data
   useEffect(() => {
-    if (user && isAdmin(user)) {
+    if (user && isAdmin(user, loginMethod)) {
       loadModerationData();
     }
-  }, [user, statusFilter]);
+  }, [user, loginMethod, statusFilter]);
 
   const loadModerationData = async () => {
-    if (!user || !isAdmin(user)) return;
+    if (!user || !isAdmin(user, loginMethod)) return;
     
     setLoading(true);
     try {
@@ -93,7 +94,7 @@ const ModerationPage = () => {
   };
 
   const handleUpdateReportStatus = async (reportId, newStatus, adminNotes = null) => {
-    if (!user || !isAdmin(user)) return;
+    if (!user || !isAdmin(user, loginMethod)) return;
 
     try {
       const result = await updateReportStatus(
@@ -116,7 +117,7 @@ const ModerationPage = () => {
   };
 
   const handleSuspend = async () => {
-    if (!user || !isAdmin(user)) return;
+    if (!user || !isAdmin(user, loginMethod)) return;
     if (!suspensionForm.targetId || !suspensionForm.reason) {
       toast.error('Please fill in all required fields');
       return;
@@ -197,7 +198,7 @@ const ModerationPage = () => {
     return labels[reason] || reason;
   };
 
-  if (!user || !isAdmin(user)) {
+  if (!user || !isAdmin(user, loginMethod)) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">

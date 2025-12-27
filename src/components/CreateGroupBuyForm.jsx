@@ -40,7 +40,7 @@ const CreateGroupBuyForm = () => {
     }
 
     // Enforce vendor role requirement - show upgrade CTA for non-vendors
-    if (!hasRole(user, 'vendor')) {
+    if (!hasRole(user, 'vendor', loginMethod)) {
         return (
             <div className="bg-white rounded-lg shadow-md p-6 mb-8" data-testid="create-product-form">
                 <h3 className="text-xl font-semibold mb-4">{t('groupBuy.createTitle')}</h3>

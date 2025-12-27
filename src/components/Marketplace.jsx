@@ -1,8 +1,10 @@
 import React, { useMemo } from 'react';
 import { MapPin, Clock } from 'lucide-react';
-import { useListings, useGetBatchesByListing } from '../stores';
+import { useListings, useGetBatchesByListing, useUser, useAuthStore } from '../stores';
 import { canJoinBatch } from '../services/supabaseService';
 import { EmptyStateWithAction } from './EmptyState';
+import GuestZeroState from './GuestZeroState';
+import { isGuestUser } from '../utils/authUtils';
 
 /**
  * Marketplace Component
@@ -12,6 +14,8 @@ import { EmptyStateWithAction } from './EmptyState';
 const Marketplace = ({ filters = {}, onJoinListing, user }) => {
     const listings = useListings();
     const getBatchesByListing = useGetBatchesByListing();
+    const loginMethod = useAuthStore((state) => state.loginMethod);
+    const isGuest = user ? isGuestUser(user, loginMethod) : false;
     
     // Get all batches for all listings
     const listingsWithBatches = useMemo(() => {
@@ -153,11 +157,18 @@ const Marketplace = ({ filters = {}, onJoinListing, user }) => {
                     </div>
                 ))
             ) : (
-                <div className="col-span-full py-8">
-                    <EmptyStateWithAction 
-                        type="groupbuys"
-                        message={listings.length === 0 ? 'No listings available' : 'No listings match your filters'}
-                    />
+                <div className="col-span-full">
+                    {/* Show designed zero-state for guests or when no listings exist */}
+                    {listings.length === 0 ? (
+                        <GuestZeroState type="listings" />
+                    ) : (
+                        <div className="py-8">
+                            <EmptyStateWithAction 
+                                type="groupbuys"
+                                message="No listings match your filters"
+                            />
+                        </div>
+                    )}
                 </div>
             )}
         </div>

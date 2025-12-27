@@ -61,9 +61,9 @@ const DashboardPage = () => {
     const loadReferralCodeFromStorage = useLoadReferralCodeFromStorage();
     const referralStats = useReferralStats();
 
-    // Load data on mount
+    // Load data on mount - only for registered users (not guests)
     useEffect(() => {
-      if (user) {
+      if (user && !isGuest) {
         loadListings();
         loadCommunityStats();
         loadUserContribution();
@@ -87,7 +87,7 @@ const DashboardPage = () => {
           });
         });
       }
-    }, [user, loadListings, loadCommunityStats, loadUserContribution, loadCredits, loadReferralStats, generateReferralCode, loadReferralCodeFromStorage]);
+    }, [user, isGuest, loadListings, loadCommunityStats, loadUserContribution, loadCredits, loadReferralStats, generateReferralCode, loadReferralCodeFromStorage]);
     
     // Load batches for all listings when listings change
     useEffect(() => {
@@ -108,7 +108,8 @@ const DashboardPage = () => {
         );
     }
 
-    const roles = user.roles || [];
+    // Guest users have NO roles - filter them out
+    const roles = isGuest ? [] : (user.roles || []);
     const [activeTab, setActiveTab] = useState('overview');
 
     // Calculate user's active and completed items
@@ -315,7 +316,8 @@ const DashboardPage = () => {
                             <p>
                                 <strong>Roles:</strong> {roles.map(role => role.toUpperCase()).join(', ')}
                             </p>
-                            {roles.includes('helper') && (
+                            {/* Only show helper status for registered users, not guests */}
+                            {!isGuest && roles.includes('helper') && (
                                 <p>
                                     <strong>Helper Status:</strong> {user.helperVerified ? 'Verified ✅' : 'Pending Verification'}
                                 </p>
@@ -356,19 +358,23 @@ const DashboardPage = () => {
                         </div>
                     </div>
 
-                    {/* Credits and Referrals Row */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                        {/* Credits Display */}
-                        <CreditsDisplay showHistory={false} compact={false} />
-                        
-                        {/* Referral Share */}
-                        <ReferralShare />
-                    </div>
+                    {/* Credits and Referrals Row - Only for registered users, not guests */}
+                    {!isGuest && (
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                            {/* Credits Display */}
+                            <CreditsDisplay showHistory={false} compact={false} />
+                            
+                            {/* Referral Share */}
+                            <ReferralShare />
+                        </div>
+                    )}
 
-                    {/* Referral Badges */}
-                    <div className="mb-8">
-                        <ReferralBadges />
-                    </div>
+                    {/* Referral Badges - Only for registered users, not guests */}
+                    {!isGuest && (
+                        <div className="mb-8">
+                            <ReferralBadges />
+                        </div>
+                    )}
 
                     {/* Quick Actions - Hidden for guest users */}
                     {!isGuest && (

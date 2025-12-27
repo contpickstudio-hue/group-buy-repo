@@ -115,6 +115,14 @@ const ListingDetailPage = () => {
             return;
         }
 
+        // RBAC check: Only CUSTOMER can join group buys (action level)
+        const { checkPermission } = await import('../utils/rbacUtils');
+        const permissionCheck = checkPermission(user, loginMethod, 'customer');
+        if (!permissionCheck.allowed) {
+            toast.error(permissionCheck.error);
+            return;
+        }
+
         if (!selectedBatch) {
             toast.error('Please select a region');
             return;
@@ -144,6 +152,14 @@ const ListingDetailPage = () => {
 
     const handlePaymentSuccess = async (paymentData) => {
         try {
+            // RBAC check: Only CUSTOMER can create orders (action level - additional security)
+            const { checkPermission } = await import('../utils/rbacUtils');
+            const permissionCheck = checkPermission(user, loginMethod, 'customer');
+            if (!permissionCheck.allowed) {
+                toast.error(permissionCheck.error);
+                return;
+            }
+
             // Import escrow service
             const { placeOrderInEscrow } = await import('../services/escrowService');
             

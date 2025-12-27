@@ -1,11 +1,17 @@
 import React from 'react';
-import { useProducts, useErrands, useSetCurrentScreen } from '../stores';
+import { useProducts, useErrands, useSetCurrentScreen, useUser, useAuthStore } from '../stores';
 import { EmptyStateWithAction } from '../components/EmptyState';
+import GuestZeroState from '../components/GuestZeroState';
+import { isGuestUser } from '../utils/authUtils';
+import { t } from '../utils/translations';
 
 const BrowsePage = () => {
     const products = useProducts();
     const errands = useErrands();
     const setCurrentScreen = useSetCurrentScreen();
+    const user = useUser();
+    const loginMethod = useAuthStore((state) => state.loginMethod);
+    const isGuest = user ? isGuestUser(user, loginMethod) : false;
 
     const featuredProducts = products.slice(0, 3);
     const featuredErrands = errands.slice(0, 3);
@@ -16,25 +22,25 @@ const BrowsePage = () => {
             <div className="text-center mb-8 sm:mb-12 animate-fade-in">
                 <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold mb-3">
                     <span className="w-2 h-2 bg-blue-600 rounded-full mr-2 animate-pulse-slow"></span>
-                    Live marketplace
+                    {t('browsePage.liveMarketplace')}
                 </div>
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight">
-                    Browse group buys & errands
+                    {t('browsePage.browseTitle')}
                 </h1>
                 <p className="text-gray-600 text-base sm:text-lg max-w-2xl mx-auto px-4">
-                    Discover what the community is organizing right now.
+                    {t('browsePage.discoverCommunity')}
                 </p>
             </div>
 
             {/* Featured Group Buys */}
             <div className="mb-10 sm:mb-12 animate-slide-up">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
-                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Featured Group Buys</h2>
+                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('browsePage.featuredGroupBuys')}</h2>
                     <button
                         onClick={() => setCurrentScreen('groupbuys')}
                         className="btn-ghost text-sm sm:text-base flex items-center gap-1 group"
                     >
-                        View more
+                        {t('browsePage.viewMore')}
                         <span className="group-hover:translate-x-1 transition-transform">→</span>
                     </button>
                 </div>
@@ -70,7 +76,7 @@ const BrowsePage = () => {
                                         <span className="text-2xl sm:text-3xl font-bold text-gray-900">
                                             ${product.price}
                                         </span>
-                                        <span className="text-sm text-gray-500">per unit</span>
+                                        <span className="text-sm text-gray-500">{t('browsePage.perUnit')}</span>
                                     </div>
                                     
                                     {/* Progress Bar */}
@@ -86,10 +92,10 @@ const BrowsePage = () => {
                                     {/* Stats */}
                                     <div className="flex justify-between items-center text-sm mb-4">
                                         <span className="text-gray-600 font-medium">
-                                            {product.currentQuantity}/{product.targetQuantity} committed
+                                            {product.currentQuantity}/{product.targetQuantity} {t('browsePage.committed')}
                                         </span>
                                         <span className="text-blue-600 font-bold">
-                                            {Math.round((product.currentQuantity / product.targetQuantity) * 100)}% funded
+                                            {Math.round((product.currentQuantity / product.targetQuantity) * 100)}% {t('browsePage.funded')}
                                         </span>
                                     </div>
                                     
@@ -100,7 +106,7 @@ const BrowsePage = () => {
                                         }}
                                         className="w-full btn-primary text-sm sm:text-base py-3 min-h-[48px]"
                                     >
-                                        View Details
+                                        {t('browsePage.viewDetails')}
                                     </button>
                                 </div>
                             </div>
@@ -108,10 +114,14 @@ const BrowsePage = () => {
                     </div>
                 ) : (
                     <div className="card-empty">
-                        <EmptyStateWithAction 
-                            type="groupbuys"
-                            message="No featured group buys yet"
-                        />
+                        {products.length === 0 ? (
+                            <GuestZeroState type="groupbuys" />
+                        ) : (
+                            <EmptyStateWithAction 
+                                type="groupbuys"
+                                message={t('browsePage.noFeaturedMatchFilters')}
+                            />
+                        )}
                     </div>
                 )}
             </div>
@@ -119,12 +129,12 @@ const BrowsePage = () => {
             {/* Open Errands */}
             <div className="animate-slide-up">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
-                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Open Errands</h2>
+                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('browsePage.openErrands')}</h2>
                     <button
                         onClick={() => setCurrentScreen('errands')}
                         className="btn-ghost text-sm sm:text-base flex items-center gap-1 group"
                     >
-                        View all
+                        {t('browsePage.viewAll')}
                         <span className="group-hover:translate-x-1 transition-transform">→</span>
                     </button>
                 </div>
@@ -167,7 +177,7 @@ const BrowsePage = () => {
                                     }}
                                     className="w-full mt-4 btn-secondary text-sm sm:text-base py-3 min-h-[48px]"
                                 >
-                                    View Details
+                                    {t('browsePage.viewDetails')}
                                 </button>
                             </div>
                         ))}
@@ -176,7 +186,7 @@ const BrowsePage = () => {
                     <div className="card-empty">
                         <EmptyStateWithAction 
                             type="errands"
-                            message="No errands available"
+                            message={t('errand.noErrandsAvailable')}
                         />
                     </div>
                 )}

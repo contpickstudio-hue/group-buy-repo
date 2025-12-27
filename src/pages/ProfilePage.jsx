@@ -17,7 +17,7 @@ import CommunitySavings from '../components/CommunitySavings';
 import ReferralShare from '../components/ReferralShare';
 import ReferralBadges from '../components/ReferralBadges';
 import CreditsDisplay from '../components/CreditsDisplay';
-import { getUserDisplayName } from '../utils/authUtils';
+import { getUserDisplayName, isGuestUser } from '../utils/authUtils';
 
 const ProfilePage = () => {
     try {
@@ -43,16 +43,16 @@ const ProfilePage = () => {
         const loadReferralStats = useLoadReferralStats();
         const generateReferralCode = useGenerateReferralCode();
 
-        // Load data on mount
+        // Load data on mount - only for registered users (not guests)
         useEffect(() => {
-            if (user) {
+            if (user && !isGuest) {
                 loadCommunityStats();
                 loadUserContribution();
                 loadCredits();
                 loadReferralStats();
                 generateReferralCode();
             }
-        }, [user, loadCommunityStats, loadUserContribution, loadCredits, loadReferralStats, generateReferralCode]);
+        }, [user, isGuest, loadCommunityStats, loadUserContribution, loadCredits, loadReferralStats, generateReferralCode]);
 
     if (!user) {
         return (
@@ -81,7 +81,9 @@ const ProfilePage = () => {
         }
     };
 
-    const roles = user.roles || [];
+    // Guest users have NO roles - filter them out
+    const isGuest = isGuestUser(user, loginMethod);
+    const roles = isGuest ? [] : (user.roles || []);
 
     if (showOrders) {
         return (
@@ -117,7 +119,8 @@ const ProfilePage = () => {
                         <h3 className="text-xl font-semibold">{displayName}</h3>
                         <p className="opacity-90">{user.email}</p>
                         <div className="flex space-x-2 mt-2">
-                            {roles.map(role => (
+                            {/* Only show roles for registered users, not guests */}
+                            {!isGuest && roles.map(role => (
                                 <span
                                     key={role}
                                     className="px-2 py-1 bg-white bg-opacity-20 rounded text-sm font-medium"
@@ -125,7 +128,8 @@ const ProfilePage = () => {
                                     {role.toUpperCase()}
                                 </span>
                             ))}
-                            {user.helperVerified && (
+                            {/* Only show verified status for registered users, not guests */}
+                            {!isGuest && user.helperVerified && (
                                 <span className="px-2 py-1 bg-green-500 bg-opacity-80 rounded text-sm font-medium">
                                     Verified ✓
                                 </span>
@@ -214,20 +218,24 @@ const ProfilePage = () => {
                 </div>
             </div>
 
-            {/* Referral Section */}
-            <div className="bg-white rounded-lg shadow-md mb-8">
-                <div className="p-6 border-b border-gray-200">
-                    <h3 className="text-lg font-semibold">Referrals</h3>
-                </div>
-                <div className="p-6">
-                    <ReferralShare />
-                </div>
-            </div>
+            {/* Referral Section - Only for registered users, not guests */}
+            {!isGuest && (
+                <>
+                    <div className="bg-white rounded-lg shadow-md mb-8">
+                        <div className="p-6 border-b border-gray-200">
+                            <h3 className="text-lg font-semibold">Referrals</h3>
+                        </div>
+                        <div className="p-6">
+                            <ReferralShare />
+                        </div>
+                    </div>
 
-            {/* Referral Badges */}
-            <div className="mb-8">
-                <ReferralBadges />
-            </div>
+                    {/* Referral Badges */}
+                    <div className="mb-8">
+                        <ReferralBadges />
+                    </div>
+                </>
+            )}
 
             {/* Credits Section */}
             <div className="bg-white rounded-lg shadow-md mb-8">
@@ -239,8 +247,8 @@ const ProfilePage = () => {
                 </div>
             </div>
 
-            {/* Helper Profile */}
-            {roles.includes('helper') && (
+            {/* Helper Profile - Only for registered users with helper role */}
+            {!isGuest && roles.includes('helper') && (
                 <div className="bg-white rounded-lg shadow-md mb-8">
                     <div className="p-6 border-b border-gray-200">
                         <h3 className="text-lg font-semibold">Helper Profile</h3>

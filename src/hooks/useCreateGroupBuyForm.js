@@ -54,7 +54,8 @@ const useCreateGroupBuyForm = () => {
 
         // Enforce vendor role at hook level - additional security check
         const user = useUser();
-        if (!user || !hasRole(user, 'vendor')) {
+        const loginMethod = useAuthStore((state) => state.loginMethod);
+        if (!user || !hasRole(user, 'vendor', loginMethod)) {
             const errorMsg = 'Only users with vendor role can create group buys. Please upgrade your account.';
             setError(errorMsg);
             toast.error(errorMsg, { duration: 5000 });

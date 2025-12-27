@@ -4,7 +4,7 @@ import NotificationIcon from './NotificationIcon';
 import ChatIcon from './ChatIcon';
 import LanguageDropdown from './LanguageDropdown';
 import { useTranslation } from '../contexts/TranslationProvider';
-import { isAdmin, getUserDisplayName } from '../utils/authUtils';
+import { isAdmin, getUserDisplayName, isGuestUser } from '../utils/authUtils';
 
 const Navbar = () => {
     const user = useUser();
@@ -43,7 +43,7 @@ const Navbar = () => {
             { key: 'groupbuys', label: safeTranslate('common.groupBuys', 'Group Buys'), screen: 'groupbuys' },
             { key: 'errands', label: safeTranslate('common.errands', 'Errands'), screen: 'errands' },
             { key: 'dashboard', label: safeTranslate('common.dashboard', 'Dashboard'), screen: 'dashboard' },
-            ...(isAdmin(user) ? [{ key: 'moderation', label: 'Moderation', screen: 'moderation' }] : [])
+            ...(isAdmin(user, loginMethod) ? [{ key: 'moderation', label: 'Moderation', screen: 'moderation' }] : [])
         ]
         : [
             { key: 'start', label: safeTranslate('common.home', 'Home'), screen: 'start' },
@@ -113,7 +113,8 @@ const Navbar = () => {
                                     <div className="hidden sm:block">
                                         <div className="text-sm font-semibold text-gray-900">{displayName}</div>
                                         <div className="flex flex-wrap gap-1 mt-0.5">
-                                            {user.roles?.map(role => (
+                                            {/* Only show roles for registered users, not guests */}
+                                            {!isGuestUser(user, loginMethod) && user.roles?.map(role => (
                                                 <span
                                                     key={role}
                                                     className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold text-white shadow-sm ${
@@ -126,7 +127,8 @@ const Navbar = () => {
                                                     {role.toUpperCase()}
                                                 </span>
                                             ))}
-                                            {user.helperVerified && (
+                                            {/* Only show verified status for registered users, not guests */}
+                                            {!isGuestUser(user, loginMethod) && user.helperVerified && (
                                                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-sm">
                                                     ✓ Verified
                                                 </span>

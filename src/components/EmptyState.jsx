@@ -51,14 +51,14 @@ export const EmptyStateWithAction = ({
     const loginMethod = useAuthStore((state) => state.loginMethod);
     const isGuest = isGuestUser(user, loginMethod);
     const setCurrentScreen = useSetCurrentScreen();
-    const isVendor = hasRole(user, 'vendor');
-    const isCustomer = hasRole(user, 'customer');
+    const isVendor = hasRole(user, 'vendor', loginMethod);
+    const isCustomer = hasRole(user, 'customer', loginMethod);
 
     const getConfig = () => {
         if (!user || isGuest) {
-            // Guest users - show sign up CTA
+            // Guest users - show early access messaging
             return {
-                message: message || t('emptyState.signUpToGetStarted'),
+                message: message || 'This community marketplace is in early access. Group buys will appear here as vendors create listings.',
                 actionLabel: t('auth.signUpToContinue'),
                 action: () => setCurrentScreen('auth')
             };
@@ -68,8 +68,8 @@ export const EmptyStateWithAction = ({
             case 'groupbuys':
                 if (isVendor) {
                     return {
-                        message: message || t('emptyState.noGroupBuysYet'),
-                        actionLabel: t('emptyState.createFirstOne'),
+                        message: message || 'Be the first to create a group buy in your region. Start building the community marketplace.',
+                        actionLabel: 'Create the First Group Buy',
                         action: () => {
                             setCurrentScreen('dashboard');
                             setTimeout(() => {
@@ -82,8 +82,8 @@ export const EmptyStateWithAction = ({
                     };
                 } else {
                     return {
-                        message: message || t('emptyState.noGroupBuysAvailable'),
-                        actionLabel: t('emptyState.browseMarketplace'),
+                        message: message || 'Group buys will appear here as vendors create listings for your region. Join when your area opens.',
+                        actionLabel: 'Browse Marketplace',
                         action: () => setCurrentScreen('groupbuys')
                     };
                 }

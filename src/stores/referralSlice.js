@@ -15,32 +15,10 @@ import {
 } from '../services/creditsService';
 import { supabaseClient, dbSaveSlice, dbLoadSlice, StorageKeys } from '../services/supabaseService';
 import { useAuthStore } from './authStore';
+import { isGuestUser } from '../utils/authUtils';
 
-// Helper function to generate referral code locally for demo users
-async function generateLocalReferralCode(userEmail) {
-  // Check localStorage first
-  const storageKey = `referral_code_${userEmail}`;
-  const stored = await dbLoadSlice(storageKey, null);
-  if (stored) {
-    return stored;
-  }
-  
-  // Generate new code
-  const emailPrefix = userEmail
-    .split('@')[0]
-    .substring(0, 3)
-    .toUpperCase()
-    .replace(/[^A-Z0-9]/g, '')
-    .padEnd(3, 'X');
-  
-  const randomSuffix = Math.random().toString(36).substring(2, 8).toUpperCase();
-  const code = `${emailPrefix}${randomSuffix}`;
-  
-  // Save to localStorage
-  await dbSaveSlice(storageKey, code);
-  
-  return code;
-}
+// Note: Removed generateLocalReferralCode - referrals now only persist to database for authenticated users
+// This prevents trust abuse and ensures referrals are only available to registered users
 
 export const createReferralSlice = (set, get) => ({
   // Referral state
@@ -66,36 +44,22 @@ export const createReferralSlice = (set, get) => ({
     const user = useAuthStore.getState().user;
     const loginMethod = useAuthStore.getState().loginMethod;
     
-    if (!user || (!user.email && !user.id)) {
+    // Restrict to registered users only - guests cannot access referrals
+    if (!user || (!user.email && !user.id) || isGuestUser(user, loginMethod)) {
       return;
     }
     const userEmail = user.email || user.id;
 
     try {
-      // For demo users or when no session, load from localStorage
-      if (loginMethod === 'demo') {
-        const storageKey = `referral_code_${userEmail}`;
-        const storedCode = await dbLoadSlice(storageKey, null);
-        if (storedCode) {
-          set((state) => {
-            state.referralCode = storedCode;
-          });
-          return;
-        }
-      }
-      
-      // For authenticated users, check session
+      // Require valid Supabase session - referrals only for authenticated registered users
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (!session) {
-        // No session - try to load from localStorage as fallback
-        const storageKey = `referral_code_${userEmail}`;
-        const storedCode = await dbLoadSlice(storageKey, null);
-        if (storedCode) {
-          set((state) => {
-            state.referralCode = storedCode;
-          });
-        }
+        // No session - cannot load referral code (guests cannot access referrals)
+        return;
       }
+      
+      // Authenticated user - referral code will be loaded from database when generateReferralCode is called
+      // No need to load from localStorage as referrals now only persist to database
     } catch (error) {
       console.warn('Failed to load referral code from storage:', error);
     }
@@ -107,9 +71,9 @@ export const createReferralSlice = (set, get) => ({
     const user = useAuthStore.getState().user;
     const loginMethod = useAuthStore.getState().loginMethod;
     
-    // Support both real and demo users
-    if (!user || (!user.email && !user.id)) {
-      return { success: false, error: 'User not authenticated' };
+    // Restrict to registered users only - guests cannot generate referral codes
+    if (!user || (!user.email && !user.id) || isGuestUser(user, loginMethod)) {
+      return { success: false, error: 'Referral codes are only available for registered users. Please sign up to generate a referral code.' };
     }
     
     const userEmail = user.email || user.id;
@@ -120,30 +84,18 @@ export const createReferralSlice = (set, get) => ({
     });
 
     try {
-      // Check if user has a Supabase session or is demo user
-      let code;
+      // Require valid Supabase session - referrals only for authenticated registered users
+      const { data: { session } } = await supabaseClient.auth.getSession();
       
-      if (loginMethod === 'demo') {
-        // Demo user - generate and store locally
-        code = await generateLocalReferralCode(userEmail);
-      } else {
-        // Check for Supabase session
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        
-        if (session && supabaseClient) {
-          // Authenticated user - try to get/create code from Supabase
-          try {
-            code = await apiGetUserReferralCode(userEmail);
-          } catch (error) {
-            // If Supabase fails, fall back to localStorage
-            console.warn('Failed to get referral code from Supabase, using localStorage:', error);
-            code = await generateLocalReferralCode(userEmail);
-          }
-        } else {
-          // No session - generate and store locally
-          code = await generateLocalReferralCode(userEmail);
-        }
+      if (!session || !supabaseClient) {
+        return { 
+          success: false, 
+          error: 'Referral codes require an active session. Please sign up or log in to generate a referral code.' 
+        };
       }
+      
+      // Authenticated user - get/create code from Supabase (persists to database)
+      const code = await apiGetUserReferralCode(userEmail);
       
       set((state) => {
         state.referralCode = code;
@@ -162,8 +114,11 @@ export const createReferralSlice = (set, get) => ({
   
 
   loadReferralStats: async () => {
-    const { user } = get();
-    if (!user || (!user.email && !user.id)) {
+    const user = useAuthStore.getState().user;
+    const loginMethod = useAuthStore.getState().loginMethod;
+    
+    // Restrict to registered users only - guests cannot load referral stats
+    if (!user || (!user.email && !user.id) || isGuestUser(user, loginMethod)) {
       return;
     }
     const userEmail = user.email || user.id;
@@ -187,8 +142,11 @@ export const createReferralSlice = (set, get) => ({
   },
 
   loadReferrals: async () => {
-    const { user } = get();
-    if (!user || (!user.email && !user.id)) {
+    const user = useAuthStore.getState().user;
+    const loginMethod = useAuthStore.getState().loginMethod;
+    
+    // Restrict to registered users only - guests cannot load referrals
+    if (!user || (!user.email && !user.id) || isGuestUser(user, loginMethod)) {
       return;
     }
     const userEmail = user.email || user.id;
@@ -206,8 +164,11 @@ export const createReferralSlice = (set, get) => ({
   },
 
   loadCredits: async () => {
-    const { user } = get();
-    if (!user || (!user.email && !user.id)) {
+    const user = useAuthStore.getState().user;
+    const loginMethod = useAuthStore.getState().loginMethod;
+    
+    // Restrict to registered users only - guests cannot load credits
+    if (!user || (!user.email && !user.id) || isGuestUser(user, loginMethod)) {
       return;
     }
     const userEmail = user.email || user.id;
@@ -225,8 +186,11 @@ export const createReferralSlice = (set, get) => ({
   },
 
   loadCreditsHistory: async (limit = 50) => {
-    const { user } = get();
-    if (!user || (!user.email && !user.id)) {
+    const user = useAuthStore.getState().user;
+    const loginMethod = useAuthStore.getState().loginMethod;
+    
+    // Restrict to registered users only - guests cannot load credits history
+    if (!user || (!user.email && !user.id) || isGuestUser(user, loginMethod)) {
       return;
     }
     const userEmail = user.email || user.id;
@@ -244,9 +208,12 @@ export const createReferralSlice = (set, get) => ({
   },
 
   applyCredits: async (orderId, amount) => {
-    const { user } = get();
-    if (!user || (!user.email && !user.id)) {
-      return { success: false, error: 'User not authenticated' };
+    const user = useAuthStore.getState().user;
+    const loginMethod = useAuthStore.getState().loginMethod;
+    
+    // Restrict to registered users only - guests cannot apply credits
+    if (!user || (!user.email && !user.id) || isGuestUser(user, loginMethod)) {
+      return { success: false, error: 'Credits are only available for registered users. Please sign up to use credits.' };
     }
     const userEmail = user.email || user.id;
 
@@ -261,6 +228,14 @@ export const createReferralSlice = (set, get) => ({
   },
 
   shareReferral: (productId = null) => {
+    const user = useAuthStore.getState().user;
+    const loginMethod = useAuthStore.getState().loginMethod;
+    
+    // Restrict to registered users only - guests cannot share referral codes
+    if (!user || (!user.email && !user.id) || isGuestUser(user, loginMethod)) {
+      return null;
+    }
+    
     const { referralCode } = get();
     if (!referralCode) {
       // Generate code if not exists
@@ -298,9 +273,12 @@ export const createReferralSlice = (set, get) => ({
   },
 
   createProductReferral: async (productId) => {
-    const { user } = get();
-    if (!user || (!user.email && !user.id)) {
-      return { success: false, error: 'User not authenticated' };
+    const user = useAuthStore.getState().user;
+    const loginMethod = useAuthStore.getState().loginMethod;
+    
+    // Restrict to registered users only - guests cannot create product referrals
+    if (!user || (!user.email && !user.id) || isGuestUser(user, loginMethod)) {
+      return { success: false, error: 'Product referrals are only available for registered users. Please sign up to create referrals.' };
     }
     const userEmail = user.email || user.id;
 

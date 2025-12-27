@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Plus, Store, HandHeart, Search, ShoppingCart } from 'lucide-react';
 import { useUser, useCurrentScreen, useSetCurrentScreen, useAuthStore } from '../stores';
-import { isGuestUser } from '../utils/authUtils';
+import { isGuestUser, hasRole } from '../utils/authUtils';
+import { checkPermission } from '../utils/rbacUtils';
 
 const FloatingActionButton = () => {
     const user = useUser();
@@ -71,80 +72,180 @@ const FloatingActionButton = () => {
 
     const loginMethod = useAuthStore((state) => state.loginMethod);
     const isGuest = isGuestUser(user, loginMethod);
-    const roles = user.roles || [];
+
+    // Guard: Don't render FAB for guest users or users without any valid roles
+    if (isGuest) return null;
+
+    // Check if user has any valid roles for FAB actions
+    const hasVendorRole = hasRole(user, 'vendor', loginMethod);
+    const hasCustomerRole = hasRole(user, 'customer', loginMethod);
+    const hasHelperRole = hasRole(user, 'helper', loginMethod);
+    
+    // If user has no valid roles, don't show FAB
+    if (!hasVendorRole && !hasCustomerRole && !hasHelperRole) {
+        return null;
+    }
 
     const handleFabClick = () => {
         setIsMenuOpen(!isMenuOpen);
     };
 
     const handleActionClick = (action) => {
-        action();
-        setIsMenuOpen(false);
+        try {
+            action();
+            setIsMenuOpen(false);
+        } catch (error) {
+            // Fail silently in production - no error messages to users
+            if (import.meta.env.DEV) {
+                console.error('FAB action error:', error);
+            }
+            setIsMenuOpen(false);
+        }
     };
 
-    // Define available actions based on user roles
-    // Guest users can only browse, not create content
+    // Define available actions based on user roles with RBAC checks
     const actions_list = [];
 
-    if (!isGuest && roles.includes('vendor')) {
+    // Vendor action - guarded by RBAC
+    if (hasVendorRole) {
         actions_list.push({
             icon: Store,
             label: 'Create Group Buy',
             action: () => {
-                setCurrentScreen('dashboard');
-                // Scroll to create product form after navigation
-                setTimeout(() => {
-                    const createForm = document.querySelector('[data-testid="create-product-form"]');
-                    if (createForm) {
-                        createForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        const titleInput = createForm.querySelector('input[name="title"]');
-                        if (titleInput) titleInput.focus();
+                // RBAC check before navigation
+                const permissionCheck = checkPermission(user, loginMethod, 'vendor');
+                if (!permissionCheck.allowed) {
+                    // Silently fail - user shouldn't see this option if they don't have permission
+                    // But guard against edge cases
+                    if (import.meta.env.DEV) {
+                        console.warn('Vendor permission check failed in FAB');
                     }
-                }, 100);
+                    return;
+                }
+
+                try {
+                    setCurrentScreen('dashboard');
+                    // Scroll to create product form after navigation
+                    setTimeout(() => {
+                        try {
+                            const createForm = document.querySelector('[data-testid="create-product-form"]');
+                            if (createForm) {
+                                createForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                const titleInput = createForm.querySelector('input[name="title"]');
+                                if (titleInput) titleInput.focus();
+                            }
+                        } catch (scrollError) {
+                            // Fail silently - scrolling errors shouldn't break the app
+                            if (import.meta.env.DEV) {
+                                console.warn('Failed to scroll to form:', scrollError);
+                            }
+                        }
+                    }, 100);
+                } catch (error) {
+                    // Fail silently
+                    if (import.meta.env.DEV) {
+                        console.error('Error navigating to dashboard:', error);
+                    }
+                }
             }
         });
     }
 
-    if (!isGuest && roles.includes('customer')) {
+    // Customer action - guarded by RBAC
+    if (hasCustomerRole) {
         actions_list.push({
             icon: HandHeart,
             label: 'Post Errand',
             action: () => {
-                setCurrentScreen('errands');
-                // Scroll to create errand form after navigation
-                setTimeout(() => {
-                    const createForm = document.querySelector('[data-testid="create-errand-form"]');
-                    if (createForm) {
-                        createForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        const titleInput = createForm.querySelector('input[name="title"]');
-                        if (titleInput) titleInput.focus();
+                // RBAC check before navigation
+                const permissionCheck = checkPermission(user, loginMethod, 'customer');
+                if (!permissionCheck.allowed) {
+                    // Silently fail
+                    if (import.meta.env.DEV) {
+                        console.warn('Customer permission check failed in FAB');
                     }
-                }, 100);
+                    return;
+                }
+
+                try {
+                    setCurrentScreen('errands');
+                    // Scroll to create errand form after navigation
+                    setTimeout(() => {
+                        try {
+                            const createForm = document.querySelector('[data-testid="create-errand-form"]');
+                            if (createForm) {
+                                createForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                const titleInput = createForm.querySelector('input[name="title"]');
+                                if (titleInput) titleInput.focus();
+                            }
+                        } catch (scrollError) {
+                            // Fail silently
+                            if (import.meta.env.DEV) {
+                                console.warn('Failed to scroll to form:', scrollError);
+                            }
+                        }
+                    }, 100);
+                } catch (error) {
+                    // Fail silently
+                    if (import.meta.env.DEV) {
+                        console.error('Error navigating to errands:', error);
+                    }
+                }
             }
         });
     }
 
-    if (roles.includes('helper')) {
+    // Helper action - guarded by RBAC
+    if (hasHelperRole) {
         actions_list.push({
             icon: Search,
             label: 'Browse Errands',
             action: () => {
-                setCurrentScreen('errands');
+                // RBAC check before navigation
+                const permissionCheck = checkPermission(user, loginMethod, 'helper');
+                if (!permissionCheck.allowed) {
+                    // Silently fail
+                    if (import.meta.env.DEV) {
+                        console.warn('Helper permission check failed in FAB');
+                    }
+                    return;
+                }
+
+                try {
+                    setCurrentScreen('errands');
+                } catch (error) {
+                    // Fail silently
+                    if (import.meta.env.DEV) {
+                        console.error('Error navigating to errands:', error);
+                    }
+                }
             }
         });
     }
 
-    // Always show browse option
+    // Always show browse option (no role required, just navigation)
     actions_list.push({
         icon: ShoppingCart,
         label: 'Browse Group Buys',
         action: () => {
-            setCurrentScreen('groupbuys');
+            try {
+                setCurrentScreen('groupbuys');
+            } catch (error) {
+                // Fail silently
+                if (import.meta.env.DEV) {
+                    console.error('Error navigating to groupbuys:', error);
+                }
+            }
         }
     });
 
     // Hide FAB when input is focused
     if (isInputFocused) {
+        return null;
+    }
+
+    // Safety check: Don't render FAB if no actions available
+    if (actions_list.length === 0) {
         return null;
     }
 
