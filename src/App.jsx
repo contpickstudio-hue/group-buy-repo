@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { useCurrentScreen, useSetCurrentScreen, useLoading, useError, useNotifications, useRemoveNotification, useUser, useCheckAuthStatus, useLoadProducts, useLoadOrders, useLoadErrands } from './stores';
+import { useAuthStore } from './stores/authStore';
 import GlobalErrorBoundary, { SectionErrorBoundary } from './components/ErrorBoundary';
 import Navbar from './components/Navbar';
 import BottomNavigation from './components/BottomNavigation';
@@ -147,13 +148,23 @@ function AppContent() {
                     if (storedUser) {
                         // Restore user to store immediately
                         setUser(storedUser);
+                        // If it's a demo user, set login method and skip Supabase check
+                        if (storedLoginMethod === 'demo' || storedUser.email === 'test@demo.com') {
+                            useAuthStore.setState({ loginMethod: 'demo' });
+                            // Skip checkAuthStatus for demo users to prevent overwriting
+                        } else {
+                            // Check authentication status (validates with Supabase)
+                            await checkAuthStatus();
+                        }
+                    } else {
+                        // No stored user - check authentication status
+                        await checkAuthStatus();
                     }
                 } catch (error) {
                     console.warn('Failed to restore user from storage:', error);
+                    // If restore fails, still check auth status
+                    await checkAuthStatus();
                 }
-                
-                // Check authentication status (validates with Supabase)
-                await checkAuthStatus();
                 
                 // Load initial data
                 await Promise.all([

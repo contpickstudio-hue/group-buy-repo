@@ -21,6 +21,17 @@ export const useAuthStore = create()(
         });
 
         try {
+          // Don't overwrite demo users - check if current user is demo first
+          const currentState = get();
+          if (currentState.loginMethod === 'demo' && currentState.user) {
+            // Demo user - don't check Supabase, just ensure it's persisted
+            await setStorageItem(StorageKeys.user, currentState.user);
+            set((state) => {
+              state.authLoading = false;
+            });
+            return;
+          }
+
           const { user, error } = await getCurrentUser();
           if (error) throw error;
           
@@ -41,11 +52,14 @@ export const useAuthStore = create()(
             
             await setStorageItem(StorageKeys.user, userProfile);
           } else {
-            set((state) => {
-              state.user = null;
-              state.loginMethod = null;
-            });
-            await removeStorageItem(StorageKeys.user);
+            // Only clear if not a demo user
+            if (currentState.loginMethod !== 'demo') {
+              set((state) => {
+                state.user = null;
+                state.loginMethod = null;
+              });
+              await removeStorageItem(StorageKeys.user);
+            }
           }
         } catch (error) {
           set((state) => {
@@ -191,12 +205,17 @@ export const useAuthStore = create()(
 
       signOut: async () => {
         try {
-          await supabaseSignOut();
+          const currentState = get();
+          // Only call Supabase signOut if not a demo user
+          if (currentState.loginMethod !== 'demo') {
+            await supabaseSignOut();
+          }
           set((state) => {
             state.user = null;
             state.loginMethod = null;
           });
           await removeStorageItem(StorageKeys.user);
+          await removeStorageItem(StorageKeys.loginMethod);
           return { success: true };
         } catch (error) {
           return { success: false, error: error.message };
@@ -250,7 +269,9 @@ export const useAuthStore = create()(
           state.loginMethod = 'demo';
         });
         
+        // Save both user and login method to storage
         await setStorageItem(StorageKeys.user, demoUser);
+        await setStorageItem(StorageKeys.loginMethod, 'demo');
         return { success: true, user: demoUser };
       },
 

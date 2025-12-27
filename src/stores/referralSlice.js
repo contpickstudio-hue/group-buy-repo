@@ -13,6 +13,33 @@ import {
   applyCreditsToOrder as apiApplyCreditsToOrder,
   getCreditsHistory as apiGetCreditsHistory
 } from '../services/creditsService';
+import { supabaseClient, dbSaveSlice, dbLoadSlice, StorageKeys } from '../services/supabaseService';
+
+// Helper function to generate referral code locally for demo users
+async function generateLocalReferralCode(userEmail) {
+  // Check localStorage first
+  const storageKey = `referral_code_${userEmail}`;
+  const stored = await dbLoadSlice(storageKey, null);
+  if (stored) {
+    return stored;
+  }
+  
+  // Generate new code
+  const emailPrefix = userEmail
+    .split('@')[0]
+    .substring(0, 3)
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, '')
+    .padEnd(3, 'X');
+  
+  const randomSuffix = Math.random().toString(36).substring(2, 8).toUpperCase();
+  const code = `${emailPrefix}${randomSuffix}`;
+  
+  // Save to localStorage
+  await dbSaveSlice(storageKey, code);
+  
+  return code;
+}
 
 export const createReferralSlice = (set, get) => ({
   // Referral state
@@ -32,12 +59,40 @@ export const createReferralSlice = (set, get) => ({
   referralLoading: false,
   referralError: null,
 
+  // Load referral code from localStorage on initialization
+  loadReferralCodeFromStorage: async () => {
+    const { user } = get();
+    if (!user || (!user.email && !user.id)) {
+      return;
+    }
+    const userEmail = user.email || user.id;
+
+    try {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) {
+        // Demo user - try to load from localStorage
+        const storageKey = `referral_code_${userEmail}`;
+        const storedCode = await dbLoadSlice(storageKey, null);
+        if (storedCode) {
+          set((state) => {
+            state.referralCode = storedCode;
+          });
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to load referral code from storage:', error);
+    }
+  },
+
   // Actions
   generateReferralCode: async () => {
-    const { user } = get();
-    if (!user || !user.email) {
+    const { user, loginMethod } = get();
+    // Support both real and demo users
+    if (!user || (!user.email && !user.id)) {
       return { success: false, error: 'User not authenticated' };
     }
+    
+    const userEmail = user.email || user.id;
 
     set((state) => {
       state.referralLoading = true;
@@ -45,33 +100,60 @@ export const createReferralSlice = (set, get) => ({
     });
 
     try {
-      const code = await apiGetUserReferralCode(user.email);
+      // Check if user has a Supabase session or is demo user
+      let code;
+      
+      if (loginMethod === 'demo') {
+        // Demo user - generate and store locally
+        code = await generateLocalReferralCode(userEmail);
+      } else {
+        // Check for Supabase session
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        
+        if (session && supabaseClient) {
+          // Authenticated user - try to get/create code from Supabase
+          try {
+            code = await apiGetUserReferralCode(userEmail);
+          } catch (error) {
+            // If Supabase fails, fall back to localStorage
+            console.warn('Failed to get referral code from Supabase, using localStorage:', error);
+            code = await generateLocalReferralCode(userEmail);
+          }
+        } else {
+          // No session - generate and store locally
+          code = await generateLocalReferralCode(userEmail);
+        }
+      }
+      
       set((state) => {
         state.referralCode = code;
         state.referralLoading = false;
       });
       return { success: true, code };
     } catch (error) {
+      const errorMessage = error?.message || 'Failed to generate referral code';
       set((state) => {
-        state.referralError = error.message;
+        state.referralError = errorMessage;
         state.referralLoading = false;
       });
-      return { success: false, error: error.message };
+      return { success: false, error: errorMessage };
     }
   },
+  
 
   loadReferralStats: async () => {
     const { user } = get();
-    if (!user || !user.email) {
+    if (!user || (!user.email && !user.id)) {
       return;
     }
+    const userEmail = user.email || user.id;
 
     set((state) => {
       state.referralLoading = true;
     });
 
     try {
-      const stats = await apiGetReferralStats(user.email);
+      const stats = await apiGetReferralStats(userEmail);
       set((state) => {
         state.referralStats = stats;
         state.referralLoading = false;
@@ -86,12 +168,13 @@ export const createReferralSlice = (set, get) => ({
 
   loadReferrals: async () => {
     const { user } = get();
-    if (!user || !user.email) {
+    if (!user || (!user.email && !user.id)) {
       return;
     }
+    const userEmail = user.email || user.id;
 
     try {
-      const referrals = await apiGetUserReferrals(user.email);
+      const referrals = await apiGetUserReferrals(userEmail);
       set((state) => {
         state.referrals = referrals || [];
       });
@@ -104,12 +187,13 @@ export const createReferralSlice = (set, get) => ({
 
   loadCredits: async () => {
     const { user } = get();
-    if (!user || !user.email) {
+    if (!user || (!user.email && !user.id)) {
       return;
     }
+    const userEmail = user.email || user.id;
 
     try {
-      const creditsData = await apiGetUserCredits(user.email);
+      const creditsData = await apiGetUserCredits(userEmail);
       set((state) => {
         state.credits = creditsData;
       });
@@ -122,12 +206,13 @@ export const createReferralSlice = (set, get) => ({
 
   loadCreditsHistory: async (limit = 50) => {
     const { user } = get();
-    if (!user || !user.email) {
+    if (!user || (!user.email && !user.id)) {
       return;
     }
+    const userEmail = user.email || user.id;
 
     try {
-      const history = await apiGetCreditsHistory(user.email, limit);
+      const history = await apiGetCreditsHistory(userEmail, limit);
       set((state) => {
         state.creditsHistory = history || [];
       });
@@ -140,12 +225,13 @@ export const createReferralSlice = (set, get) => ({
 
   applyCredits: async (orderId, amount) => {
     const { user } = get();
-    if (!user || !user.email) {
+    if (!user || (!user.email && !user.id)) {
       return { success: false, error: 'User not authenticated' };
     }
+    const userEmail = user.email || user.id;
 
     try {
-      const result = await apiApplyCreditsToOrder(user.email, orderId, amount);
+      const result = await apiApplyCreditsToOrder(userEmail, orderId, amount);
       // Reload credits after applying
       get().loadCredits();
       return result;
@@ -193,12 +279,13 @@ export const createReferralSlice = (set, get) => ({
 
   createProductReferral: async (productId) => {
     const { user } = get();
-    if (!user || !user.email) {
+    if (!user || (!user.email && !user.id)) {
       return { success: false, error: 'User not authenticated' };
     }
+    const userEmail = user.email || user.id;
 
     try {
-      const result = await apiCreateProductReferral(user.email, productId);
+      const result = await apiCreateProductReferral(userEmail, productId);
       if (result.success) {
         set((state) => {
           state.referralCode = result.referralCode;

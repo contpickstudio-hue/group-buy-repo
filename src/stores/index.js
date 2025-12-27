@@ -229,6 +229,7 @@ export const useCreditsHistory = () => useAppStore((state) => state.creditsHisto
 export const useReferralLoading = () => useAppStore((state) => state.referralLoading || false);
 export const useReferralError = () => useAppStore((state) => state.referralError);
 export const useGenerateReferralCode = () => useAppStore((state) => state.generateReferralCode);
+export const useLoadReferralCodeFromStorage = () => useAppStore((state) => state.loadReferralCodeFromStorage);
 export const useLoadReferralStats = () => useAppStore((state) => state.loadReferralStats);
 export const useLoadReferrals = () => useAppStore((state) => state.loadReferrals);
 export const useLoadCredits = () => useAppStore((state) => state.loadCredits);
@@ -240,8 +241,22 @@ export const useProcessReferralOrder = () => useAppStore((state) => state.proces
 export const useCreateProductReferral = () => useAppStore((state) => state.createProductReferral);
 
 // Community stats hooks
-export const useCommunitySavings = () => useAppStore((state) => state.communitySavings || 0);
-export const useUserContribution = () => useAppStore((state) => state.userContribution || 0);
+export const useCommunitySavings = () => {
+  const savings = useAppStore((state) => state.communitySavings);
+  // Handle NaN, null, undefined - ensure always returns a valid number
+  if (typeof savings !== 'number' || isNaN(savings)) {
+    return 0;
+  }
+  return savings;
+};
+export const useUserContribution = () => {
+  const contribution = useAppStore((state) => state.userContribution);
+  // Handle NaN, null, undefined - ensure always returns a valid number
+  if (typeof contribution !== 'number' || isNaN(contribution)) {
+    return 0;
+  }
+  return contribution;
+};
 export const useTopContributors = () => useAppStore((state) => state.topContributors || []);
 export const useSavingsByRegion = () => useAppStore((state) => state.savingsByRegion || []);
 export const useStatsSummary = () => useAppStore((state) => state.statsSummary);

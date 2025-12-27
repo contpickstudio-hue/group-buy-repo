@@ -25,12 +25,15 @@ export const createCommunityStatsSlice = (set, get) => ({
 
     try {
       const savings = await apiGetCommunitySavings();
+      // Ensure savings is always a valid number (handle NaN, null, undefined)
+      const safeSavings = typeof savings === 'number' && !isNaN(savings) ? savings : 0;
       set((state) => {
-        state.communitySavings = savings;
+        state.communitySavings = safeSavings;
         state.loading = false;
       });
     } catch (error) {
       set((state) => {
+        state.communitySavings = 0; // Set to 0 on error
         state.error = error.message;
         state.loading = false;
       });
@@ -45,11 +48,14 @@ export const createCommunityStatsSlice = (set, get) => ({
 
     try {
       const contribution = await apiGetUserContribution(user.email);
+      // Ensure contribution is always a valid number (handle NaN, null, undefined)
+      const safeContribution = typeof contribution === 'number' && !isNaN(contribution) ? contribution : 0;
       set((state) => {
-        state.userContribution = contribution;
+        state.userContribution = safeContribution;
       });
     } catch (error) {
       set((state) => {
+        state.userContribution = 0; // Set to 0 on error
         state.error = error.message;
       });
     }

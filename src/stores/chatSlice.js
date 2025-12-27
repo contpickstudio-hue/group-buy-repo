@@ -26,9 +26,10 @@ export const createChatSlice = (set, get) => ({
       // Mark messages as read when opening thread
       if (threadId) {
         const { user } = get();
-        if (user && user.email) {
+        if (user && (user.email || user.id)) {
           // Async mark as read - don't await
-          apiMarkMessagesAsRead(threadId, user.email).then(() => {
+          const userEmail = user.email || user.id;
+          apiMarkMessagesAsRead(threadId, userEmail).then(() => {
             // Update unread count after marking as read
             get().refreshUnreadCount(threadId);
           });
@@ -84,10 +85,12 @@ export const createChatSlice = (set, get) => ({
 
   // Async actions
   sendMessage: async (content, options = {}) => {
-    const { user } = get();
-    if (!user || !user.email) {
+    const { user, loginMethod } = get();
+    // Support both real and demo users
+    if (!user || (!user.email && !user.id)) {
       return { success: false, error: 'User not authenticated' };
     }
+    const userEmail = user.email || user.id;
 
     set((state) => {
       state.chatLoading = true;
@@ -100,10 +103,10 @@ export const createChatSlice = (set, get) => ({
 
       if (options.chatType === 'group_buy' && options.productId) {
         threadId = getGroupBuyThreadId(options.productId);
-        result = await apiSendGroupBuyMessage(options.productId, content, user.email);
+        result = await apiSendGroupBuyMessage(options.productId, content, userEmail);
       } else if (options.chatType === 'direct' && options.receiverEmail) {
-        threadId = getDirectThreadId(user.email, options.receiverEmail);
-        result = await apiSendDirectMessage(options.receiverEmail, content, user.email);
+        threadId = getDirectThreadId(userEmail, options.receiverEmail);
+        result = await apiSendDirectMessage(options.receiverEmail, content, userEmail);
       } else {
         throw new Error('Invalid chat options');
       }
@@ -144,9 +147,10 @@ export const createChatSlice = (set, get) => ({
 
   loadChat: async (options = {}) => {
     const { user } = get();
-    if (!user || !user.email) {
+    if (!user || (!user.email && !user.id)) {
       return { success: false, error: 'User not authenticated' };
     }
+    const userEmail = user.email || user.id;
 
     set((state) => {
       state.chatLoading = true;
@@ -161,8 +165,8 @@ export const createChatSlice = (set, get) => ({
         threadId = getGroupBuyThreadId(options.productId);
         result = await apiLoadGroupBuyMessages(options.productId);
       } else if (options.chatType === 'direct' && options.otherUserEmail) {
-        threadId = getDirectThreadId(user.email, options.otherUserEmail);
-        result = await apiLoadDirectMessages(options.otherUserEmail, user.email);
+        threadId = getDirectThreadId(userEmail, options.otherUserEmail);
+        result = await apiLoadDirectMessages(options.otherUserEmail, userEmail);
       } else {
         throw new Error('Invalid chat options');
       }
@@ -197,7 +201,7 @@ export const createChatSlice = (set, get) => ({
     }
 
     try {
-      const result = await apiMarkMessagesAsRead(threadId, user.email);
+      const result = await apiMarkMessagesAsRead(threadId, userEmail);
       if (result.success) {
         get().clearUnreadCount(threadId);
         return { success: true };
@@ -210,12 +214,13 @@ export const createChatSlice = (set, get) => ({
 
   refreshUnreadCount: async (threadId) => {
     const { user } = get();
-    if (!user || !user.email || !threadId) {
+    if (!user || (!user.email && !user.id) || !threadId) {
       return;
     }
+    const userEmail = user.email || user.id;
 
     try {
-      const result = await apiGetUnreadCount(threadId, user.email);
+      const result = await apiGetUnreadCount(threadId, userEmail);
       if (result.success) {
         get().setUnreadCount(threadId, result.count);
       }
@@ -226,9 +231,10 @@ export const createChatSlice = (set, get) => ({
 
   loadChatThreads: async () => {
     const { user } = get();
-    if (!user || !user.email) {
+    if (!user || (!user.email && !user.id)) {
       return { success: false, error: 'User not authenticated' };
     }
+    const userEmail = user.email || user.id;
 
     set((state) => {
       state.chatLoading = true;
@@ -236,7 +242,7 @@ export const createChatSlice = (set, get) => ({
     });
 
     try {
-      const result = await apiGetUserChatThreads(user.email);
+      const result = await apiGetUserChatThreads(userEmail);
       if (result.success && result.threads) {
         get().setChatThreads(result.threads);
         

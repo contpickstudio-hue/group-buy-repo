@@ -12,10 +12,18 @@ import {
  * Displays community savings statistics
  */
 const CommunitySavings = ({ compact = false }) => {
-  const communitySavings = useCommunitySavings();
-  const userContribution = useUserContribution();
+  const communitySavingsRaw = useCommunitySavings();
+  const userContributionRaw = useUserContribution();
   const loadCommunityStats = useLoadCommunityStats();
   const loadUserContribution = useLoadUserContribution();
+  
+  // Ensure values are always valid numbers (handle NaN, null, undefined)
+  const communitySavings = typeof communitySavingsRaw === 'number' && !isNaN(communitySavingsRaw) 
+    ? communitySavingsRaw 
+    : 0;
+  const userContribution = typeof userContributionRaw === 'number' && !isNaN(userContributionRaw) 
+    ? userContributionRaw 
+    : 0;
 
   useEffect(() => {
     loadCommunityStats();
@@ -23,12 +31,14 @@ const CommunitySavings = ({ compact = false }) => {
   }, [loadCommunityStats, loadUserContribution]);
 
   const formatCurrency = (amount) => {
+    // Ensure amount is a valid number, default to 0 if NaN, null, or undefined
+    const safeAmount = typeof amount === 'number' && !isNaN(amount) ? amount : 0;
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
-    }).format(amount);
+    }).format(safeAmount);
   };
 
   if (compact) {
@@ -92,12 +102,12 @@ const CommunitySavings = ({ compact = false }) => {
         <div className="mt-4">
           <div className="flex justify-between text-sm mb-2">
             <span>Your contribution</span>
-            <span>{((userContribution / communitySavings) * 100).toFixed(1)}%</span>
+            <span>{communitySavings > 0 ? ((userContribution / communitySavings) * 100).toFixed(1) : '0.0'}%</span>
           </div>
           <div className="w-full bg-white bg-opacity-20 rounded-full h-2">
             <div
               className="bg-white rounded-full h-2 transition-all"
-              style={{ width: `${Math.min((userContribution / communitySavings) * 100, 100)}%` }}
+              style={{ width: `${communitySavings > 0 ? Math.min((userContribution / communitySavings) * 100, 100) : 0}%` }}
             />
           </div>
         </div>

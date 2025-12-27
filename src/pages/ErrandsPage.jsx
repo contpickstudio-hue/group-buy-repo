@@ -24,6 +24,7 @@ const ErrandsPage = () => {
         budget: '',
         deadline: ''
     });
+    const [isSubmitting, setIsSubmitting] = useState(false);
     
     // Handle form input changes
     const handleInputChange = (e) => {
@@ -35,8 +36,13 @@ const ErrandsPage = () => {
     };
     
     // Handle form submission
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        // Prevent duplicate submissions
+        if (isSubmitting) {
+            return;
+        }
         
         if (!user) {
             toast.error('Please sign in to post an errand');
@@ -48,27 +54,42 @@ const ErrandsPage = () => {
             return;
         }
         
+        setIsSubmitting(true);
+        
+        const userEmail = user.email || user.id;
         const newErrand = {
-            title: formData.title,
-            description: formData.description,
+            title: formData.title.trim(),
+            description: formData.description.trim(),
             region: formData.region,
             budget: parseFloat(formData.budget) || 0,
             deadline: formData.deadline ? new Date(formData.deadline).toISOString() : null,
-            requester_email: user.email || user.id,
+            requester_email: userEmail, // For backend
+            requesterEmail: userEmail, // For frontend
             status: 'open'
         };
         
-        addErrand(newErrand);
-        toast.success('Errand posted successfully!');
-        
-        // Reset form
-        setFormData({
-            title: '',
-            description: '',
-            region: 'Toronto',
-            budget: '',
-            deadline: ''
-        });
+        try {
+            const result = await addErrand(newErrand);
+            if (result && result.success) {
+                toast.success('Errand posted successfully!');
+                
+                // Reset form
+                setFormData({
+                    title: '',
+                    description: '',
+                    region: 'Toronto',
+                    budget: '',
+                    deadline: ''
+                });
+            } else {
+                throw new Error(result?.error || 'Failed to post errand');
+            }
+        } catch (error) {
+            console.error('Error posting errand:', error);
+            toast.error(error?.message || 'Failed to post errand. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
     
     // Filter and sort errands
@@ -232,9 +253,17 @@ const ErrandsPage = () => {
                     </div>
                     <button
                         type="submit"
-                        className="w-full bg-blue-600 text-white py-3 px-4 rounded-xl hover:bg-blue-700 transition-colors font-semibold text-base min-h-[48px]"
+                        disabled={isSubmitting}
+                        className="w-full bg-blue-600 text-white py-3 px-4 rounded-xl hover:bg-blue-700 transition-colors font-semibold text-base min-h-[48px] disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:bg-gray-400"
                     >
-                        Post Errand
+                        {isSubmitting ? (
+                            <div className="flex items-center justify-center gap-2">
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                <span>Posting...</span>
+                            </div>
+                        ) : (
+                            'Post Errand'
+                        )}
                     </button>
                 </form>
             </div>

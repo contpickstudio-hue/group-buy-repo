@@ -41,10 +41,21 @@ const ChatList = ({ onSelectChat }) => {
 
   if (chatThreads.length === 0) {
     return (
-      <div className="p-8 text-center text-gray-500">
-        <MessageCircle size={48} className="mx-auto mb-4 text-gray-300" />
-        <p>No active chats</p>
-        <p className="text-sm mt-2">Start a conversation from a group buy page</p>
+      <div className="flex flex-col items-center justify-center p-8 h-full min-h-[300px] text-center">
+        <div className="mb-6">
+          <MessageCircle size={64} className="mx-auto text-gray-300" />
+        </div>
+        <h3 className="text-lg font-semibold text-gray-700 mb-2">
+          No chats yet
+        </h3>
+        <p className="text-gray-500 max-w-sm">
+          Chats will appear once you join a group buy or errand
+        </p>
+        <div className="mt-6 p-4 bg-blue-50 rounded-lg max-w-sm">
+          <p className="text-sm text-blue-800">
+            💡 <strong>Tip:</strong> Join a group buy or post an errand to start chatting with other community members!
+          </p>
+        </div>
       </div>
     );
   }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useUser } from '../stores';
 import useCreateGroupBuyForm from '../hooks/useCreateGroupBuyForm';
 import { getCurrentLocation, geocodeAddress } from '../services/geolocationService';
@@ -18,6 +18,13 @@ const CreateGroupBuyForm = () => {
     const [locationMethod, setLocationMethod] = useState('current'); // 'current', 'address', 'map'
     const [addressInput, setAddressInput] = useState('');
     const [locationLoading, setLocationLoading] = useState(false);
+
+    // Show toast notifications for success/error
+    useEffect(() => {
+        if (error) {
+            toast.error(error);
+        }
+    }, [error]);
 
     if (!user || !user.roles?.includes('vendor')) {
         return null;
@@ -285,9 +292,16 @@ const CreateGroupBuyForm = () => {
                 <button
                     type="submit"
                     disabled={isSubmitting || !isFormValid}
-                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:bg-gray-400"
                 >
-                    {isSubmitting ? 'Creating...' : 'Create Group Buy'}
+                    {isSubmitting ? (
+                        <div className="flex items-center justify-center gap-2">
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            <span>Creating...</span>
+                        </div>
+                    ) : (
+                        'Create Group Buy'
+                    )}
                 </button>
             </form>
         </div>

@@ -15,8 +15,12 @@ export async function getCommunitySavings() {
     const { data, error: rpcError } = await supabaseClient
       .rpc('get_community_savings');
 
-    if (!rpcError && data !== null) {
-      return parseFloat(data) || 0;
+    if (!rpcError && data !== null && data !== undefined) {
+      const parsed = parseFloat(data);
+      // Ensure we return a valid number (not NaN)
+      if (typeof parsed === 'number' && !isNaN(parsed)) {
+        return parsed;
+      }
     }
 
     // Fallback to manual calculation
@@ -45,10 +49,14 @@ export async function getCommunitySavings() {
                product.target_quantity > 0;
       })
       .reduce((sum, order) => {
-        return sum + ((parseFloat(order.total_price) || 0) * 0.15);
+        const price = parseFloat(order.total_price) || 0;
+        const savings = price * 0.15;
+        // Ensure we're adding valid numbers
+        return sum + (typeof savings === 'number' && !isNaN(savings) ? savings : 0);
       }, 0);
 
-    return totalSavings;
+    // Ensure we return a valid number (not NaN)
+    return (typeof totalSavings === 'number' && !isNaN(totalSavings)) ? totalSavings : 0;
   });
 }
 
@@ -65,8 +73,12 @@ export async function getUserContribution(userEmail) {
     const { data, error: rpcError } = await supabaseClient
       .rpc('get_user_community_contribution', { user_email_param: userEmail });
 
-    if (!rpcError && data !== null) {
-      return parseFloat(data) || 0;
+    if (!rpcError && data !== null && data !== undefined) {
+      const parsed = parseFloat(data);
+      // Ensure we return a valid number (not NaN)
+      if (typeof parsed === 'number' && !isNaN(parsed)) {
+        return parsed;
+      }
     }
 
     // Fallback to manual calculation
@@ -96,10 +108,14 @@ export async function getUserContribution(userEmail) {
                product.target_quantity > 0;
       })
       .reduce((sum, order) => {
-        return sum + ((parseFloat(order.total_price) || 0) * 0.15);
+        const price = parseFloat(order.total_price) || 0;
+        const savings = price * 0.15;
+        // Ensure we're adding valid numbers
+        return sum + (typeof savings === 'number' && !isNaN(savings) ? savings : 0);
       }, 0);
 
-    return contribution;
+    // Ensure we return a valid number (not NaN)
+    return (typeof contribution === 'number' && !isNaN(contribution)) ? contribution : 0;
   });
 }
 

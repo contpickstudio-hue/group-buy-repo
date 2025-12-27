@@ -1,4 +1,4 @@
-import { loadProductsFromBackend } from '../services/supabaseService';
+import { loadProductsFromBackend, supabaseClient, dbSaveSlice, dbLoadSlice, StorageKeys } from '../services/supabaseService';
 
 export const createProductSlice = (set, get) => ({
     // Product state
@@ -54,12 +54,30 @@ export const createProductSlice = (set, get) => ({
         try {
             const products = await loadProductsFromBackend();
             
+            // For demo users, also load from localStorage and merge
+            const { loginMethod } = get();
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            
+            let finalProducts = products || [];
+            
+            // Check if demo user or no session
+            if (loginMethod === 'demo' || !session) {
+                // Demo user - load from localStorage and merge
+                const storedProducts = await dbLoadSlice(StorageKeys.products, []);
+                if (storedProducts && storedProducts.length > 0) {
+                    // Merge: combine backend products with localStorage products, avoiding duplicates
+                    const backendIds = new Set(finalProducts.map(p => p.id));
+                    const localProducts = storedProducts.filter(p => !backendIds.has(p.id));
+                    finalProducts = [...finalProducts, ...localProducts];
+                }
+            }
+            
             set((state) => {
-                state.products = products || [];
+                state.products = finalProducts || [];
                 state.productsLoading = false;
             });
             
-            return { success: true, products };
+            return { success: true, products: finalProducts };
         } catch (error) {
             set((state) => {
                 state.productsError = error.message;
@@ -70,51 +88,142 @@ export const createProductSlice = (set, get) => ({
     },
     
     createProduct: async (productData) => {
-        const { user } = get();
-        if (!user) {
+        const { user, loginMethod } = get();
+        // Check authentication - support both real and demo users
+        if (!user || (!user.email && !user.id)) {
             return { success: false, error: 'User not authenticated' };
         }
         
+        // Get user identifier (email or id)
+        const userEmail = user.email || user.id;
+        
+        // Optimistically add to local state
+        const newProduct = {
+            ...productData,
+            id: Date.now() + Math.random(),
+            ownerEmail: userEmail,
+            vendor: user.name || 'Vendor',
+            currentQuantity: 0,
+            createdAt: new Date().toISOString()
+        };
+        
+        set((state) => {
+            state.products.push(newProduct);
+        });
+
+        // Try to save to backend (Supabase)
         try {
-            const newProduct = {
-                ...productData,
-                id: Date.now() + Math.random(),
-                ownerEmail: user.email,
-                vendor: user.name,
-                currentQuantity: 0,
-                createdAt: new Date().toISOString()
-            };
+            // For demo users, skip Supabase and use localStorage
+            if (loginMethod === 'demo') {
+                const currentProducts = get().products || [];
+                await dbSaveSlice(StorageKeys.products, currentProducts);
+                
+                // Add success notification
+                const { addNotification } = get();
+                addNotification({
+                    type: 'success',
+                    message: 'Group buy created successfully!',
+                    duration: 3000
+                });
+                
+                return { success: true, product: newProduct };
+            }
             
-            // In a real app, this would save to Supabase
-            set((state) => {
-                state.products.push(newProduct);
-            });
+            const { data: { session } } = await supabaseClient.auth.getSession();
             
-            // Add success notification
+            if (session && supabaseClient) {
+                // User is authenticated - save to Supabase
+                const { data, error } = await supabaseClient
+                    .from('products')
+                    .insert({
+                        title: newProduct.title,
+                        description: newProduct.description || '',
+                        region: newProduct.region,
+                        price: newProduct.price,
+                        target_quantity: newProduct.targetQuantity || 20,
+                        current_quantity: 0,
+                        deadline: newProduct.deadline,
+                        delivery_date: newProduct.deliveryDate || null,
+                        vendor: newProduct.vendor,
+                        owner_email: newProduct.ownerEmail,
+                        image_data_url: newProduct.imageDataUrl || null,
+                        image_color: newProduct.imageColor || null,
+                        latitude: newProduct.latitude || null,
+                        longitude: newProduct.longitude || null
+                    })
+                    .select()
+                    .single();
+
+                if (error) throw error;
+                
+                // Update with real ID from database
+                if (data) {
+                    set((state) => {
+                        const index = state.products.findIndex(p => p.id === newProduct.id);
+                        if (index !== -1) {
+                            state.products[index] = {
+                                ...state.products[index],
+                                id: data.id,
+                                createdAt: data.created_at
+                            };
+                        }
+                    });
+                }
+                
+                // Add success notification
+                const { addNotification } = get();
+                addNotification({
+                    type: 'success',
+                    message: 'Group buy created successfully!',
+                    duration: 3000
+                });
+                
+                return { success: true, product: newProduct };
+            } else {
+                // Demo user or no session - save to localStorage
+                const currentProducts = get().products || [];
+                await dbSaveSlice(StorageKeys.products, currentProducts);
+                
+                // Add success notification
+                const { addNotification } = get();
+                addNotification({
+                    type: 'success',
+                    message: 'Group buy created successfully!',
+                    duration: 3000
+                });
+                
+                return { success: true, product: newProduct };
+            }
+        } catch (error) {
+            // If backend save fails, still keep it in local state and localStorage
+            console.warn('Failed to save product to backend, using local storage:', error);
+            try {
+                const currentProducts = get().products || [];
+                await dbSaveSlice(StorageKeys.products, currentProducts);
+            } catch (storageError) {
+                console.error('Failed to save product to local storage:', storageError);
+            }
+            
+            // Add success notification (optimistic UI)
             const { addNotification } = get();
             addNotification({
                 type: 'success',
-                message: 'Product created successfully!',
+                message: 'Group buy created successfully!',
                 duration: 3000
             });
             
-            return { success: true, product: newProduct };
-        } catch (error) {
-            const { addNotification } = get();
-            addNotification({
-                type: 'error',
-                message: `Failed to create product: ${error.message}`,
-                duration: 5000
-            });
-            return { success: false, error: error.message };
+            return { success: true, product: newProduct }; // Still return success for optimistic UI
         }
     },
     
     joinGroupBuy: async (productId, quantity, customerData) => {
-        const { user, addOrder } = get();
-        if (!user) {
+        const { user, addOrder, loginMethod } = get();
+        // Check authentication - support both real and demo users
+        if (!user || (!user.email && !user.id)) {
             return { success: false, error: 'User not authenticated' };
         }
+        
+        const userEmail = user.email || user.id;
         
         try {
             const product = get().products.find(p => p.id === productId);
@@ -125,8 +234,8 @@ export const createProductSlice = (set, get) => ({
             const order = {
                 id: Date.now() + Math.random(),
                 productId,
-                customerEmail: user.email,
-                customerName: user.name,
+                customerEmail: userEmail,
+                customerName: user.name || userEmail,
                 quantity,
                 totalPrice: product.price * quantity,
                 total: product.price * quantity,

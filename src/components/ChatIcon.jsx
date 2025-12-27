@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, X } from 'lucide-react';
 import { useGetTotalUnreadCount, useLoadChatThreads } from '../stores';
 import ChatList from './ChatList';
 import ChatModal from './ChatModal';
@@ -32,6 +32,23 @@ const ChatIcon = () => {
     setSelectedChat(null);
   };
 
+  const handleClosePanel = () => {
+    setIsOpen(false);
+  };
+
+  // Handle escape key to close panel
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape' && isOpen) {
+        handleClosePanel();
+      }
+    };
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+      return () => document.removeEventListener('keydown', handleEscape);
+    }
+  }, [isOpen]);
+
   return (
     <>
       <button
@@ -53,7 +70,7 @@ const ChatIcon = () => {
           {/* Backdrop */}
           <div 
             className="absolute inset-0 bg-black bg-opacity-25"
-            onClick={() => setIsOpen(false)}
+            onClick={handleClosePanel}
           />
           
           {/* Panel */}
@@ -71,13 +88,12 @@ const ChatIcon = () => {
                   )}
                 </div>
                 <button
-                  onClick={() => setIsOpen(false)}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                  onClick={handleClosePanel}
+                  className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded hover:bg-gray-100"
                   aria-label="Close chats"
+                  type="button"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+                  <X size={20} />
                 </button>
               </div>
 

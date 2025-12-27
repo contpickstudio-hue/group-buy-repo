@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { useUser, useProducts, useOrders, useErrands, useSetCurrentScreen } from '../stores';
+import { useUser, useProducts, useOrders, useErrands, useSetCurrentScreen, useAppStore } from '../stores';
 import { 
   useCommunitySavings, 
   useUserContribution,
@@ -9,7 +9,8 @@ import {
   useLoadCredits,
   useReferralStats,
   useLoadReferralStats,
-  useGenerateReferralCode
+  useGenerateReferralCode,
+  useLoadReferralCodeFromStorage
 } from '../stores';
 import CreateGroupBuyForm from '../components/CreateGroupBuyForm';
 import VendorOrdersTab from '../components/VendorOrdersTab';
@@ -43,6 +44,7 @@ const DashboardPage = () => {
     // Referral hooks
     const loadReferralStats = useLoadReferralStats();
     const generateReferralCode = useGenerateReferralCode();
+    const loadReferralCodeFromStorage = useLoadReferralCodeFromStorage();
     const referralStats = useReferralStats();
 
     // Load data on mount
@@ -52,9 +54,19 @@ const DashboardPage = () => {
         loadUserContribution();
         loadCredits();
         loadReferralStats();
-        generateReferralCode();
+        // Try to load from storage first, then generate if needed
+        loadReferralCodeFromStorage().then(() => {
+          // Check if code was loaded, if not generate one
+          const currentCode = useAppStore.getState().referralCode;
+          if (!currentCode) {
+            generateReferralCode();
+          }
+        }).catch(() => {
+          // If loading fails, just generate a new one
+          generateReferralCode();
+        });
       }
-    }, [user, loadCommunityStats, loadUserContribution, loadCredits, loadReferralStats, generateReferralCode]);
+    }, [user, loadCommunityStats, loadUserContribution, loadCredits, loadReferralStats, generateReferralCode, loadReferralCodeFromStorage]);
 
     if (!user) {
         return (

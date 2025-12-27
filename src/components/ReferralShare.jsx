@@ -24,7 +24,14 @@ const ReferralShare = ({ productId = null, onClose }) => {
 
   useEffect(() => {
     if (!referralCode) {
-      generateReferralCode();
+      // Set a timeout to prevent infinite loading
+      const timeoutId = setTimeout(async () => {
+        const result = await generateReferralCode();
+        if (!result.success) {
+          toast.error(result.error || 'Failed to generate referral code');
+        }
+      }, 100);
+      return () => clearTimeout(timeoutId);
     }
     loadReferralStats();
   }, [referralCode, generateReferralCode, loadReferralStats]);

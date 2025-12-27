@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useCreateProduct } from '../stores';
+import toast from 'react-hot-toast';
 
 /**
  * Custom hook for managing Create Group Buy form state and submission
@@ -43,6 +44,12 @@ const useCreateGroupBuyForm = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        // Prevent duplicate submissions
+        if (isSubmitting) {
+            return;
+        }
+        
         setError(null);
         setIsSubmitting(true);
 
@@ -94,11 +101,19 @@ const useCreateGroupBuyForm = () => {
                     latitude: null,
                     longitude: null
                 });
+                // Clear any previous errors
+                setError(null);
+                // Show success toast
+                toast.success('Group buy created successfully!');
             } else {
-                setError(result.error || 'Failed to create group buy');
+                const errorMessage = result.error || 'Failed to create group buy. Please try again.';
+                setError(errorMessage);
+                toast.error(errorMessage);
             }
         } catch (err) {
-            setError(err.message || 'An unexpected error occurred');
+            const errorMessage = err.message || 'An unexpected error occurred';
+            setError(errorMessage);
+            toast.error(errorMessage);
         } finally {
             setIsSubmitting(false);
         }
