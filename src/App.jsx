@@ -11,6 +11,7 @@ import StripeProvider from './components/StripeProvider';
 import TranslationProvider from './contexts/TranslationProvider';
 import { initializeErrorTracking } from './services/errorService';
 import { initializePushNotifications } from './services/pushNotificationService';
+import PermissionDenied from './components/PermissionDenied';
 
 // Import page components
 import StartPage from './pages/StartPage';
@@ -232,6 +233,7 @@ function AppContent() {
         // Check for detail page routing via hash
         const hash = window.location.hash;
         if (hash && hash.startsWith('#listing/')) {
+            // Anyone can VIEW listings, but joining requires customer role (enforced at action level)
             return <ListingDetailPage />;
         }
         if (hash && hash.startsWith('#groupbuy/')) {
@@ -253,6 +255,11 @@ function AppContent() {
             case 'errands':
                 return <ErrandsPage />;
             case 'dashboard':
+                // Route-level RBAC: Dashboard accessible by authenticated users
+                // Specific actions (create group buy) are protected at action level
+                if (!user) {
+                    return <PermissionDenied requiredRole="vendor" action="access dashboard" showUpgradeCTA={false} />;
+                }
                 return <DashboardPage />;
             case 'profile':
                 return <ProfilePage />;

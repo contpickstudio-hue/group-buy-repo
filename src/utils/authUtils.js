@@ -16,10 +16,13 @@ export function isGuestUser(user, loginMethod) {
 /**
  * Check if user is an admin
  * @param {Object} user - User object
+ * @param {string} loginMethod - Login method ('demo', 'email', 'google')
  * @returns {boolean} True if user has admin role
  */
-export function isAdmin(user) {
+export function isAdmin(user, loginMethod = null) {
   if (!user) return false;
+  // Guest users have NO roles, including admin
+  if (isGuestUser(user, loginMethod)) return false;
   const roles = user.roles || [];
   return Array.isArray(roles) ? roles.includes('admin') : false;
 }
@@ -28,10 +31,13 @@ export function isAdmin(user) {
  * Check if user has a specific role
  * @param {Object} user - User object
  * @param {string} role - Role to check
+ * @param {string} loginMethod - Login method ('demo', 'email', 'google')
  * @returns {boolean} True if user has the role
  */
-export function hasRole(user, role) {
+export function hasRole(user, role, loginMethod = null) {
   if (!user) return false;
+  // Guest users have NO roles
+  if (isGuestUser(user, loginMethod)) return false;
   const roles = user.roles || [];
   return Array.isArray(roles) ? roles.includes(role) : false;
 }
