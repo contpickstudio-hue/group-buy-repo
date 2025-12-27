@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useErrands, useAddErrand, useUser, useUpdateErrandFilters, useAppStore } from '../stores';
 import toast from 'react-hot-toast';
+import DateInput from '../components/DateInput';
 
 const ErrandsPage = () => {
     try {
@@ -25,6 +26,7 @@ const ErrandsPage = () => {
         deadline: ''
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [formErrors, setFormErrors] = useState({});
     
     // Handle form input changes
     const handleInputChange = (e) => {
@@ -33,6 +35,13 @@ const ErrandsPage = () => {
             ...prev,
             [name]: value
         }));
+        // Clear error for this field when user starts typing
+        if (formErrors[name]) {
+            setFormErrors(prev => ({
+                ...prev,
+                [name]: null
+            }));
+        }
     };
     
     // Handle form submission
@@ -49,12 +58,32 @@ const ErrandsPage = () => {
             return;
         }
         
-        if (!formData.title || !formData.description) {
-            toast.error('Please fill in title and description');
+        // Validate form
+        const errors = {};
+        if (!formData.title || !formData.title.trim()) {
+            errors.title = 'Title is required';
+        }
+        if (!formData.description || !formData.description.trim()) {
+            errors.description = 'Description is required';
+        }
+        if (formData.deadline) {
+            const deadlineDate = new Date(formData.deadline);
+            const now = new Date();
+            if (isNaN(deadlineDate.getTime())) {
+                errors.deadline = 'Invalid date format';
+            } else if (deadlineDate < now) {
+                errors.deadline = 'Deadline cannot be in the past';
+            }
+        }
+        
+        if (Object.keys(errors).length > 0) {
+            setFormErrors(errors);
+            toast.error('Please fix the errors in the form');
             return;
         }
         
         setIsSubmitting(true);
+        setFormErrors({});
         
         const userEmail = user.email || user.id;
         const newErrand = {
@@ -81,6 +110,7 @@ const ErrandsPage = () => {
                     budget: '',
                     deadline: ''
                 });
+                setFormErrors({});
             } else {
                 throw new Error(result?.error || 'Failed to post errand');
             }
@@ -180,7 +210,7 @@ const ErrandsPage = () => {
                 <form onSubmit={handleSubmit} className="space-y-5">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Title
+                            Title <span className="text-red-500">*</span>
                         </label>
                         <input
                             type="text"
@@ -189,12 +219,21 @@ const ErrandsPage = () => {
                             onChange={handleInputChange}
                             placeholder="e.g., Weekly H-Mart Grocery Run"
                             required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-base ${
+                                formErrors.title 
+                                    ? 'border-red-300 focus:ring-red-500' 
+                                    : 'border-gray-300 focus:ring-blue-500'
+                            }`}
                         />
+                        {formErrors.title && (
+                            <p className="mt-1 text-sm text-red-600" role="alert">
+                                {formErrors.title}
+                            </p>
+                        )}
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Description
+                            Description <span className="text-red-500">*</span>
                         </label>
                         <textarea
                             name="description"
@@ -203,8 +242,17 @@ const ErrandsPage = () => {
                             rows={3}
                             placeholder="Describe what you need help with..."
                             required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-base ${
+                                formErrors.description 
+                                    ? 'border-red-300 focus:ring-red-500' 
+                                    : 'border-gray-300 focus:ring-blue-500'
+                            }`}
                         />
+                        {formErrors.description && (
+                            <p className="mt-1 text-sm text-red-600" role="alert">
+                                {formErrors.description}
+                            </p>
+                        )}
                     </div>
                     {/* Mobile-optimized: Stack fields on mobile, grid on desktop */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -239,15 +287,14 @@ const ErrandsPage = () => {
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Deadline
-                            </label>
-                            <input
-                                type="datetime-local"
+                            <DateInput
                                 name="deadline"
+                                label="Deadline"
                                 value={formData.deadline}
                                 onChange={handleInputChange}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[48px]"
+                                type="datetime-local"
+                                min={new Date().toISOString().slice(0, 16)}
+                                error={formErrors.deadline}
                             />
                         </div>
                     </div>

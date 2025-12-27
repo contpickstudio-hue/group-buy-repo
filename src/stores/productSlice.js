@@ -199,24 +199,36 @@ export const createProductSlice = (set, get) => ({
                 return { success: true, product: newProduct };
             }
         } catch (error) {
-            // If backend save fails, still keep it in local state and localStorage
-            console.warn('Failed to save product to backend, using local storage:', error);
+            // If backend save fails, try to save to localStorage as fallback
+            console.warn('Failed to save product to backend, trying local storage:', error);
             try {
                 const currentProducts = get().products || [];
                 await dbSaveSlice(StorageKeys.products, currentProducts);
+                
+                // Still return success but with a warning
+                const { addNotification } = get();
+                addNotification({
+                    type: 'success',
+                    message: 'Group buy created successfully (saved locally)!',
+                    duration: 3000
+                });
+                
+                return { success: true, product: newProduct };
             } catch (storageError) {
+                // Both backend and localStorage failed - this is a real error
                 console.error('Failed to save product to local storage:', storageError);
+                
+                // Remove the optimistically added product
+                set((state) => {
+                    const index = state.products.findIndex(p => p.id === newProduct.id);
+                    if (index !== -1) {
+                        state.products.splice(index, 1);
+                    }
+                });
+                
+                const errorMessage = error?.message || storageError?.message || 'Failed to create group buy';
+                return { success: false, error: errorMessage };
             }
-            
-            // Add success notification (optimistic UI)
-            const { addNotification } = get();
-            addNotification({
-                type: 'success',
-                message: 'Group buy created successfully!',
-                duration: 3000
-            });
-            
-            return { success: true, product: newProduct }; // Still return success for optimistic UI
         }
     },
     

@@ -45,32 +45,48 @@ const useCreateGroupBuyForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        // Prevent duplicate submissions
+        // Prevent duplicate submissions - early return with visual feedback
         if (isSubmitting) {
+            toast.error('Please wait, submission in progress...', { duration: 2000 });
             return;
         }
         
         setError(null);
         setIsSubmitting(true);
 
+        // Show loading toast immediately for better feedback
+        const loadingToast = toast.loading('Creating group buy...', { duration: 0 });
+
         // Validation
         if (!formData.title.trim()) {
-            setError('Product title is required');
+            toast.dismiss(loadingToast);
+            const errorMsg = 'Product title is required';
+            setError(errorMsg);
+            toast.error(errorMsg);
             setIsSubmitting(false);
             return;
         }
         if (!formData.price || formData.price <= 0) {
-            setError('Price must be greater than 0');
+            toast.dismiss(loadingToast);
+            const errorMsg = 'Price must be greater than 0';
+            setError(errorMsg);
+            toast.error(errorMsg);
             setIsSubmitting(false);
             return;
         }
         if (!formData.deadline) {
-            setError('Deadline is required');
+            toast.dismiss(loadingToast);
+            const errorMsg = 'Deadline is required';
+            setError(errorMsg);
+            toast.error(errorMsg);
             setIsSubmitting(false);
             return;
         }
         if (formData.targetQuantity < 5) {
-            setError('Target quantity must be at least 5');
+            toast.dismiss(loadingToast);
+            const errorMsg = 'Target quantity must be at least 5';
+            setError(errorMsg);
+            toast.error(errorMsg);
             setIsSubmitting(false);
             return;
         }
@@ -88,7 +104,10 @@ const useCreateGroupBuyForm = () => {
                 longitude: formData.longitude || null
             });
 
-            if (result.success) {
+            // Dismiss loading toast
+            toast.dismiss(loadingToast);
+
+            if (result && result.success) {
                 // Reset form on success
                 setFormData({
                     title: '',
@@ -104,16 +123,21 @@ const useCreateGroupBuyForm = () => {
                 // Clear any previous errors
                 setError(null);
                 // Show success toast
-                toast.success('Group buy created successfully!');
+                toast.success('Group buy created successfully! 🎉', { duration: 4000 });
             } else {
-                const errorMessage = result.error || 'Failed to create group buy. Please try again.';
+                // Handle failure case
+                const errorMessage = result?.error || 'Failed to create group buy. Please try again.';
                 setError(errorMessage);
-                toast.error(errorMessage);
+                toast.error(errorMessage, { duration: 5000 });
             }
         } catch (err) {
-            const errorMessage = err.message || 'An unexpected error occurred';
+            // Dismiss loading toast on error
+            toast.dismiss(loadingToast);
+            
+            const errorMessage = err?.message || err?.toString() || 'An unexpected error occurred';
             setError(errorMessage);
-            toast.error(errorMessage);
+            toast.error(`Error: ${errorMessage}`, { duration: 5000 });
+            console.error('Group buy creation error:', err);
         } finally {
             setIsSubmitting(false);
         }

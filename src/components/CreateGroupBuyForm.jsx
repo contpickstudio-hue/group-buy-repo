@@ -3,6 +3,7 @@ import { useUser } from '../stores';
 import useCreateGroupBuyForm from '../hooks/useCreateGroupBuyForm';
 import { getCurrentLocation, geocodeAddress } from '../services/geolocationService';
 import toast from 'react-hot-toast';
+import DateInput from './DateInput';
 
 const CreateGroupBuyForm = () => {
     const user = useUser();
@@ -19,12 +20,8 @@ const CreateGroupBuyForm = () => {
     const [addressInput, setAddressInput] = useState('');
     const [locationLoading, setLocationLoading] = useState(false);
 
-    // Show toast notifications for success/error
-    useEffect(() => {
-        if (error) {
-            toast.error(error);
-        }
-    }, [error]);
+    // Note: Toast notifications are now handled in the hook for better control
+    // This useEffect is kept for backward compatibility but may not be needed
 
     if (!user || !user.roles?.includes('vendor')) {
         return null;
@@ -120,18 +117,16 @@ const CreateGroupBuyForm = () => {
                         />
                     </div>
                     <div>
-                        <label htmlFor="deadline" className="block text-sm font-medium text-gray-700 mb-1">
-                            Deadline
-                        </label>
-                        <input
+                        <DateInput
                             id="deadline"
-                            type="date"
                             name="deadline"
+                            label="Deadline"
                             value={formData.deadline}
                             onChange={handleChange}
                             min={new Date().toISOString().split('T')[0]}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                             required
+                            type="date"
+                            error={error && (error.includes('deadline') || error.includes('Deadline')) ? error : null}
                         />
                     </div>
                 </div>
@@ -292,15 +287,20 @@ const CreateGroupBuyForm = () => {
                 <button
                     type="submit"
                     disabled={isSubmitting || !isFormValid}
-                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:bg-gray-400"
+                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:bg-gray-400 disabled:opacity-60 relative min-h-[48px] font-semibold"
                 >
                     {isSubmitting ? (
                         <div className="flex items-center justify-center gap-2">
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                            <span>Creating...</span>
+                            <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                            <span>Creating Group Buy...</span>
                         </div>
                     ) : (
-                        'Create Group Buy'
+                        <span>Create Group Buy</span>
+                    )}
+                    {isSubmitting && (
+                        <span className="absolute inset-0 flex items-center justify-center bg-blue-600 bg-opacity-75 rounded-md">
+                            <span className="sr-only">Submitting form...</span>
+                        </span>
                     )}
                 </button>
             </form>
