@@ -80,7 +80,6 @@ const ChatList = ({ onSelectChat }) => {
       </div>
     );
   }
-  }
 
   return (
     <div className="divide-y divide-gray-200">
