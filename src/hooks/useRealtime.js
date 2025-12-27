@@ -29,7 +29,9 @@ export const useRealtime = (table, options = {}) => {
   const handlePayload = useCallback((payload) => {
     const { eventType, new: newRecord, old: oldRecord } = payload;
     
-    console.log(`Realtime ${eventType} on ${table}:`, payload);
+    if (import.meta.env.DEV) {
+      console.log(`Realtime ${eventType} on ${table}:`, payload);
+    }
 
     // Call specific event handlers
     switch (eventType) {
@@ -67,29 +69,41 @@ export const useRealtime = (table, options = {}) => {
       );
 
       subscription.subscribe((status) => {
-        console.log(`Realtime subscription status for ${table}:`, status);
+        if (import.meta.env.DEV) {
+          console.log(`Realtime subscription status for ${table}:`, status);
+        }
         
         if (status === 'SUBSCRIBED') {
-          console.log(`✅ Successfully subscribed to ${table} changes`);
+          if (import.meta.env.DEV) {
+            console.log(`✅ Successfully subscribed to ${table} changes`);
+          }
         } else if (status === 'CHANNEL_ERROR') {
-          console.error(`❌ Error subscribing to ${table} changes`);
+          if (import.meta.env.DEV) {
+            console.error(`❌ Error subscribing to ${table} changes`);
+          }
           showToast(`Connection error for ${table} updates`, 'error');
         } else if (status === 'TIMED_OUT') {
-          console.warn(`⏰ Subscription timeout for ${table}`);
+          if (import.meta.env.DEV) {
+            console.warn(`⏰ Subscription timeout for ${table}`);
+          }
           showToast(`Connection timeout for ${table} updates`, 'warning');
         }
       });
 
       channelRef.current = channel;
     } catch (error) {
-      console.error(`Failed to subscribe to ${table}:`, error);
+      if (import.meta.env.DEV) {
+        console.error(`Failed to subscribe to ${table}:`, error);
+      }
       showToast(`Failed to connect to ${table} updates`, 'error');
     }
   }, [enabled, table, event, schema, filter, handlePayload, showToast]);
 
   const unsubscribe = useCallback(() => {
     if (channelRef.current) {
-      console.log(`🔌 Unsubscribing from ${table} changes`);
+      if (import.meta.env.DEV) {
+        console.log(`🔌 Unsubscribing from ${table} changes`);
+      }
       supabase.removeChannel(channelRef.current);
       channelRef.current = null;
     }
@@ -185,7 +199,9 @@ export const useProductsRealtime = (options = {}) => {
               }
             }
           } catch (error) {
-            console.error('Error sending push notification for group buy tip:', error);
+            if (import.meta.env.DEV) {
+              console.error('Error sending push notification for group buy tip:', error);
+            }
           }
         }
       }
@@ -235,7 +251,9 @@ export const useErrandsRealtime = (options = {}) => {
             badge: 1,
           });
         } catch (error) {
-          console.error('Error sending push notification for new errand:', error);
+          if (import.meta.env.DEV) {
+            console.error('Error sending push notification for new errand:', error);
+          }
         }
       }
     },

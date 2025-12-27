@@ -17,6 +17,8 @@ import CommunitySavings from '../components/CommunitySavings';
 import ReferralShare from '../components/ReferralShare';
 import ReferralBadges from '../components/ReferralBadges';
 import CreditsDisplay from '../components/CreditsDisplay';
+import GuestEarlyAccess from '../components/GuestEarlyAccess';
+import RoleAcquisition from '../components/RoleAcquisition';
 import { getUserDisplayName, isGuestUser } from '../utils/authUtils';
 
 const ProfilePage = () => {
@@ -70,7 +72,9 @@ const ProfilePage = () => {
             setUser(null);
             setCurrentScreen('start');
         } catch (error) {
-            console.error('Logout error:', error);
+            if (import.meta.env.DEV) {
+                console.error('Logout error:', error);
+            }
         }
     };
 
@@ -84,6 +88,18 @@ const ProfilePage = () => {
     // Guest users have NO roles - filter them out
     const isGuest = isGuestUser(user, loginMethod);
     const roles = isGuest ? [] : (user.roles || []);
+
+    // For guests, show early access message instead of profile
+    if (isGuest) {
+        return (
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <GuestEarlyAccess 
+                    title="Profile Preview"
+                    description="You're browsing in guest mode. Sign up to access your full profile with account settings, credits, referrals, and order history."
+                />
+            </div>
+        );
+    }
 
     if (showOrders) {
         return (
@@ -139,6 +155,16 @@ const ProfilePage = () => {
                 </div>
             </div>
 
+            {/* Role Acquisition */}
+            <div className="bg-white rounded-lg shadow-md mb-8">
+                <div className="p-6 border-b border-gray-200">
+                    <h3 className="text-lg font-semibold">Roles & Permissions</h3>
+                </div>
+                <div className="p-6">
+                    <RoleAcquisition />
+                </div>
+            </div>
+
             {/* Account Settings */}
             <div className="bg-white rounded-lg shadow-md mb-8">
                 <div className="p-6 border-b border-gray-200">
@@ -163,14 +189,13 @@ const ProfilePage = () => {
                             Change
                         </button>
                     </div>
-                    <div className="p-6 flex justify-between items-center">
-                        <div>
+                    <div className="p-6">
+                        <div className="mb-2">
                             <div className="font-medium">User Roles</div>
-                            <div className="text-gray-500 text-sm">{roles.join(', ')}</div>
+                            <div className="text-gray-500 text-sm mt-1">
+                                {roles.length > 0 ? roles.map(role => role.toUpperCase()).join(', ') : 'No roles assigned'}
+                            </div>
                         </div>
-                        <button className="text-blue-600 hover:text-blue-700 font-medium">
-                            Manage
-                        </button>
                     </div>
                     <div className="p-6 flex justify-between items-center">
                         <div>
@@ -218,24 +243,22 @@ const ProfilePage = () => {
                 </div>
             </div>
 
-            {/* Referral Section - Only for registered users, not guests */}
-            {!isGuest && (
-                <>
-                    <div className="bg-white rounded-lg shadow-md mb-8">
-                        <div className="p-6 border-b border-gray-200">
-                            <h3 className="text-lg font-semibold">Referrals</h3>
-                        </div>
-                        <div className="p-6">
-                            <ReferralShare />
-                        </div>
+            {/* Referral Section */}
+            <>
+                <div className="bg-white rounded-lg shadow-md mb-8">
+                    <div className="p-6 border-b border-gray-200">
+                        <h3 className="text-lg font-semibold">Referrals</h3>
                     </div>
+                    <div className="p-6">
+                        <ReferralShare />
+                    </div>
+                </div>
 
-                    {/* Referral Badges */}
-                    <div className="mb-8">
-                        <ReferralBadges />
-                    </div>
-                </>
-            )}
+                {/* Referral Badges */}
+                <div className="mb-8">
+                    <ReferralBadges />
+                </div>
+            </>
 
             {/* Credits Section */}
             <div className="bg-white rounded-lg shadow-md mb-8">
@@ -247,8 +270,8 @@ const ProfilePage = () => {
                 </div>
             </div>
 
-            {/* Helper Profile - Only for registered users with helper role */}
-            {!isGuest && roles.includes('helper') && (
+            {/* Helper Profile - Only for users with helper role */}
+            {roles.includes('helper') && (
                 <div className="bg-white rounded-lg shadow-md mb-8">
                     <div className="p-6 border-b border-gray-200">
                         <h3 className="text-lg font-semibold">Helper Profile</h3>
@@ -325,7 +348,9 @@ const ProfilePage = () => {
         </div>
     );
     } catch (error) {
-        console.error('ProfilePage error:', error);
+        if (import.meta.env.DEV) {
+            console.error('ProfilePage error:', error);
+        }
         return (
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">

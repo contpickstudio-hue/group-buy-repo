@@ -58,7 +58,7 @@ export const EmptyStateWithAction = ({
         if (!user || isGuest) {
             // Guest users - show early access messaging
             return {
-                message: message || 'This community marketplace is in early access. Group buys will appear here as vendors create listings.',
+                message: message || t('emptyState.earlyAccessMarketplace'),
                 actionLabel: t('auth.signUpToContinue'),
                 action: () => setCurrentScreen('auth')
             };
@@ -68,8 +68,8 @@ export const EmptyStateWithAction = ({
             case 'groupbuys':
                 if (isVendor) {
                     return {
-                        message: message || 'Be the first to create a group buy in your region. Start building the community marketplace.',
-                        actionLabel: 'Create the First Group Buy',
+                        message: message || t('emptyState.vendorNoGroupBuys'),
+                        actionLabel: t('emptyState.createFirstGroupBuy'),
                         action: () => {
                             setCurrentScreen('dashboard');
                             setTimeout(() => {
@@ -82,8 +82,8 @@ export const EmptyStateWithAction = ({
                     };
                 } else {
                     return {
-                        message: message || 'Group buys will appear here as vendors create listings for your region. Join when your area opens.',
-                        actionLabel: 'Browse Marketplace',
+                        message: message || t('emptyState.customerNoGroupBuys'),
+                        actionLabel: t('emptyState.browseMarketplace'),
                         action: () => setCurrentScreen('groupbuys')
                     };
                 }
@@ -91,7 +91,7 @@ export const EmptyStateWithAction = ({
             case 'errands':
                 if (isCustomer) {
                     return {
-                        message: message || t('emptyState.noErrandsAvailable'),
+                        message: message || t('emptyState.customerNoErrands'),
                         actionLabel: t('errand.postErrand'),
                         action: () => {
                             setCurrentScreen('errands');
@@ -105,7 +105,7 @@ export const EmptyStateWithAction = ({
                     };
                 } else {
                     return {
-                        message: message || t('emptyState.noErrandsAvailable'),
+                        message: message || t('emptyState.noErrandsYet'),
                         actionLabel: t('errand.browseErrands'),
                         action: () => setCurrentScreen('errands')
                     };
@@ -135,7 +135,7 @@ export const EmptyStateWithAction = ({
             case 'batches':
                 if (isVendor) {
                     return {
-                        message: message || t('emptyState.noBatchesYet'),
+                        message: message || t('emptyState.vendorNoBatches'),
                         actionLabel: t('emptyState.createListing'),
                         action: () => {
                             setCurrentScreen('dashboard');
@@ -149,7 +149,7 @@ export const EmptyStateWithAction = ({
                     };
                 } else {
                     return {
-                        message: message || t('emptyState.noBatchesAvailable'),
+                        message: message || t('emptyState.customerNoBatches'),
                         actionLabel: t('emptyState.browseListings'),
                         action: () => setCurrentScreen('groupbuys')
                     };

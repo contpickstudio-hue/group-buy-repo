@@ -35,8 +35,11 @@ const GuestZeroState = ({ type = 'groupbuys' }) => {
                     <p className="text-lg text-gray-600 mb-2 max-w-lg mx-auto">
                         {t('guestZeroState.earlyAccessDescription')}
                     </p>
-                    <p className="text-base text-gray-500 mb-8 max-w-lg mx-auto">
+                    <p className="text-base text-gray-500 mb-4 max-w-lg mx-auto">
                         {t('guestZeroState.beFirstToJoin')}
+                    </p>
+                    <p className="text-sm text-gray-500 mb-8 max-w-lg mx-auto">
+                        {t('guestZeroState.onboardingVendors')}
                     </p>
 
                     {/* Role-Specific CTAs */}

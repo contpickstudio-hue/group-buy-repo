@@ -541,7 +541,7 @@ const ModerationPage = () => {
                     value={suspensionForm.targetId || ''}
                     onChange={(e) => setSuspensionForm(prev => ({ ...prev, targetId: e.target.value }))}
                     className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[44px]"
-                    placeholder={suspensionForm.type === 'user' ? 'user@example.com' : '123'}
+                    placeholder={suspensionForm.type === 'user' ? 'Enter user email' : 'Enter ID'}
                   />
                 </div>
 
@@ -600,7 +600,7 @@ const ModerationPage = () => {
                     onChange={(e) => setSuspensionForm(prev => ({ ...prev, adminNotes: e.target.value }))}
                     rows={3}
                     className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[88px]"
-                    placeholder="Internal notes (optional)"
+                    placeholder="Add internal notes (optional)"
                   />
                 </div>
               </div>

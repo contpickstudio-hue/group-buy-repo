@@ -58,13 +58,14 @@ export function getUserDisplayName(user, loginMethod = null) {
     return 'Guest';
   }
   
-  // Replace "Test User" with actual name from email or default
-  if (name === 'Test User' || name === 'Guest User') {
+  // Replace test/debug names with actual name from email or default
+  const testNames = ['Test User', 'Guest User', 'test user', 'Test'];
+  if (testNames.includes(name)) {
     // Try to extract name from email
     if (user.email) {
       const emailName = user.email.split('@')[0];
       // If email name looks reasonable (not test/demo), use it
-      if (emailName && !emailName.toLowerCase().includes('test') && !emailName.toLowerCase().includes('demo')) {
+      if (emailName && !emailName.toLowerCase().includes('test') && !emailName.toLowerCase().includes('demo') && !emailName.toLowerCase().includes('example')) {
         return emailName.charAt(0).toUpperCase() + emailName.slice(1);
       }
     }

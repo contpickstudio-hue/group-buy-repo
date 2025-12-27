@@ -157,7 +157,9 @@ export async function dbClearAll() {
             await removeStorageItem(key);
         }
     } catch (e) {
-        console.error('dbClearAll error', e);
+        if (import.meta.env.DEV) {
+            console.error('dbClearAll error', e);
+        }
         // Fallback to clearing storage only
         for (const key of Object.values(StorageKeys)) {
             await removeStorageItem(key);
@@ -245,6 +247,97 @@ export async function getCurrentUser() {
 }
 
 /**
+ * Request a role for the current user
+ * Updates user metadata in database (not session)
+ * @param {string} role - Role to request ('vendor' or 'helper')
+ * @returns {Promise<{success: boolean, error?: string}>}
+ */
+export async function requestRole(role) {
+    return await apiCall(async () => {
+        if (!role || !['vendor', 'helper', 'customer'].includes(role)) {
+            throw new Error('Invalid role. Must be vendor, helper, or customer.');
+        }
+
+        const { data: { user }, error: getUserError } = await supabaseClient.auth.getUser();
+        if (getUserError || !user) {
+            throw new Error('User not authenticated');
+        }
+
+        // Get current roles from metadata
+        const currentRoles = Array.isArray(user.user_metadata?.roles) 
+            ? user.user_metadata.roles 
+            : [];
+
+        // Check if user already has this role
+        if (currentRoles.includes(role)) {
+            return { success: true, message: `You already have the ${role} role.` };
+        }
+
+        // Add the new role to existing roles (don't replace)
+        const updatedRoles = [...currentRoles, role];
+
+        // Update user metadata in database
+        const { data, error } = await supabaseClient.auth.updateUser({
+            data: {
+                ...user.user_metadata,
+                roles: updatedRoles
+            }
+        });
+
+        if (error) {
+            throw new Error(`Failed to update role: ${error.message}`);
+        }
+
+        showSuccessToast(`Successfully added ${role} role to your account.`);
+        return { success: true, user: data.user };
+    }, {
+        context: `Requesting ${role} role`,
+        showToast: true
+    });
+}
+
+/**
+ * Remove a role from the current user
+ * Updates user metadata in database
+ * @param {string} role - Role to remove ('vendor' or 'helper')
+ * @returns {Promise<{success: boolean, error?: string}>}
+ */
+export async function removeRole(role) {
+    return await apiCall(async () => {
+        const { data: { user }, error: getUserError } = await supabaseClient.auth.getUser();
+        if (getUserError || !user) {
+            throw new Error('User not authenticated');
+        }
+
+        // Get current roles from metadata
+        const currentRoles = Array.isArray(user.user_metadata?.roles) 
+            ? user.user_metadata.roles 
+            : [];
+
+        // Remove the role
+        const updatedRoles = currentRoles.filter(r => r !== role);
+
+        // Update user metadata in database
+        const { data, error } = await supabaseClient.auth.updateUser({
+            data: {
+                ...user.user_metadata,
+                roles: updatedRoles
+            }
+        });
+
+        if (error) {
+            throw new Error(`Failed to remove role: ${error.message}`);
+        }
+
+        showSuccessToast(`Successfully removed ${role} role from your account.`);
+        return { success: true, user: data.user };
+    }, {
+        context: `Removing ${role} role`,
+        showToast: true
+    });
+}
+
+/**
  * Delete user account and all associated data
  * This is a critical operation and should be used with caution
  */
@@ -272,7 +365,9 @@ export async function deleteUserAccount(userEmail) {
                     try {
                         await removeStorageItem(key);
                     } catch (e) {
-                        console.warn(`Failed to remove ${key}:`, e);
+                        if (import.meta.env.DEV) {
+                            console.warn(`Failed to remove ${key}:`, e);
+                        }
                     }
                 }
                 
@@ -309,7 +404,9 @@ export async function deleteUserAccount(userEmail) {
             try {
                 await removeStorageItem(key);
             } catch (e) {
-                console.warn(`Failed to remove ${key}:`, e);
+                if (import.meta.env.DEV) {
+                    console.warn(`Failed to remove ${key}:`, e);
+                }
             }
         }
         
@@ -335,7 +432,9 @@ export async function loadProductsFromBackend() {
             .order('created_at', { ascending: false });
             
         if (error) {
-            console.error('Error loading products', error);
+            if (import.meta.env.DEV) {
+                console.error('Error loading products', error);
+            }
             return normalizeProducts(SeedData.products);
         }
         
@@ -359,7 +458,9 @@ export async function loadProductsFromBackend() {
         
         return normalizeProducts(transformedProducts);
     } catch (error) {
-        console.error('Error loading products', error);
+        if (import.meta.env.DEV) {
+            console.error('Error loading products', error);
+        }
         return normalizeProducts(SeedData.products);
     }
 }
@@ -377,7 +478,9 @@ export async function loadOrdersFromBackend() {
             .order('created_at', { ascending: false });
             
         if (error) {
-            console.error('Error loading orders', error);
+            if (import.meta.env.DEV) {
+                console.error('Error loading orders', error);
+            }
             return [];
         }
         
@@ -402,7 +505,9 @@ export async function loadOrdersFromBackend() {
         
         return transformedOrders;
     } catch (error) {
-        console.error('Error loading orders', error);
+        if (import.meta.env.DEV) {
+            console.error('Error loading orders', error);
+        }
         return [];
     }
 }
@@ -425,7 +530,9 @@ export async function loadErrandsFromBackend() {
             .order('created_at', { ascending: false });
             
         if (errErr) {
-            console.error('Error loading errands', errErr);
+            if (import.meta.env.DEV) {
+                console.error('Error loading errands', errErr);
+            }
             return {
                 errands: normalizeErrands(SeedData.errands),
                 applications: [],
@@ -483,7 +590,9 @@ export async function loadErrandsFromBackend() {
             messages: messagesData || []
         };
     } catch (error) {
-        console.error('Error loading errands', error);
+        if (import.meta.env.DEV) {
+            console.error('Error loading errands', error);
+        }
         return {
             errands: normalizeErrands(SeedData.errands),
             applications: [],
@@ -509,7 +618,9 @@ export async function loadListingsFromBackend() {
             .order('created_at', { ascending: false });
             
         if (error) {
-            console.error('Error loading listings', error);
+            if (import.meta.env.DEV) {
+                console.error('Error loading listings', error);
+            }
             return [];
         }
         
@@ -529,7 +640,9 @@ export async function loadListingsFromBackend() {
         
         return transformedListings;
     } catch (error) {
-        console.error('Error loading listings', error);
+        if (import.meta.env.DEV) {
+            console.error('Error loading listings', error);
+        }
         return [];
     }
 }
@@ -555,13 +668,17 @@ export async function createListingInBackend(listingData) {
             .single();
             
         if (error) {
-            console.error('Error creating listing', error);
+            if (import.meta.env.DEV) {
+                console.error('Error creating listing', error);
+            }
             return { success: false, error: error.message };
         }
         
         return { success: true, data };
     } catch (error) {
-        console.error('Error creating listing', error);
+        if (import.meta.env.DEV) {
+            console.error('Error creating listing', error);
+        }
         return { success: false, error: error.message };
     }
 }
@@ -588,13 +705,17 @@ export async function updateListingInBackend(listingId, updates) {
             .single();
             
         if (error) {
-            console.error('Error updating listing', error);
+            if (import.meta.env.DEV) {
+                console.error('Error updating listing', error);
+            }
             return { success: false, error: error.message };
         }
         
         return { success: true, data };
     } catch (error) {
-        console.error('Error updating listing', error);
+        if (import.meta.env.DEV) {
+            console.error('Error updating listing', error);
+        }
         return { success: false, error: error.message };
     }
 }
@@ -611,13 +732,17 @@ export async function deleteListingInBackend(listingId) {
             .eq('id', listingId);
             
         if (error) {
-            console.error('Error deleting listing', error);
+            if (import.meta.env.DEV) {
+                console.error('Error deleting listing', error);
+            }
             return { success: false, error: error.message };
         }
         
         return { success: true };
     } catch (error) {
-        console.error('Error deleting listing', error);
+        if (import.meta.env.DEV) {
+            console.error('Error deleting listing', error);
+        }
         return { success: false, error: error.message };
     }
 }
@@ -641,7 +766,9 @@ export async function loadRegionalBatchesFromBackend(listingId) {
             .order('created_at', { ascending: false });
             
         if (error) {
-            console.error('Error loading regional batches', error);
+            if (import.meta.env.DEV) {
+                console.error('Error loading regional batches', error);
+            }
             return { success: false, error: error.message };
         }
         
@@ -662,7 +789,9 @@ export async function loadRegionalBatchesFromBackend(listingId) {
         
         return { success: true, batches: transformedBatches };
     } catch (error) {
-        console.error('Error loading regional batches', error);
+        if (import.meta.env.DEV) {
+            console.error('Error loading regional batches', error);
+        }
         return { success: false, error: error.message };
     }
 }
@@ -680,7 +809,9 @@ export async function loadAllRegionalBatchesFromBackend() {
             .order('created_at', { ascending: false });
             
         if (error) {
-            console.error('Error loading all regional batches', error);
+            if (import.meta.env.DEV) {
+                console.error('Error loading all regional batches', error);
+            }
             return { success: false, error: error.message };
         }
         
@@ -701,7 +832,9 @@ export async function loadAllRegionalBatchesFromBackend() {
         
         return { success: true, batches: transformedBatches };
     } catch (error) {
-        console.error('Error loading all regional batches', error);
+        if (import.meta.env.DEV) {
+            console.error('Error loading all regional batches', error);
+        }
         return { success: false, error: error.message };
     }
 }
@@ -728,7 +861,9 @@ export async function createRegionalBatchInBackend(batchData) {
             .single();
             
         if (error) {
-            console.error('Error creating regional batch', error);
+            if (import.meta.env.DEV) {
+                console.error('Error creating regional batch', error);
+            }
             return { success: false, error: error.message };
         }
         
@@ -749,7 +884,9 @@ export async function createRegionalBatchInBackend(batchData) {
         
         return { success: true, data: transformed };
     } catch (error) {
-        console.error('Error creating regional batch', error);
+        if (import.meta.env.DEV) {
+            console.error('Error creating regional batch', error);
+        }
         return { success: false, error: error.message };
     }
 }
@@ -768,13 +905,17 @@ export async function updateRegionalBatchStatusInBackend(batchId, status) {
             .single();
             
         if (error) {
-            console.error('Error updating regional batch status', error);
+            if (import.meta.env.DEV) {
+                console.error('Error updating regional batch status', error);
+            }
             return { success: false, error: error.message };
         }
         
         return { success: true, data };
     } catch (error) {
-        console.error('Error updating regional batch status', error);
+        if (import.meta.env.DEV) {
+            console.error('Error updating regional batch status', error);
+        }
         return { success: false, error: error.message };
     }
 }
@@ -792,7 +933,9 @@ export async function getBatchQuantityFromBackend(batchId) {
             .eq('regional_batch_id', batchId);
             
         if (error) {
-            console.error('Error getting batch quantity', error);
+            if (import.meta.env.DEV) {
+                console.error('Error getting batch quantity', error);
+            }
             return { success: false, error: error.message };
         }
         
@@ -800,7 +943,9 @@ export async function getBatchQuantityFromBackend(batchId) {
         
         return { success: true, quantity };
     } catch (error) {
-        console.error('Error getting batch quantity', error);
+        if (import.meta.env.DEV) {
+            console.error('Error getting batch quantity', error);
+        }
         return { success: false, error: error.message };
     }
 }
@@ -808,7 +953,9 @@ export async function getBatchQuantityFromBackend(batchId) {
 export async function flagOrdersForRefund(batchId) {
     try {
         if (!supabaseClient) {
-            console.warn('Supabase client not available, skipping refund flagging');
+            if (import.meta.env.DEV) {
+                console.warn('Supabase client not available, skipping refund flagging');
+            }
             return { success: true }; // Don't fail if Supabase unavailable
         }
         
@@ -819,13 +966,17 @@ export async function flagOrdersForRefund(batchId) {
             .eq('regional_batch_id', batchId);
             
         if (error) {
-            console.error('Error flagging orders for refund', error);
+            if (import.meta.env.DEV) {
+                console.error('Error flagging orders for refund', error);
+            }
             return { success: false, error: error.message };
         }
         
         return { success: true };
     } catch (error) {
-        console.error('Error flagging orders for refund', error);
+        if (import.meta.env.DEV) {
+            console.error('Error flagging orders for refund', error);
+        }
         return { success: false, error: error.message };
     }
 }
@@ -850,13 +1001,17 @@ export async function updateOrderFulfillmentStatus(orderId, fulfillmentStatus) {
             .single();
             
         if (error) {
-            console.error('Error updating order fulfillment status', error);
+            if (import.meta.env.DEV) {
+                console.error('Error updating order fulfillment status', error);
+            }
             return { success: false, error: error.message };
         }
         
         return { success: true, data };
     } catch (error) {
-        console.error('Error updating order fulfillment status', error);
+        if (import.meta.env.DEV) {
+            console.error('Error updating order fulfillment status', error);
+        }
         return { success: false, error: error.message };
     }
 }
@@ -904,13 +1059,17 @@ export async function activateRegionalBatch(batchId) {
             });
             
         if (error) {
-            console.error('Error activating regional batch', error);
+            if (import.meta.env.DEV) {
+                console.error('Error activating regional batch', error);
+            }
             return { success: false, error: error.message };
         }
         
         return { success: true, data };
     } catch (error) {
-        console.error('Error activating regional batch', error);
+        if (import.meta.env.DEV) {
+            console.error('Error activating regional batch', error);
+        }
         return { success: false, error: error.message };
     }
 }
@@ -939,7 +1098,9 @@ export async function checkAndTransitionBatchStatuses() {
                 .lt('cutoff_date', now);
                 
             if (fetchError) {
-                console.error('Error fetching batches for transition', fetchError);
+                if (import.meta.env.DEV) {
+                    console.error('Error fetching batches for transition', fetchError);
+                }
                 return { success: false, error: fetchError.message };
             }
             
@@ -966,7 +1127,9 @@ export async function checkAndTransitionBatchStatuses() {
                     try {
                         await releaseEscrowToVendor(batch.id);
                     } catch (escrowError) {
-                        console.error(`Failed to release escrow for batch ${batch.id}:`, escrowError);
+                        if (import.meta.env.DEV) {
+                            console.error(`Failed to release escrow for batch ${batch.id}:`, escrowError);
+                        }
                         // Don't fail the status transition if escrow release fails
                     }
                 } else if (newStatus === 'failed') {
@@ -974,7 +1137,9 @@ export async function checkAndTransitionBatchStatuses() {
                     try {
                         await refundEscrowToCustomers(batch.id);
                     } catch (escrowError) {
-                        console.error(`Failed to refund escrow for batch ${batch.id}:`, escrowError);
+                        if (import.meta.env.DEV) {
+                            console.error(`Failed to refund escrow for batch ${batch.id}:`, escrowError);
+                        }
                         // Don't fail the status transition if escrow refund fails
                     }
                 }
@@ -997,13 +1162,17 @@ export async function checkAndTransitionBatchStatuses() {
                         try {
                             await releaseEscrowToVendor(batch.id);
                         } catch (error) {
-                            console.error(`Failed to release escrow for batch ${batch.id}:`, error);
+                            if (import.meta.env.DEV) {
+                                console.error(`Failed to release escrow for batch ${batch.id}:`, error);
+                            }
                         }
                     } else if (batch.status === 'failed') {
                         try {
                             await refundEscrowToCustomers(batch.id);
                         } catch (error) {
-                            console.error(`Failed to refund escrow for batch ${batch.id}:`, error);
+                            if (import.meta.env.DEV) {
+                                console.error(`Failed to refund escrow for batch ${batch.id}:`, error);
+                            }
                         }
                     }
                 }
@@ -1012,7 +1181,9 @@ export async function checkAndTransitionBatchStatuses() {
         
         return { success: true };
     } catch (error) {
-        console.error('Error checking batch statuses', error);
+        if (import.meta.env.DEV) {
+            console.error('Error checking batch statuses', error);
+        }
         return { success: false, error: error.message };
     }
 }

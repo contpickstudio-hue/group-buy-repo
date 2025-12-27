@@ -347,5 +347,9 @@
   "checkout": {
     "testMode": "测试模式 - 无真实支付",
     "testModeDescription": "您处于测试模式。不会处理真实支付。这仅用于开发和测试。"
+  },
+  "guestEarlyAccess": {
+    "title": "早期访问预览",
+    "description": "您正在以访客模式浏览。注册以访问完整功能，包括创建团购、发布跑腿、查看分析和管理您的账户。"
   }
 }

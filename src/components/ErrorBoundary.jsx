@@ -90,6 +90,16 @@ export class SectionErrorBoundary extends React.Component {
 
   render() {
     if (this.state.hasError) {
+      // For Floating Action Button, fail silently - don't show error banner
+      // FAB should handle all errors internally and never throw
+      if (this.props.section === 'Floating Action Button') {
+        if (import.meta.env.DEV) {
+          console.warn('FAB error caught by boundary - failing silently');
+        }
+        return null;
+      }
+      
+      // For other sections, show error banner (but can be made silent if needed)
       return (
         <div className="p-4 bg-red-50 border border-red-200 rounded-md">
           <p className="text-red-800 text-sm">

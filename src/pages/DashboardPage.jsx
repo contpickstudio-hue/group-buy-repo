@@ -26,6 +26,7 @@ import ReferralBadges from '../components/ReferralBadges';
 import CreditsDisplay from '../components/CreditsDisplay';
 import { getUserDisplayName } from '../utils/authUtils';
 import { EmptyStateWithAction } from '../components/EmptyState';
+import GuestEarlyAccess from '../components/GuestEarlyAccess';
 
 const DashboardPage = () => {
     try {
@@ -76,14 +77,20 @@ const DashboardPage = () => {
           if (!currentCode) {
             // Generate if not found in storage
             generateReferralCode().catch((err) => {
-              console.error('Failed to generate referral code:', err);
+              if (import.meta.env.DEV) {
+                console.error('Failed to generate referral code:', err);
+              }
             });
           }
         }).catch((err) => {
           // If loading fails, try to generate a new one
-          console.warn('Failed to load referral code from storage, generating new one:', err);
+          if (import.meta.env.DEV) {
+            console.warn('Failed to load referral code from storage, generating new one:', err);
+          }
           generateReferralCode().catch((genErr) => {
-            console.error('Failed to generate referral code:', genErr);
+            if (import.meta.env.DEV) {
+              console.error('Failed to generate referral code:', genErr);
+            }
           });
         });
       }
@@ -111,6 +118,18 @@ const DashboardPage = () => {
     // Guest users have NO roles - filter them out
     const roles = isGuest ? [] : (user.roles || []);
     const [activeTab, setActiveTab] = useState('overview');
+
+    // For guests, show early access message instead of dashboard
+    if (isGuest) {
+        return (
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <GuestEarlyAccess 
+                    title="Dashboard Preview"
+                    description="You're browsing in guest mode. Sign up to access your dashboard with analytics, earnings, orders, and account management."
+                />
+            </div>
+        );
+    }
 
     // Calculate user's active and completed items
     // Use products.length as additional dependency to ensure recalculation when products are added
@@ -314,10 +333,10 @@ const DashboardPage = () => {
                         <h3 className="text-xl font-semibold mb-4">Your Account</h3>
                         <div className="space-y-2">
                             <p>
-                                <strong>Roles:</strong> {roles.map(role => role.toUpperCase()).join(', ')}
+                                <strong>Roles:</strong> {roles.map(role => role.toUpperCase()).join(', ') || 'None'}
                             </p>
-                            {/* Only show helper status for registered users, not guests */}
-                            {!isGuest && roles.includes('helper') && (
+                            {/* Only show helper status for registered users */}
+                            {roles.includes('helper') && (
                                 <p>
                                     <strong>Helper Status:</strong> {user.helperVerified ? 'Verified ✅' : 'Pending Verification'}
                                 </p>
@@ -358,50 +377,44 @@ const DashboardPage = () => {
                         </div>
                     </div>
 
-                    {/* Credits and Referrals Row - Only for registered users, not guests */}
-                    {!isGuest && (
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                            {/* Credits Display */}
-                            <CreditsDisplay showHistory={false} compact={false} />
-                            
-                            {/* Referral Share */}
-                            <ReferralShare />
-                        </div>
-                    )}
+                    {/* Credits and Referrals Row */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                        {/* Credits Display */}
+                        <CreditsDisplay showHistory={false} compact={false} />
+                        
+                        {/* Referral Share */}
+                        <ReferralShare />
+                    </div>
 
-                    {/* Referral Badges - Only for registered users, not guests */}
-                    {!isGuest && (
-                        <div className="mb-8">
-                            <ReferralBadges />
-                        </div>
-                    )}
+                    {/* Referral Badges */}
+                    <div className="mb-8">
+                        <ReferralBadges />
+                    </div>
 
-                    {/* Quick Actions - Hidden for guest users */}
-                    {!isGuest && (
-                        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-                            <h3 className="text-xl font-semibold mb-4">Quick Actions</h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                {roles.includes('vendor') && (
-                                    <button
-                                        onClick={() => setCurrentScreen('groupbuys')}
-                                        className="flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors min-h-[48px] font-semibold"
-                                    >
-                                        <span className="mr-2">🛒</span>
-                                        Create Group Buy
-                                    </button>
-                                )}
-                                {roles.includes('customer') && (
-                                    <button
-                                        onClick={() => setCurrentScreen('errands')}
-                                        className="flex items-center justify-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors min-h-[48px] font-semibold"
-                                    >
-                                        <span className="mr-2">📝</span>
-                                        Post Errand
-                                    </button>
-                                )}
-                            </div>
+                    {/* Quick Actions */}
+                    <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+                        <h3 className="text-xl font-semibold mb-4">Quick Actions</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {roles.includes('vendor') && (
+                                <button
+                                    onClick={() => setCurrentScreen('groupbuys')}
+                                    className="flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors min-h-[48px] font-semibold"
+                                >
+                                    <span className="mr-2">🛒</span>
+                                    Create Group Buy
+                                </button>
+                            )}
+                            {roles.includes('customer') && (
+                                <button
+                                    onClick={() => setCurrentScreen('errands')}
+                                    className="flex items-center justify-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors min-h-[48px] font-semibold"
+                                >
+                                    <span className="mr-2">📝</span>
+                                    Post Errand
+                                </button>
+                            )}
                         </div>
-                    )}
+                    </div>
 
                     {/* Active Group Buys - Mobile optimized */}
                     <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6 sm:mb-8">
@@ -431,7 +444,6 @@ const DashboardPage = () => {
                         ) : (
                             <EmptyStateWithAction 
                                 type="groupbuys"
-                                message="No active group buys yet"
                             />
                         )}
                     </div>
@@ -469,7 +481,6 @@ const DashboardPage = () => {
                         ) : (
                             <EmptyStateWithAction 
                                 type="errands"
-                                message="No active errands yet"
                             />
                         )}
                     </div>
@@ -516,7 +527,9 @@ const DashboardPage = () => {
         </div>
     );
     } catch (error) {
-        console.error('DashboardPage error:', error);
+        if (import.meta.env.DEV) {
+            console.error('DashboardPage error:', error);
+        }
         return (
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">

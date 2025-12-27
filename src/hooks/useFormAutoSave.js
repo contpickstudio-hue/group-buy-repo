@@ -47,7 +47,9 @@ export const useFormAutoSave = (formData, storageKey, enabled = true) => {
                 return JSON.parse(saved);
             }
         } catch (error) {
-            console.warn('Failed to load form draft:', error);
+            if (import.meta.env.DEV) {
+                console.warn('Failed to load form draft:', error);
+            }
         }
         return null;
     };
@@ -59,7 +61,9 @@ export const useFormAutoSave = (formData, storageKey, enabled = true) => {
             localStorage.removeItem(`form_draft_${storageKey}`);
             lastSavedRef.current = '';
         } catch (error) {
-            console.warn('Failed to clear form draft:', error);
+            if (import.meta.env.DEV) {
+                console.warn('Failed to clear form draft:', error);
+            }
         }
     };
 

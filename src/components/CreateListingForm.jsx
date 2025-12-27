@@ -138,7 +138,9 @@ const CreateListingForm = () => {
             // Check if any batch creation failed
             const failedBatches = batchResults.filter(r => !r.success);
             if (failedBatches.length > 0) {
-                console.error('Some batches failed to create:', failedBatches);
+                if (import.meta.env.DEV) {
+                    console.error('Some batches failed to create:', failedBatches);
+                }
                 toast.error(`${failedBatches.length} batch(es) failed to create`);
             }
             

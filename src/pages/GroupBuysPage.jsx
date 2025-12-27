@@ -32,7 +32,9 @@ const GroupBuysPage = () => {
                 });
             }
         }).catch((error) => {
-            console.error('Error loading listings:', error);
+            if (import.meta.env.DEV) {
+                console.error('Error loading listings:', error);
+            }
             toast.error(t('groupBuysPage.failedToLoadListings'));
         });
     }, [loadListings, loadBatchesForListing]);

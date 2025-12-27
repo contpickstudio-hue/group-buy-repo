@@ -15,7 +15,7 @@ import { canJoinBatch } from '../services/supabaseService';
 import ReportButton from '../components/ReportButton';
 import { checkListingSuspension } from '../services/moderationService';
 import toast from 'react-hot-toast';
-import { getUserDisplayName } from '../utils/authUtils';
+import { getUserDisplayName, isGuestUser } from '../utils/authUtils';
 
 const ListingDetailPage = () => {
     // Get listingId from URL hash (e.g., #listing/123)
@@ -72,7 +72,9 @@ const ListingDetailPage = () => {
                         setSuspension(result.suspension);
                     }
                 } catch (error) {
-                    console.error('Error checking listing suspension:', error);
+                    if (import.meta.env.DEV) {
+                        console.error('Error checking listing suspension:', error);
+                    }
                 }
             };
             checkSuspension();
@@ -371,14 +373,28 @@ const ListingDetailPage = () => {
                                     </div>
                                 </div>
 
-                                {/* Join Button */}
-                                {canJoinBatch(selectedBatch) && (
+                                {/* Join Button - Hidden for guests */}
+                                {canJoinBatch(selectedBatch) && !isGuestUser(user, loginMethod) && (
                                     <button
                                         onClick={handleJoinListing}
                                         className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 transition-colors font-semibold text-lg"
                                     >
                                         Place Order - ${selectedBatch.price.toFixed(2)}
                                     </button>
+                                )}
+                                {/* Guest message */}
+                                {canJoinBatch(selectedBatch) && isGuestUser(user, loginMethod) && (
+                                    <div className="w-full bg-blue-50 border border-blue-200 rounded-md p-4 text-center">
+                                        <p className="text-blue-800 text-sm font-medium mb-2">
+                                            Sign up to place orders
+                                        </p>
+                                        <button
+                                            onClick={() => setCurrentScreen('auth')}
+                                            className="text-blue-600 hover:text-blue-700 font-medium text-sm underline"
+                                        >
+                                            Create Account
+                                        </button>
+                                    </div>
                                 )}
                                 {!canJoinBatch(selectedBatch) && selectedBatch.status === 'active' && (
                                     <div className="w-full bg-yellow-50 border border-yellow-200 rounded-md p-3 text-center">

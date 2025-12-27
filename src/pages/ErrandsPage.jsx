@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import DateInput from '../components/DateInput';
 import { isGuestUser } from '../utils/authUtils';
 import SignUpCTA from '../components/SignUpCTA';
+import GuestEarlyAccess from '../components/GuestEarlyAccess';
 import { EmptyStateWithAction } from '../components/EmptyState';
 
 const ErrandsPage = () => {
@@ -127,7 +128,9 @@ const ErrandsPage = () => {
                 throw new Error(result?.error || 'Failed to post errand');
             }
         } catch (error) {
-            console.error('Error posting errand:', error);
+            if (import.meta.env.DEV) {
+                console.error('Error posting errand:', error);
+            }
             toast.error(error?.message || 'Failed to post errand. Please try again.');
         } finally {
             setIsSubmitting(false);
@@ -220,7 +223,11 @@ const ErrandsPage = () => {
             <div className="card mb-6 sm:mb-8 pb-24 sm:pb-6" data-testid="create-errand-form" data-coach-target="post-errand-form">
                 <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-gray-900">Post a New Errand</h3>
                 {isGuest ? (
-                    <SignUpCTA message="Sign up to post errands" />
+                    <GuestEarlyAccess 
+                        title="Post Errands"
+                        description="Sign up to post errands and get help from verified helpers in your community."
+                        compact={true}
+                    />
                 ) : (
                 <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5 pb-24 sm:pb-6">
                     <div>

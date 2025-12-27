@@ -144,7 +144,9 @@ function AppContent() {
                         updateErrandFilters({ region: preferredRegion });
                     }
                 } catch (error) {
-                    console.warn('Failed to apply preferred region filter:', error);
+                    if (import.meta.env.DEV) {
+                        console.warn('Failed to apply preferred region filter:', error);
+                    }
                 }
                 
                 // Initialize language preference
@@ -170,7 +172,9 @@ function AppContent() {
                 // Check and transition batch statuses at deadline
                 await checkAndTransitionBatchStatuses();
             } catch (error) {
-                console.error('App initialization failed:', error);
+                if (import.meta.env.DEV) {
+                    console.error('App initialization failed:', error);
+                }
                 // Error handling is managed by individual functions
             }
         };
@@ -187,7 +191,9 @@ function AppContent() {
                     const userId = user.email || user.id;
                     await initializePushNotifications(userId);
                 } catch (error) {
-                    console.error('Failed to initialize push notifications:', error);
+                    if (import.meta.env.DEV) {
+                        console.error('Failed to initialize push notifications:', error);
+                    }
                     // Don't block app functionality if push notifications fail
                 }
             }

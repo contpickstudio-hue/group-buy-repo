@@ -464,7 +464,9 @@ export async function confirmErrandCompletion(errandId, userEmail, isRequester) 
     if (bothConfirmed && !finalErrand.payment_released) {
       // Release payment asynchronously (don't wait)
       releaseErrandPayment(errandId).catch(err => {
-        console.error('Failed to release payment:', err);
+        if (import.meta.env.DEV) {
+          console.error('Failed to release payment:', err);
+        }
       });
       
       // Notify both parties about completion
@@ -558,7 +560,9 @@ export async function releaseErrandPayment(errandId) {
           errandId
         );
       } catch (creditError) {
-        console.error('Failed to add credits:', creditError);
+        if (import.meta.env.DEV) {
+          console.error('Failed to add credits:', creditError);
+        }
         // Don't fail the payment release if credits fail
       }
     }

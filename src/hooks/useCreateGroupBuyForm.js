@@ -148,7 +148,9 @@ const useCreateGroupBuyForm = () => {
             const errorMessage = err?.message || err?.toString() || 'An unexpected error occurred';
             setError(errorMessage);
             toast.error(`Error: ${errorMessage}`, { duration: 5000 });
-            console.error('Group buy creation error:', err);
+            if (import.meta.env.DEV) {
+                console.error('Group buy creation error:', err);
+            }
         } finally {
             setIsSubmitting(false);
         }

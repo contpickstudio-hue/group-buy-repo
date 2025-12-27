@@ -30,7 +30,9 @@ export const ErrorLogger = {
       }
       localStorage.setItem('appErrors', JSON.stringify(errors));
     } catch (e) {
-      console.warn('Failed to store error in localStorage:', e);
+      if (import.meta.env.DEV) {
+        console.warn('Failed to store error in localStorage:', e);
+      }
     }
 
     // Send to error tracking service (if configured)
@@ -50,7 +52,9 @@ export const ErrorLogger = {
     try {
       localStorage.removeItem('appErrors');
     } catch (e) {
-      console.warn('Failed to clear errors from localStorage:', e);
+      if (import.meta.env.DEV) {
+        console.warn('Failed to clear errors from localStorage:', e);
+      }
     }
   }
 };
