@@ -6,6 +6,11 @@ export default defineConfig({
   // Base path for GitHub Pages (uncomment if using GitHub Pages)
   // base: process.env.NODE_ENV === 'production' ? '/korean-commerce-app/' : '/',
   plugins: [react()],
+  server: {
+    host: true, // Listen on all addresses
+    port: 5173,
+    strictPort: false // Try next available port if 5173 is taken
+  },
   build: {
     rollupOptions: {
       output: {
