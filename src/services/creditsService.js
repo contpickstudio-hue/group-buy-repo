@@ -83,12 +83,12 @@ export async function getUserCredits(userEmail) {
       throw error;
     }
 
-    const balance = (credits || []).reduce((sum, credit) => {
+    const calculatedBalance = (credits || []).reduce((sum, credit) => {
       return sum + (parseFloat(credit.amount) || 0);
     }, 0);
 
     return {
-      balance,
+      balance: calculatedBalance,
       credits: credits || []
     };
   });
