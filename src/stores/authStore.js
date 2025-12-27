@@ -166,12 +166,22 @@ export const useAuthStore = create()(
 
         try {
           const result = await signInWithGoogle();
+          // Google OAuth will redirect, so if successful, we may not get here
+          // But if there's an error, we need to handle it
+          if (!result.success) {
+            const errorMessage = result.error || 'Google sign in failed. Please check if Google OAuth is enabled in your Supabase project.';
+            set((state) => {
+              state.authError = errorMessage;
+            });
+            return { success: false, error: errorMessage };
+          }
           return result;
         } catch (error) {
+          const errorMessage = error?.message || error?.msg || 'Google sign in failed. Please check if Google OAuth is enabled in your Supabase project.';
           set((state) => {
-            state.authError = error.message;
+            state.authError = errorMessage;
           });
-          return { success: false, error: error.message };
+          return { success: false, error: errorMessage };
         } finally {
           set((state) => {
             state.authLoading = false;

@@ -129,7 +129,7 @@ const AuthPage = () => {
             async () => {
                 const authResult = await signInWithGoogle();
                 if (!authResult.success) {
-                    throw new Error(authResult.error);
+                    throw new Error(authResult.error || 'Google sign in failed. Please check if Google OAuth is enabled in your Supabase project.');
                 }
                 return authResult;
             },

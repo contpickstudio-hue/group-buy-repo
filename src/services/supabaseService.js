@@ -202,7 +202,11 @@ export async function signInWithGoogle() {
                 redirectTo: window.location.origin
             }
         });
-        if (error) throw new Error(`Google sign in failed: ${error.message}`);
+        if (error) {
+            // Extract error message from various possible formats
+            const errorMsg = error.msg || error.message || error.error_description || 'Google sign in failed';
+            throw new Error(errorMsg);
+        }
         return { data, error: null };
     }, {
         context: 'Google OAuth sign in',

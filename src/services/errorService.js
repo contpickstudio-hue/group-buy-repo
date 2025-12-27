@@ -125,7 +125,24 @@ export const apiCall = async (operation, options = {}) => {
       error: null
     };
   } catch (error) {
-    const errorMsg = errorMessage || error?.message || 'An error occurred';
+    // Extract error message from various possible formats
+    // Supabase errors may have msg, message, error_description, or be a string
+    let errorMsg = errorMessage;
+    if (!errorMsg) {
+      if (typeof error === 'string') {
+        errorMsg = error;
+      } else if (error?.msg) {
+        errorMsg = error.msg;
+      } else if (error?.message) {
+        errorMsg = error.message;
+      } else if (error?.error_description) {
+        errorMsg = error.error_description;
+      } else if (error?.error) {
+        errorMsg = typeof error.error === 'string' ? error.error : error.error.message || error.error.msg;
+      } else {
+        errorMsg = 'An error occurred';
+      }
+    }
     
     if (logError) {
       ErrorLogger.log(error, { operation: operation.name, options });
