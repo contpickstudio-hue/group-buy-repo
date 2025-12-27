@@ -146,6 +146,7 @@ export const useSignIn = () => useAuthStore((state) => state.signIn);
 export const useSignInWithGoogle = () => useAuthStore((state) => state.signInWithGoogle);
 export const useSignOut = () => useAuthStore((state) => state.signOut);
 export const useSetDemoUser = () => useAuthStore((state) => state.setDemoUser);
+export const useSkipLogin = () => useAuthStore((state) => state.skipLogin);
 export const useSetUser = () => useAuthStore((state) => state.setUser);
 export const useUpdateUser = () => useAuthStore((state) => state.updateUser);
 export const useClearUser = () => useAuthStore((state) => state.clearUser);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSetCurrentScreen, useSignUp, useSignIn, useSignInWithGoogle } from '../stores';
+import { useSetCurrentScreen, useSignUp, useSignIn, useSignInWithGoogle, useSkipLogin } from '../stores';
 import { useProcessReferralSignup } from '../stores';
 import { useFormHandler } from '../hooks/useErrorHandler';
 import { AsyncErrorBoundary } from '../components/ErrorBoundary';
@@ -9,6 +9,7 @@ const AuthPage = () => {
     const signUp = useSignUp();
     const signIn = useSignIn();
     const signInWithGoogle = useSignInWithGoogle();
+    const skipLogin = useSkipLogin();
     const processReferralSignup = useProcessReferralSignup();
     const [isSignUp, setIsSignUp] = useState(true);
     const [referralCode, setReferralCode] = useState(null);
@@ -141,6 +142,17 @@ const AuthPage = () => {
         );
         
         // Google sign-in will redirect, so we don't need to handle success here
+    };
+
+    const handleSkipLogin = async () => {
+        try {
+            const result = await skipLogin();
+            if (result.success) {
+                setCurrentScreen('browse');
+            }
+        } catch (error) {
+            console.error('Failed to skip login:', error);
+        }
     };
 
     return (
@@ -312,6 +324,21 @@ const AuthPage = () => {
                             : "Don't have an account? Sign up"
                         }
                     </button>
+                </div>
+
+                {/* Skip Login Button for Testing */}
+                <div className="mt-6 pt-4 border-t border-gray-200">
+                    <button
+                        onClick={handleSkipLogin}
+                        disabled={isLoading}
+                        className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                        title="Skip login and test as verified user with all roles (customer, vendor, helper)"
+                    >
+                        🧪 Skip Login (Test Mode)
+                    </button>
+                    <p className="mt-2 text-xs text-gray-500 text-center">
+                        Test as verified user with all roles
+                    </p>
                 </div>
             </div>
         </div>

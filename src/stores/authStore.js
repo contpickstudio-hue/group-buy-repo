@@ -229,6 +229,29 @@ export const useAuthStore = create()(
           state.user = user;
           state.loginMethod = 'demo';
         });
+        // Also save to storage for persistence
+        setStorageItem(StorageKeys.user, user).catch(err => {
+          console.warn('Failed to save demo user to storage:', err);
+        });
+      },
+
+      skipLogin: async () => {
+        // Create a verified test account with all roles
+        const demoUser = {
+          id: 'demo-user-' + Date.now(),
+          email: 'test@demo.com',
+          name: 'Test User',
+          roles: ['customer', 'vendor', 'helper'],
+          helperVerified: true
+        };
+        
+        set((state) => {
+          state.user = demoUser;
+          state.loginMethod = 'demo';
+        });
+        
+        await setStorageItem(StorageKeys.user, demoUser);
+        return { success: true, user: demoUser };
       },
 
       setSelectedRoles: (roles) => {
