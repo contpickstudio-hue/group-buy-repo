@@ -46,6 +46,12 @@ export const useAppStore = create()(
                 // Community stats slice
                 ...createCommunityStatsSlice(set, get, api),
                 
+                // Listing slice (regional marketplace)
+                ...createListingSlice(set, get, api),
+                
+                // Regional batch slice (regional marketplace)
+                ...createRegionalBatchSlice(set, get, api),
+                
                 // Global actions
                 resetStore: () => {
                     set((state) => {

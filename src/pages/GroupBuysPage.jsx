@@ -6,34 +6,36 @@ import Marketplace from '../components/Marketplace';
 import toast from 'react-hot-toast';
 
 const GroupBuysPage = () => {
-    try {
-        // Get raw data from store
-        const listings = useListings();
-        const filters = useAppStore((state) => state.filters?.groupbuys || {});
-        
-        const loadListings = useLoadListings();
-        const getBatchesByListing = useGetBatchesByListing();
-        const loadBatchesForListing = useLoadBatchesForListing();
-        const addOrder = useAddOrder();
-        const updatePaymentStatus = useUpdatePaymentStatus();
-        const user = useUser();
-        const orders = useOrders();
-        const setCurrentScreen = useSetCurrentScreen();
-        const processReferralOrder = useProcessReferralOrder();
-        const applyCredits = useApplyCredits();
-        
-        // Load listings and batches on mount
-        useEffect(() => {
-            loadListings().then((result) => {
-                if (result.success && result.listings) {
-                    // Load batches for all listings
-                    result.listings.forEach(listing => {
-                        loadBatchesForListing(listing.id);
-                    });
-                }
-            });
-        }, [loadListings, loadBatchesForListing]);
+    // Get raw data from store - hooks must be at top level
+    const listings = useListings();
+    const filters = useAppStore((state) => state.filters?.groupbuys || {});
     
+    const loadListings = useLoadListings();
+    const getBatchesByListing = useGetBatchesByListing();
+    const loadBatchesForListing = useLoadBatchesForListing();
+    const addOrder = useAddOrder();
+    const updatePaymentStatus = useUpdatePaymentStatus();
+    const user = useUser();
+    const orders = useOrders();
+    const setCurrentScreen = useSetCurrentScreen();
+    const processReferralOrder = useProcessReferralOrder();
+    const applyCredits = useApplyCredits();
+    
+    // Load listings and batches on mount
+    useEffect(() => {
+        loadListings().then((result) => {
+            if (result.success && result.listings) {
+                // Load batches for all listings
+                result.listings.forEach(listing => {
+                    loadBatchesForListing(listing.id);
+                });
+            }
+        }).catch((error) => {
+            console.error('Error loading listings:', error);
+            toast.error('Failed to load listings. Please try again.');
+        });
+    }, [loadListings, loadBatchesForListing]);
+
     // Checkout state removed - handled in ListingDetailPage
 
     const handleJoinListing = async (listing) => {
@@ -75,27 +77,6 @@ const GroupBuysPage = () => {
             />
         </div>
     );
-    } catch (error) {
-        console.error('GroupBuysPage error:', error);
-        return (
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-                    <h3 className="text-lg font-semibold text-red-800 mb-2">
-                        Unable to Load Group Buys
-                    </h3>
-                    <p className="text-red-600 mb-4">
-                        There was an error loading group buys. Please try refreshing the page.
-                    </p>
-                    <button
-                        onClick={() => window.location.reload()}
-                        className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
-                    >
-                        Refresh Page
-                    </button>
-                </div>
-            </div>
-        );
-    }
 };
 
 export default GroupBuysPage;

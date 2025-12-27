@@ -4,11 +4,11 @@ import toast from 'react-hot-toast';
 import DateInput from '../components/DateInput';
 
 const ErrandsPage = () => {
-    try {
-        const errands = useErrands();
-        const user = useUser();
-        const addErrand = useAddErrand();
-        const updateErrandFilters = useUpdateErrandFilters();
+    // Hooks must be at top level - cannot be inside try-catch
+    const errands = useErrands();
+    const user = useUser();
+    const addErrand = useAddErrand();
+    const updateErrandFilters = useUpdateErrandFilters();
     
     // Get filter values from store
     const errandFilters = useAppStore((state) => state.filters?.errands || {});
@@ -417,27 +417,6 @@ const ErrandsPage = () => {
             </div>
         </div>
     );
-    } catch (error) {
-        console.error('ErrandsPage error:', error);
-        return (
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-                    <h3 className="text-lg font-semibold text-red-800 mb-2">
-                        Unable to Load Errands
-                    </h3>
-                    <p className="text-red-600 mb-4">
-                        There was an error loading errands. Please try refreshing the page.
-                    </p>
-                    <button
-                        onClick={() => window.location.reload()}
-                        className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
-                    >
-                        Refresh Page
-                    </button>
-                </div>
-            </div>
-        );
-    }
 };
 
 export default ErrandsPage;
