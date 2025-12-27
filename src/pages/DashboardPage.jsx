@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { useUser, useProducts, useOrders, useErrands, useSetCurrentScreen, useAppStore, useLoadProducts } from '../stores';
+import { useUser, useProducts, useListings, useOrders, useErrands, useSetCurrentScreen, useAppStore, useLoadProducts, useLoadListings, useGetBatchesByListing, useLoadBatchesForListing } from '../stores';
 import { 
   useCommunitySavings, 
   useUserContribution,
@@ -13,6 +13,8 @@ import {
   useLoadReferralCodeFromStorage
 } from '../stores';
 import CreateGroupBuyForm from '../components/CreateGroupBuyForm';
+import CreateListingForm from '../components/CreateListingForm';
+import RegionalBatchManager from '../components/RegionalBatchManager';
 import VendorOrdersTab from '../components/VendorOrdersTab';
 import VendorAnalyticsPage from './VendorAnalyticsPage';
 import PayoutSettingsPage from './PayoutSettingsPage';
@@ -27,10 +29,14 @@ const DashboardPage = () => {
         const user = useUser();
     const accountSummary = useAccountSummary();
     const products = useProducts();
+    const listings = useListings();
     const orders = useOrders();
     const errands = useErrands();
     const setCurrentScreen = useSetCurrentScreen();
     const loadProducts = useLoadProducts();
+    const loadListings = useLoadListings();
+    const getBatchesByListing = useGetBatchesByListing();
+    const loadBatchesForListing = useLoadBatchesForListing();
     const prevProductsLengthRef = useRef(products?.length || 0);
     
     // Community stats hooks
@@ -52,6 +58,7 @@ const DashboardPage = () => {
     // Load data on mount
     useEffect(() => {
       if (user) {
+        loadListings();
         loadCommunityStats();
         loadUserContribution();
         loadCredits();
@@ -74,7 +81,16 @@ const DashboardPage = () => {
           });
         });
       }
-    }, [user, loadCommunityStats, loadUserContribution, loadCredits, loadReferralStats, generateReferralCode, loadReferralCodeFromStorage]);
+    }, [user, loadListings, loadCommunityStats, loadUserContribution, loadCredits, loadReferralStats, generateReferralCode, loadReferralCodeFromStorage]);
+    
+    // Load batches for all listings when listings change
+    useEffect(() => {
+        if (listings.length > 0) {
+            listings.forEach(listing => {
+                loadBatchesForListing(listing.id);
+            });
+        }
+    }, [listings, loadBatchesForListing]);
 
     if (!user) {
         return (

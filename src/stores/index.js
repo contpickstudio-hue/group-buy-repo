@@ -4,6 +4,8 @@ import { immer } from 'zustand/middleware/immer';
 import { shallow } from 'zustand/shallow';
 import { createUserSlice } from './userSlice';
 import { createProductSlice } from './productSlice';
+import { createListingSlice } from './listingSlice';
+import { createRegionalBatchSlice } from './regionalBatchSlice';
 import { createOrderSlice } from './orderSlice';
 import { createErrandSlice } from './errandSlice';
 import { createUISlice } from './uiSlice';
@@ -172,6 +174,30 @@ export const useCreateProduct = () => useAppStore((state) => state.createProduct
 export const useJoinGroupBuy = () => useAppStore((state) => state.joinGroupBuy);
 export const useSetUserLocation = () => useAppStore((state) => state.setUserLocation);
 export const useSetNearbyProducts = () => useAppStore((state) => state.setNearbyProducts);
+
+// Listing hooks (new regional marketplace model)
+export const useListings = () => useAppStore((state) => state.listings || []);
+export const useLoadListings = () => useAppStore((state) => state.loadListings);
+export const useCreateListing = () => useAppStore((state) => state.createListing);
+export const useUpdateListing = () => useAppStore((state) => state.updateListing);
+export const useDeleteListing = () => useAppStore((state) => state.deleteListing);
+export const useSetListings = () => useAppStore((state) => state.setListings);
+export const useGetListingById = () => useAppStore((state) => state.getListingById);
+export const useGetListingsByOwner = () => useAppStore((state) => state.getListingsByOwner);
+
+// Regional batch hooks (new regional marketplace model)
+export const useRegionalBatches = () => useAppStore((state) => state.regionalBatches || []);
+export const useBatchesByListing = () => useAppStore((state) => state.batchesByListing || {});
+export const useGetBatchesByListing = () => useAppStore((state) => state.getBatchesByListing);
+export const useLoadBatchesForListing = () => useAppStore((state) => state.loadBatchesForListing);
+export const useLoadAllBatches = () => useAppStore((state) => state.loadAllBatches);
+export const useCreateRegionalBatch = () => useAppStore((state) => state.createRegionalBatch);
+export const useUpdateRegionalBatchStatus = () => useAppStore((state) => state.updateRegionalBatchStatus);
+export const useCancelRegionalBatch = () => useAppStore((state) => state.cancelRegionalBatch);
+export const useAggregateBatchQuantity = () => useAppStore((state) => state.aggregateBatchQuantity);
+export const useGetBatchById = () => useAppStore((state) => state.getBatchById);
+export const useGetBatchProgress = () => useAppStore((state) => state.getBatchProgress);
+export const useGetBatchStatus = () => useAppStore((state) => state.getBatchStatus);
 // Backward compatibility hook removed - use individual hooks instead
 // export const useProductActions = () => useAppStore((state) => ({...}), shallow);
 
@@ -184,6 +210,8 @@ export const useSetOrders = () => useAppStore((state) => state.setOrders);
 export const useUpdatePaymentStatus = () => useAppStore((state) => state.updatePaymentStatus);
 export const useUpdateFulfillmentStatus = () => useAppStore((state) => state.updateFulfillmentStatus);
 export const useCancelOrder = () => useAppStore((state) => state.cancelOrder);
+export const useGetOrdersByBatch = () => useAppStore((state) => state.getOrdersByBatch);
+export const useGetOrdersByListing = () => useAppStore((state) => state.getOrdersByListing);
 // Backward compatibility hook removed - use individual hooks instead
 // export const useOrderActions = () => useAppStore((state) => ({...}), shallow);
 

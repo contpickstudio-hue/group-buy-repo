@@ -1,140 +1,54 @@
 import React, { useState, useEffect } from 'react';
 import { useAppStore } from '../stores';
-import { useUpdateProduct, useAddOrder, useUpdatePaymentStatus, useUser, useOrders, useProcessReferralOrder, useApplyCredits } from '../stores';
+import { useListings, useLoadListings, useGetBatchesByListing, useLoadBatchesForListing, useAddOrder, useUpdatePaymentStatus, useUser, useOrders, useProcessReferralOrder, useApplyCredits, useSetCurrentScreen } from '../stores';
 import CheckoutModal from '../components/CheckoutModal';
-import GroupBuyMarketplace from '../components/GroupBuyMarketplace';
+import Marketplace from '../components/Marketplace';
 import toast from 'react-hot-toast';
 
 const GroupBuysPage = () => {
     try {
         // Get raw data from store
-        const products = useAppStore((state) => state.products || []);
+        const listings = useListings();
         const filters = useAppStore((state) => state.filters?.groupbuys || {});
         
-        const updateProduct = useUpdateProduct();
+        const loadListings = useLoadListings();
+        const getBatchesByListing = useGetBatchesByListing();
+        const loadBatchesForListing = useLoadBatchesForListing();
         const addOrder = useAddOrder();
         const updatePaymentStatus = useUpdatePaymentStatus();
         const user = useUser();
         const orders = useOrders();
+        const setCurrentScreen = useSetCurrentScreen();
         const processReferralOrder = useProcessReferralOrder();
         const applyCredits = useApplyCredits();
+        
+        // Load listings and batches on mount
+        useEffect(() => {
+            loadListings().then((result) => {
+                if (result.success && result.listings) {
+                    // Load batches for all listings
+                    result.listings.forEach(listing => {
+                        loadBatchesForListing(listing.id);
+                    });
+                }
+            });
+        }, [loadListings, loadBatchesForListing]);
     
-    const [checkoutState, setCheckoutState] = useState({
-        isOpen: false,
-        product: null,
-        quantity: 1,
-        orderId: null
-    });
+    // Checkout state removed - handled in ListingDetailPage
 
-    const handleJoinGroupBuy = async (product) => {
+    const handleJoinListing = async (listing) => {
         if (!user) {
-            toast.error('Please sign in to join a group buy');
+            toast.error('Please sign in to place an order');
+            setCurrentScreen('auth');
             return;
         }
 
-        const quantity = 1; // Default quantity, can be made configurable
-        const totalAmount = (product.price || 0) * quantity;
-        
-        // Create a temporary order ID
-        const orderId = `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        
-        // Open checkout modal
-        setCheckoutState({
-            isOpen: true,
-            product,
-            quantity,
-            orderId
-        });
+        // Navigate to listing detail page where user can select region
+        window.location.hash = `#listing/${listing.id}`;
+        setCurrentScreen('listingdetail');
     };
 
-    const handlePaymentSuccess = async (paymentData) => {
-        const { product, quantity, orderId } = checkoutState;
-        
-        try {
-            // Create the order with payment information
-            const creditsApplied = paymentData.creditsApplied || 0;
-            const order = {
-                id: orderId,
-                productId: product.id,
-                customerEmail: user.email,
-                customerName: user.name,
-                quantity,
-                totalPrice: paymentData.finalAmount !== undefined ? paymentData.finalAmount : (product.price * quantity - creditsApplied),
-                total: paymentData.finalAmount !== undefined ? paymentData.finalAmount : (product.price * quantity - creditsApplied),
-                groupStatus: 'open',
-                fulfillmentStatus: 'pending',
-                paymentStatus: paymentData.escrow ? 'held' : 'paid',
-                paymentIntentId: paymentData.paymentIntentId,
-                paymentDate: new Date().toISOString(),
-                createdAt: new Date().toISOString(),
-                creditsApplied: creditsApplied,
-                referralCode: null // Will be set if referral was used
-            };
-            
-            // Apply credits if any were used
-            if (creditsApplied > 0) {
-                try {
-                    await applyCredits(orderId, creditsApplied);
-                } catch (creditsError) {
-                    console.error('Failed to apply credits:', creditsError);
-                    // Don't block order creation if credits fail
-                }
-            }
-
-            // Check if this is user's first order (for referral processing)
-            const userOrders = orders.filter(o => o.customerEmail === user.email);
-            const isFirstOrder = userOrders.length === 0;
-            
-            // Process referral if this is the first order
-            if (isFirstOrder) {
-                try {
-                    await processReferralOrder(user.email, orderId);
-                    toast.success('🎉 Referral bonus applied! Credits added to your account.');
-                } catch (refError) {
-                    console.error('Failed to process referral:', refError);
-                    // Don't block order creation if referral fails
-                }
-            }
-            
-            // Add order to store
-            addOrder(order);
-            
-            // Update payment status
-            await updatePaymentStatus(orderId, {
-                status: paymentData.escrow ? 'held' : 'paid',
-                paymentIntentId: paymentData.paymentIntentId
-            });
-
-            // Update product quantity
-            const currentProduct = products.find(p => p.id === product.id);
-            if (currentProduct) {
-                updateProduct(product.id, {
-                    currentQuantity: (currentProduct.currentQuantity || 0) + quantity
-                });
-            }
-
-            toast.success(`Successfully joined ${product.title}! Payment ${paymentData.escrow ? 'authorized' : 'completed'}.`);
-            
-            // Close checkout modal
-            setCheckoutState({
-                isOpen: false,
-                product: null,
-                quantity: 1,
-                orderId: null
-            });
-        } catch (error) {
-            toast.error(`Failed to complete order: ${error.message}`);
-        }
-    };
-
-    const handleCheckoutCancel = () => {
-        setCheckoutState({
-            isOpen: false,
-            product: null,
-            quantity: 1,
-            orderId: null
-        });
-    };
+    // Payment handling moved to ListingDetailPage
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
@@ -145,38 +59,20 @@ const GroupBuysPage = () => {
                     Community bulk orders
                 </div>
                 <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight">
-                    Group Buy Marketplace
+                    Regional Marketplace
                 </h1>
                 <p className="text-gray-600 text-base sm:text-lg">
-                    Find deals by category, price, and popularity
+                    Find bulk deals by region, price, and delivery method
                 </p>
             </div>
 
-            {/* Group Buy Marketplace Component */}
-            <GroupBuyMarketplace
-                products={products}
-                orders={orders}
+            {/* Marketplace Component */}
+            <Marketplace
+                listings={listings}
                 filters={filters}
-                onJoinGroupBuy={handleJoinGroupBuy}
+                onJoinListing={handleJoinListing}
+                user={user}
             />
-
-            {/* Checkout Modal */}
-            {checkoutState.isOpen && checkoutState.product && (
-                <CheckoutModal
-                    isOpen={checkoutState.isOpen}
-                    onClose={handleCheckoutCancel}
-                    amount={checkoutState.product.price * checkoutState.quantity}
-                    currency="cad"
-                    orderId={checkoutState.orderId}
-                    productId={checkoutState.product.id}
-                    productName={checkoutState.product.title}
-                    onSuccess={handlePaymentSuccess}
-                    metadata={{
-                        quantity: checkoutState.quantity,
-                        productTitle: checkoutState.product.title
-                    }}
-                />
-            )}
         </div>
     );
     } catch (error) {

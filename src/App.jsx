@@ -19,6 +19,7 @@ import AuthPage from './pages/AuthPage';
 import BrowsePage from './pages/BrowsePage';
 import GroupBuysPage from './pages/GroupBuysPage';
 import GroupBuyDetailPage from './pages/GroupBuyDetailPage';
+import ListingDetailPage from './pages/ListingDetailPage';
 import ErrandDetailPage from './pages/ErrandDetailPage';
 import ErrandsPage from './pages/ErrandsPage';
 import DashboardPage from './pages/DashboardPage';
@@ -226,6 +227,9 @@ function AppContent() {
     const renderCurrentScreen = () => {
         // Check for detail page routing via hash
         const hash = window.location.hash;
+        if (hash && hash.startsWith('#listing/')) {
+            return <ListingDetailPage />;
+        }
         if (hash && hash.startsWith('#groupbuy/')) {
             return <GroupBuyDetailPage />;
         }

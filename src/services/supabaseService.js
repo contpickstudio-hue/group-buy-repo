@@ -19,6 +19,8 @@ export const StorageKeys = {
     helperData: 'helperData',
     loginMethod: 'loginMethod',
     products: 'products',
+    listings: 'listings',
+    regionalBatches: 'regionalBatches',
     orders: 'orders',
     errands: 'errands',
     applications: 'applications',
@@ -301,6 +303,7 @@ export async function loadOrdersFromBackend() {
         const transformedOrders = (data || []).map(o => ({
             id: o.id,
             productId: o.product_id,
+            regionalBatchId: o.regional_batch_id,
             customerEmail: o.customer_email,
             customerName: o.customer_name,
             quantity: o.quantity,
@@ -308,6 +311,8 @@ export async function loadOrdersFromBackend() {
             total: parseFloat(o.total_price || 0),
             groupStatus: o.group_status,
             fulfillmentStatus: o.fulfillment_status,
+            paymentStatus: o.payment_status || 'paid',
+            refundRequired: o.refund_required || false,
             createdAt: o.created_at
         }));
         
@@ -395,6 +400,344 @@ export async function loadErrandsFromBackend() {
             applications: [],
             messages: []
         };
+    }
+}
+
+// ============================================
+// Listing Service Functions
+// ============================================
+
+export async function loadListingsFromBackend() {
+    try {
+        if (!supabaseClient) {
+            const storedListings = await dbLoadSlice(StorageKeys.listings, []);
+            return storedListings || [];
+        }
+        
+        const { data, error } = await supabaseClient
+            .from('listings')
+            .select('*')
+            .order('created_at', { ascending: false });
+            
+        if (error) {
+            console.error('Error loading listings', error);
+            return [];
+        }
+        
+        // Transform database format to app format
+        const transformedListings = (data || []).map(l => ({
+            id: l.id,
+            title: l.title,
+            description: l.description,
+            originLocation: l.origin_location,
+            ownerEmail: l.owner_email,
+            vendor: l.vendor,
+            imageColor: l.image_color,
+            imageDataUrl: l.image_data_url,
+            createdAt: l.created_at,
+            updatedAt: l.updated_at
+        }));
+        
+        return transformedListings;
+    } catch (error) {
+        console.error('Error loading listings', error);
+        return [];
+    }
+}
+
+export async function createListingInBackend(listingData) {
+    try {
+        if (!supabaseClient) {
+            return { success: false, error: 'Supabase client not available' };
+        }
+        
+        const { data, error } = await supabaseClient
+            .from('listings')
+            .insert({
+                title: listingData.title,
+                description: listingData.description || '',
+                origin_location: listingData.origin_location,
+                owner_email: listingData.owner_email,
+                vendor: listingData.vendor || 'Vendor',
+                image_data_url: listingData.image_data_url || null,
+                image_color: listingData.image_color || null
+            })
+            .select()
+            .single();
+            
+        if (error) {
+            console.error('Error creating listing', error);
+            return { success: false, error: error.message };
+        }
+        
+        return { success: true, data };
+    } catch (error) {
+        console.error('Error creating listing', error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function updateListingInBackend(listingId, updates) {
+    try {
+        if (!supabaseClient) {
+            return { success: false, error: 'Supabase client not available' };
+        }
+        
+        const updateData = {};
+        if (updates.title !== undefined) updateData.title = updates.title;
+        if (updates.description !== undefined) updateData.description = updates.description;
+        if (updates.originLocation !== undefined) updateData.origin_location = updates.originLocation;
+        if (updates.vendor !== undefined) updateData.vendor = updates.vendor;
+        if (updates.imageDataUrl !== undefined) updateData.image_data_url = updates.imageDataUrl;
+        if (updates.imageColor !== undefined) updateData.image_color = updates.imageColor;
+        
+        const { data, error } = await supabaseClient
+            .from('listings')
+            .update(updateData)
+            .eq('id', listingId)
+            .select()
+            .single();
+            
+        if (error) {
+            console.error('Error updating listing', error);
+            return { success: false, error: error.message };
+        }
+        
+        return { success: true, data };
+    } catch (error) {
+        console.error('Error updating listing', error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function deleteListingInBackend(listingId) {
+    try {
+        if (!supabaseClient) {
+            return { success: false, error: 'Supabase client not available' };
+        }
+        
+        const { error } = await supabaseClient
+            .from('listings')
+            .delete()
+            .eq('id', listingId);
+            
+        if (error) {
+            console.error('Error deleting listing', error);
+            return { success: false, error: error.message };
+        }
+        
+        return { success: true };
+    } catch (error) {
+        console.error('Error deleting listing', error);
+        return { success: false, error: error.message };
+    }
+}
+
+// ============================================
+// Regional Batch Service Functions
+// ============================================
+
+export async function loadRegionalBatchesFromBackend(listingId) {
+    try {
+        if (!supabaseClient) {
+            const storedBatches = await dbLoadSlice(StorageKeys.regionalBatches, []);
+            const filtered = storedBatches.filter(b => b.listingId === listingId || b.listing_id === listingId);
+            return { success: true, batches: filtered };
+        }
+        
+        const { data, error } = await supabaseClient
+            .from('regional_batches')
+            .select('*')
+            .eq('listing_id', listingId)
+            .order('created_at', { ascending: false });
+            
+        if (error) {
+            console.error('Error loading regional batches', error);
+            return { success: false, error: error.message };
+        }
+        
+        // Transform database format to app format
+        const transformedBatches = (data || []).map(b => ({
+            id: b.id,
+            listingId: b.listing_id,
+            region: b.region,
+            price: parseFloat(b.price || 0),
+            minimumQuantity: b.minimum_quantity,
+            cutoffDate: b.cutoff_date,
+            deliveryMethod: b.delivery_method,
+            status: b.status,
+            currentQuantity: b.current_quantity || 0,
+            createdAt: b.created_at,
+            updatedAt: b.updated_at
+        }));
+        
+        return { success: true, batches: transformedBatches };
+    } catch (error) {
+        console.error('Error loading regional batches', error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function loadAllRegionalBatchesFromBackend() {
+    try {
+        if (!supabaseClient) {
+            const storedBatches = await dbLoadSlice(StorageKeys.regionalBatches, []);
+            return { success: true, batches: storedBatches || [] };
+        }
+        
+        const { data, error } = await supabaseClient
+            .from('regional_batches')
+            .select('*')
+            .order('created_at', { ascending: false });
+            
+        if (error) {
+            console.error('Error loading all regional batches', error);
+            return { success: false, error: error.message };
+        }
+        
+        // Transform database format to app format
+        const transformedBatches = (data || []).map(b => ({
+            id: b.id,
+            listingId: b.listing_id,
+            region: b.region,
+            price: parseFloat(b.price || 0),
+            minimumQuantity: b.minimum_quantity,
+            cutoffDate: b.cutoff_date,
+            deliveryMethod: b.delivery_method,
+            status: b.status,
+            currentQuantity: b.current_quantity || 0,
+            createdAt: b.created_at,
+            updatedAt: b.updated_at
+        }));
+        
+        return { success: true, batches: transformedBatches };
+    } catch (error) {
+        console.error('Error loading all regional batches', error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function createRegionalBatchInBackend(batchData) {
+    try {
+        if (!supabaseClient) {
+            return { success: false, error: 'Supabase client not available' };
+        }
+        
+        const { data, error } = await supabaseClient
+            .from('regional_batches')
+            .insert({
+                listing_id: batchData.listing_id,
+                region: batchData.region,
+                price: batchData.price,
+                minimum_quantity: batchData.minimum_quantity,
+                cutoff_date: batchData.cutoff_date,
+                delivery_method: batchData.delivery_method,
+                status: batchData.status || 'collecting',
+                current_quantity: 0
+            })
+            .select()
+            .single();
+            
+        if (error) {
+            console.error('Error creating regional batch', error);
+            return { success: false, error: error.message };
+        }
+        
+        // Transform to app format
+        const transformed = {
+            id: data.id,
+            listingId: data.listing_id,
+            region: data.region,
+            price: parseFloat(data.price || 0),
+            minimumQuantity: data.minimum_quantity,
+            cutoffDate: data.cutoff_date,
+            deliveryMethod: data.delivery_method,
+            status: data.status,
+            currentQuantity: data.current_quantity || 0,
+            createdAt: data.created_at,
+            updatedAt: data.updated_at
+        };
+        
+        return { success: true, data: transformed };
+    } catch (error) {
+        console.error('Error creating regional batch', error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function updateRegionalBatchStatusInBackend(batchId, status) {
+    try {
+        if (!supabaseClient) {
+            return { success: false, error: 'Supabase client not available' };
+        }
+        
+        const { data, error } = await supabaseClient
+            .from('regional_batches')
+            .update({ status })
+            .eq('id', batchId)
+            .select()
+            .single();
+            
+        if (error) {
+            console.error('Error updating regional batch status', error);
+            return { success: false, error: error.message };
+        }
+        
+        return { success: true, data };
+    } catch (error) {
+        console.error('Error updating regional batch status', error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function getBatchQuantityFromBackend(batchId) {
+    try {
+        if (!supabaseClient) {
+            return { success: false, error: 'Supabase client not available' };
+        }
+        
+        // Get quantity from orders
+        const { data, error } = await supabaseClient
+            .from('orders')
+            .select('quantity')
+            .eq('regional_batch_id', batchId);
+            
+        if (error) {
+            console.error('Error getting batch quantity', error);
+            return { success: false, error: error.message };
+        }
+        
+        const quantity = (data || []).reduce((sum, order) => sum + (order.quantity || 0), 0);
+        
+        return { success: true, quantity };
+    } catch (error) {
+        console.error('Error getting batch quantity', error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function flagOrdersForRefund(batchId) {
+    try {
+        if (!supabaseClient) {
+            console.warn('Supabase client not available, skipping refund flagging');
+            return { success: true }; // Don't fail if Supabase unavailable
+        }
+        
+        // Update all orders for this batch to flag for refund
+        const { error } = await supabaseClient
+            .from('orders')
+            .update({ refund_required: true })
+            .eq('regional_batch_id', batchId);
+            
+        if (error) {
+            console.error('Error flagging orders for refund', error);
+            return { success: false, error: error.message };
+        }
+        
+        return { success: true };
+    } catch (error) {
+        console.error('Error flagging orders for refund', error);
+        return { success: false, error: error.message };
     }
 }
 
