@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAppStore } from '../stores';
-import { useUpdateProduct, useAddOrder, useUpdatePaymentStatus, useUser, useOrders, useProcessReferralOrder } from '../stores';
+import { useUpdateProduct, useAddOrder, useUpdatePaymentStatus, useUser, useOrders, useProcessReferralOrder, useApplyCredits } from '../stores';
 import CheckoutModal from '../components/CheckoutModal';
 import GroupBuyMarketplace from '../components/GroupBuyMarketplace';
 import toast from 'react-hot-toast';
