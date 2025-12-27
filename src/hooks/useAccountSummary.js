@@ -30,14 +30,21 @@ const useAccountSummary = () => {
     const userErrands = errands.filter(e => e && e.requesterEmail === userEmail);
 
     // Calculate total savings from community savings or user contribution
-    const totalSavings = userContribution || communitySavings || 0;
+    // Ensure it's a number, handling cases where it might be a string, object, or undefined
+    const savingsValue = userContribution ?? communitySavings ?? 0;
+    const totalSavings = Number(savingsValue) || 0;
 
     // Calculate total earnings from orders where user is vendor
     const vendorOrders = orders.filter(o => {
       const product = products.find(p => p && p.id === o.productId);
       return product && product.ownerEmail === userEmail;
     });
-    const totalEarnings = vendorOrders.reduce((sum, order) => sum + (order.totalPrice || order.total || 0), 0);
+    const totalEarningsValue = vendorOrders.reduce((sum, order) => sum + (order.totalPrice || order.total || 0), 0);
+    const totalEarnings = Number(totalEarningsValue) || 0;
+
+    // Calculate total revenue
+    const totalRevenueValue = userOrders.reduce((sum, order) => sum + (order.totalPrice || order.total || 0), 0);
+    const totalRevenue = Number(totalRevenueValue) || 0;
 
     // Count group buys joined
     const groupBuysJoined = new Set(userOrders.map(o => o.productId)).size;
@@ -48,9 +55,9 @@ const useAccountSummary = () => {
     return {
       totalOrders: userOrders.length,
       totalProducts: userProducts.length,
-      totalRevenue: userOrders.reduce((sum, order) => sum + (order.totalPrice || order.total || 0), 0),
-      totalSavings: totalSavings || 0,
-      totalEarnings: totalEarnings || 0,
+      totalRevenue: totalRevenue,
+      totalSavings: totalSavings,
+      totalEarnings: totalEarnings,
       groupBuysJoined: groupBuysJoined || 0,
       errandsCompleted: errandsCompleted || 0,
       pendingOrders: userOrders.filter(o => o.status === 'pending').length,
