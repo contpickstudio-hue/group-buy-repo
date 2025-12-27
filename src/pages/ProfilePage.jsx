@@ -1,7 +1,22 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useUser, useSignOut, useSetCurrentScreen, useSetUser, useAppStore } from '../stores';
+import { 
+  useCommunitySavings,
+  useUserContribution,
+  useLoadCommunityStats,
+  useLoadUserContribution,
+  useCredits,
+  useLoadCredits,
+  useReferralStats,
+  useLoadReferralStats,
+  useGenerateReferralCode
+} from '../stores';
 import { signOut as supabaseSignOut } from '../services/supabaseService';
 import MyOrdersPage from './MyOrdersPage';
+import CommunitySavings from '../components/CommunitySavings';
+import ReferralShare from '../components/ReferralShare';
+import ReferralBadges from '../components/ReferralBadges';
+import CreditsDisplay from '../components/CreditsDisplay';
 
 const ProfilePage = () => {
     try {
@@ -11,6 +26,29 @@ const ProfilePage = () => {
         const setUser = useSetUser();
         const resetStore = useAppStore((state) => state.resetStore);
         const [showOrders, setShowOrders] = React.useState(false);
+        
+        // Community stats hooks
+        const loadCommunityStats = useLoadCommunityStats();
+        const loadUserContribution = useLoadUserContribution();
+        const userContribution = useUserContribution();
+        
+        // Credits hooks
+        const loadCredits = useLoadCredits();
+        
+        // Referral hooks
+        const loadReferralStats = useLoadReferralStats();
+        const generateReferralCode = useGenerateReferralCode();
+
+        // Load data on mount
+        useEffect(() => {
+            if (user) {
+                loadCommunityStats();
+                loadUserContribution();
+                loadCredits();
+                loadReferralStats();
+                generateReferralCode();
+            }
+        }, [user, loadCommunityStats, loadUserContribution, loadCredits, loadReferralStats, generateReferralCode]);
 
     if (!user) {
         return (
@@ -159,6 +197,41 @@ const ProfilePage = () => {
                             Switch
                         </button>
                     </div>
+                </div>
+            </div>
+
+            {/* Community Contribution */}
+            <div className="bg-white rounded-lg shadow-md mb-8">
+                <div className="p-6 border-b border-gray-200">
+                    <h3 className="text-lg font-semibold">Community Contribution</h3>
+                </div>
+                <div className="p-6">
+                    <CommunitySavings compact={true} />
+                </div>
+            </div>
+
+            {/* Referral Section */}
+            <div className="bg-white rounded-lg shadow-md mb-8">
+                <div className="p-6 border-b border-gray-200">
+                    <h3 className="text-lg font-semibold">Referrals</h3>
+                </div>
+                <div className="p-6">
+                    <ReferralShare />
+                </div>
+            </div>
+
+            {/* Referral Badges */}
+            <div className="mb-8">
+                <ReferralBadges />
+            </div>
+
+            {/* Credits Section */}
+            <div className="bg-white rounded-lg shadow-md mb-8">
+                <div className="p-6 border-b border-gray-200">
+                    <h3 className="text-lg font-semibold">Credits</h3>
+                </div>
+                <div className="p-6">
+                    <CreditsDisplay showHistory={true} compact={false} />
                 </div>
             </div>
 

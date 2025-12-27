@@ -1,19 +1,60 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useUser, useProducts, useOrders, useErrands, useSetCurrentScreen } from '../stores';
+import { 
+  useCommunitySavings, 
+  useUserContribution,
+  useLoadCommunityStats,
+  useLoadUserContribution,
+  useCredits,
+  useLoadCredits,
+  useReferralStats,
+  useLoadReferralStats,
+  useGenerateReferralCode
+} from '../stores';
 import CreateGroupBuyForm from '../components/CreateGroupBuyForm';
 import VendorOrdersTab from '../components/VendorOrdersTab';
 import VendorAnalyticsPage from './VendorAnalyticsPage';
 import PayoutSettingsPage from './PayoutSettingsPage';
 import useAccountSummary from '../hooks/useAccountSummary';
+import CommunitySavings from '../components/CommunitySavings';
+import ReferralShare from '../components/ReferralShare';
+import ReferralBadges from '../components/ReferralBadges';
+import CreditsDisplay from '../components/CreditsDisplay';
 
 const DashboardPage = () => {
     try {
         const user = useUser();
-        const accountSummary = useAccountSummary();
-        const products = useProducts();
-        const orders = useOrders();
-        const errands = useErrands();
-        const setCurrentScreen = useSetCurrentScreen();
+    const accountSummary = useAccountSummary();
+    const products = useProducts();
+    const orders = useOrders();
+    const errands = useErrands();
+    const setCurrentScreen = useSetCurrentScreen();
+    
+    // Community stats hooks
+    const loadCommunityStats = useLoadCommunityStats();
+    const loadUserContribution = useLoadUserContribution();
+    const communitySavings = useCommunitySavings();
+    const userContribution = useUserContribution();
+    
+    // Credits hooks
+    const loadCredits = useLoadCredits();
+    const credits = useCredits();
+    
+    // Referral hooks
+    const loadReferralStats = useLoadReferralStats();
+    const generateReferralCode = useGenerateReferralCode();
+    const referralStats = useReferralStats();
+
+    // Load data on mount
+    useEffect(() => {
+      if (user) {
+        loadCommunityStats();
+        loadUserContribution();
+        loadCredits();
+        loadReferralStats();
+        generateReferralCode();
+      }
+    }, [user, loadCommunityStats, loadUserContribution, loadCredits, loadReferralStats, generateReferralCode]);
 
     if (!user) {
         return (
@@ -148,6 +189,11 @@ const DashboardPage = () => {
                         </div>
                     </div>
 
+                    {/* Community Savings - Prominent Display */}
+                    <div className="mb-8">
+                        <CommunitySavings compact={false} />
+                    </div>
+
                     {/* Account Summary - Stacked on mobile */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
                         <div className="bg-white rounded-lg shadow-md p-6 text-center">
@@ -174,6 +220,20 @@ const DashboardPage = () => {
                             </div>
                             <div className="text-gray-600">Errands Completed</div>
                         </div>
+                    </div>
+
+                    {/* Credits and Referrals Row */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                        {/* Credits Display */}
+                        <CreditsDisplay showHistory={false} compact={false} />
+                        
+                        {/* Referral Share */}
+                        <ReferralShare />
+                    </div>
+
+                    {/* Referral Badges */}
+                    <div className="mb-8">
+                        <ReferralBadges />
                     </div>
 
                     {/* Quick Actions */}

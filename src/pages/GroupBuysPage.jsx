@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAppStore } from '../stores';
-import { useUpdateProduct, useAddOrder, useUpdatePaymentStatus, useUser } from '../stores';
+import { useUpdateProduct, useAddOrder, useUpdatePaymentStatus, useUser, useOrders, useProcessReferralOrder } from '../stores';
 import CheckoutModal from '../components/CheckoutModal';
 import GroupBuyMarketplace from '../components/GroupBuyMarketplace';
 import toast from 'react-hot-toast';
@@ -9,13 +9,15 @@ const GroupBuysPage = () => {
     try {
         // Get raw data from store
         const products = useAppStore((state) => state.products || []);
-        const orders = useAppStore((state) => state.orders || []);
         const filters = useAppStore((state) => state.filters?.groupbuys || {});
         
         const updateProduct = useUpdateProduct();
         const addOrder = useAddOrder();
         const updatePaymentStatus = useUpdatePaymentStatus();
         const user = useUser();
+        const orders = useOrders();
+        const processReferralOrder = useProcessReferralOrder();
+        const applyCredits = useApplyCredits();
     
     const [checkoutState, setCheckoutState] = useState({
         isOpen: false,
@@ -50,22 +52,50 @@ const GroupBuysPage = () => {
         
         try {
             // Create the order with payment information
+            const creditsApplied = paymentData.creditsApplied || 0;
             const order = {
                 id: orderId,
                 productId: product.id,
                 customerEmail: user.email,
                 customerName: user.name,
                 quantity,
-                totalPrice: product.price * quantity,
-                total: product.price * quantity,
+                totalPrice: paymentData.finalAmount !== undefined ? paymentData.finalAmount : (product.price * quantity - creditsApplied),
+                total: paymentData.finalAmount !== undefined ? paymentData.finalAmount : (product.price * quantity - creditsApplied),
                 groupStatus: 'open',
                 fulfillmentStatus: 'pending',
                 paymentStatus: paymentData.escrow ? 'held' : 'paid',
                 paymentIntentId: paymentData.paymentIntentId,
                 paymentDate: new Date().toISOString(),
-                createdAt: new Date().toISOString()
+                createdAt: new Date().toISOString(),
+                creditsApplied: creditsApplied,
+                referralCode: null // Will be set if referral was used
             };
+            
+            // Apply credits if any were used
+            if (creditsApplied > 0) {
+                try {
+                    await applyCredits(orderId, creditsApplied);
+                } catch (creditsError) {
+                    console.error('Failed to apply credits:', creditsError);
+                    // Don't block order creation if credits fail
+                }
+            }
 
+            // Check if this is user's first order (for referral processing)
+            const userOrders = orders.filter(o => o.customerEmail === user.email);
+            const isFirstOrder = userOrders.length === 0;
+            
+            // Process referral if this is the first order
+            if (isFirstOrder) {
+                try {
+                    await processReferralOrder(user.email, orderId);
+                    toast.success('🎉 Referral bonus applied! Credits added to your account.');
+                } catch (refError) {
+                    console.error('Failed to process referral:', refError);
+                    // Don't block order creation if referral fails
+                }
+            }
+            
             // Add order to store
             addOrder(order);
             

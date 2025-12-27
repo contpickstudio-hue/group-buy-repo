@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSetCurrentScreen, useSignUp, useSignIn, useSignInWithGoogle } from '../stores';
+import { useProcessReferralSignup } from '../stores';
 import { useFormHandler } from '../hooks/useErrorHandler';
 import { AsyncErrorBoundary } from '../components/ErrorBoundary';
 
@@ -8,7 +9,18 @@ const AuthPage = () => {
     const signUp = useSignUp();
     const signIn = useSignIn();
     const signInWithGoogle = useSignInWithGoogle();
+    const processReferralSignup = useProcessReferralSignup();
     const [isSignUp, setIsSignUp] = useState(true);
+    const [referralCode, setReferralCode] = useState(null);
+
+    // Check for referral code in URL
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const ref = urlParams.get('ref');
+        if (ref) {
+            setReferralCode(ref);
+        }
+    }, []);
     
     // Use form handler with validation
     const {
@@ -80,6 +92,16 @@ const AuthPage = () => {
                         name: formValues.name,
                         roles: Array.from(formValues.roles)
                     });
+                    
+                    // Process referral if code exists and signup was successful
+                    if (authResult.success && referralCode) {
+                        try {
+                            await processReferralSignup(referralCode, formValues.email);
+                        } catch (refError) {
+                            console.error('Failed to process referral:', refError);
+                            // Don't block signup if referral fails
+                        }
+                    }
                 } else {
                     authResult = await signIn(formValues.email, formValues.password);
                 }
@@ -135,6 +157,11 @@ const AuthPage = () => {
                             : 'Sign in to your account'
                         }
                     </p>
+                    {referralCode && isSignUp && (
+                        <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-sm text-green-800">
+                            🎉 You were referred! Get $3 credit on your first order.
+                        </div>
+                    )}
                 </div>
 
                 {/* Error display is now handled by AsyncErrorBoundary */}

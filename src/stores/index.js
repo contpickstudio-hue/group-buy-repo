@@ -9,6 +9,8 @@ import { createErrandSlice } from './errandSlice';
 import { createUISlice } from './uiSlice';
 import { createFilterSlice } from './filterSlice';
 import { createChatSlice } from './chatSlice';
+import { createReferralSlice } from './referralSlice';
+import { createCommunityStatsSlice } from './communityStatsSlice';
 
 // Combine all slices into a single store
 export const useAppStore = create()(
@@ -35,6 +37,12 @@ export const useAppStore = create()(
                 
                 // Chat slice
                 ...createChatSlice(set, get, api),
+                
+                // Referral slice
+                ...createReferralSlice(set, get, api),
+                
+                // Community stats slice
+                ...createCommunityStatsSlice(set, get, api),
                 
                 // Global actions
                 resetStore: () => {
@@ -210,6 +218,40 @@ export const useMarkAsRead = () => useAppStore((state) => state.markAsRead);
 export const useLoadChatThreads = () => useAppStore((state) => state.loadChatThreads);
 export const useGetTotalUnreadCount = () => useAppStore((state) => state.getTotalUnreadCount);
 export const useGetUnreadCount = () => useAppStore((state) => state.getUnreadCount);
+
+// Referral hooks
+export const useReferralCode = () => useAppStore((state) => state.referralCode);
+export const useReferralStats = () => useAppStore((state) => state.referralStats);
+export const useReferrals = () => useAppStore((state) => state.referrals || []);
+export const useCredits = () => useAppStore((state) => state.credits);
+export const useCreditsHistory = () => useAppStore((state) => state.creditsHistory || []);
+export const useReferralLoading = () => useAppStore((state) => state.referralLoading || false);
+export const useReferralError = () => useAppStore((state) => state.referralError);
+export const useGenerateReferralCode = () => useAppStore((state) => state.generateReferralCode);
+export const useLoadReferralStats = () => useAppStore((state) => state.loadReferralStats);
+export const useLoadReferrals = () => useAppStore((state) => state.loadReferrals);
+export const useLoadCredits = () => useAppStore((state) => state.loadCredits);
+export const useLoadCreditsHistory = () => useAppStore((state) => state.loadCreditsHistory);
+export const useApplyCredits = () => useAppStore((state) => state.applyCredits);
+export const useShareReferral = () => useAppStore((state) => state.shareReferral);
+export const useProcessReferralSignup = () => useAppStore((state) => state.processReferralSignup);
+export const useProcessReferralOrder = () => useAppStore((state) => state.processReferralOrder);
+export const useCreateProductReferral = () => useAppStore((state) => state.createProductReferral);
+
+// Community stats hooks
+export const useCommunitySavings = () => useAppStore((state) => state.communitySavings || 0);
+export const useUserContribution = () => useAppStore((state) => state.userContribution || 0);
+export const useTopContributors = () => useAppStore((state) => state.topContributors || []);
+export const useSavingsByRegion = () => useAppStore((state) => state.savingsByRegion || []);
+export const useStatsSummary = () => useAppStore((state) => state.statsSummary);
+export const useCommunityStatsLoading = () => useAppStore((state) => state.loading || false);
+export const useCommunityStatsError = () => useAppStore((state) => state.error);
+export const useLoadCommunityStats = () => useAppStore((state) => state.loadCommunityStats);
+export const useLoadUserContribution = () => useAppStore((state) => state.loadUserContribution);
+export const useLoadTopContributors = () => useAppStore((state) => state.loadTopContributors);
+export const useLoadSavingsByRegion = () => useAppStore((state) => state.loadSavingsByRegion);
+export const useLoadStatsSummary = () => useAppStore((state) => state.loadStatsSummary);
+export const useRefreshAllStats = () => useAppStore((state) => state.refreshAllStats);
 
 // Use individual selectors to avoid object reference issues
 export const useCurrentScreen = () => useAppStore((state) => state.currentScreen);
