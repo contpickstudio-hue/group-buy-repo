@@ -7,6 +7,7 @@ import {
 import { createEscrowPayment, isTestPaymentMode } from '../services/paymentService';
 import { useUser, useCredits, useLoadCredits, useApplyCredits } from '../stores';
 import CreditsDisplay from './CreditsDisplay';
+import { useTranslation } from '../contexts/TranslationProvider';
 import toast from 'react-hot-toast';
 
 /**
@@ -29,6 +30,7 @@ const CheckoutForm = ({
   const credits = useCredits();
   const loadCredits = useLoadCredits();
   const applyCredits = useApplyCredits();
+  const { t } = useTranslation();
   
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentIntentId, setPaymentIntentId] = useState(null);
@@ -91,12 +93,14 @@ const CheckoutForm = ({
           setClientSecret(result.data.clientSecret);
           setPaymentIntentId(result.data.paymentIntentId);
         } else {
-          setError(result.error || 'Failed to initialize payment');
-          toast.error(result.error || 'Failed to initialize payment');
+          const errorMsg = result.error || t('toast.failedToInitializePayment', null, 'Failed to initialize payment');
+          setError(errorMsg);
+          toast.error(errorMsg);
         }
       } catch (err) {
-        setError(err.message || 'Failed to initialize payment');
-        toast.error(err.message || 'Failed to initialize payment');
+        const errorMsg = err.message || t('toast.failedToInitializePayment', null, 'Failed to initialize payment');
+        setError(errorMsg);
+        toast.error(errorMsg);
       } finally {
         setIsLoading(false);
       }
@@ -119,7 +123,7 @@ const CheckoutForm = ({
       try {
         // Apply credits directly
         await applyCredits(user.email, creditAmount, orderId);
-        toast.success('Order placed successfully using credits!');
+        toast.success(t('toast.orderPlacedCredits', null, 'Order placed successfully using credits!'));
         if (onSuccess) {
           onSuccess({
             paymentIntentId: 'credits_only',
@@ -133,16 +137,17 @@ const CheckoutForm = ({
         setIsProcessing(false);
         return;
       } catch (err) {
-        setError(err.message || 'Failed to apply credits');
+        const errorMsg = err.message || t('toast.failedToApplyCredits', null, 'Failed to apply credits');
+        setError(errorMsg);
         setIsProcessing(false);
-        toast.error(err.message || 'Failed to apply credits');
+        toast.error(errorMsg);
         return;
       }
     }
 
     // Handle payment with Stripe
     if (!stripe || !elements || !clientSecret) {
-      setError('Payment system not ready. Please try again.');
+      setError(t('toast.paymentNotReady', null, 'Payment system not ready. Please try again.'));
       setIsProcessing(false);
       return;
     }
@@ -183,7 +188,7 @@ const CheckoutForm = ({
             // Don't block payment success if credits fail
           }
         }
-        toast.success('Payment successful!');
+        toast.success(t('toast.paymentSuccessful', null, 'Payment successful!'));
         if (onSuccess) {
           onSuccess({
             paymentIntentId: paymentIntent.id,
@@ -204,7 +209,7 @@ const CheckoutForm = ({
             // Don't block payment success if credits fail
           }
         }
-        toast.success('Payment authorized! Funds are held until order fulfillment.');
+        toast.success(t('toast.paymentAuthorized', null, 'Payment authorized! Funds are held until order fulfillment.'));
         if (onSuccess) {
           onSuccess({
             paymentIntentId: paymentIntent.id,
@@ -221,9 +226,10 @@ const CheckoutForm = ({
         setIsProcessing(false);
       }
     } catch (err) {
-      setError(err.message || 'An error occurred during payment');
+      const errorMsg = err.message || t('toast.errorOccurredPayment', null, 'An error occurred during payment');
+      setError(errorMsg);
       setIsProcessing(false);
-      toast.error(err.message || 'Payment failed');
+      toast.error(err.message || t('toast.paymentFailed', null, 'Payment failed'));
     }
   };
 
@@ -231,7 +237,7 @@ const CheckoutForm = ({
     return (
       <div className="flex items-center justify-center p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-3 text-gray-600">Initializing payment...</span>
+        <span className="ml-3 text-gray-600">{t('checkout.initializingPayment', null, 'Initializing payment...')}</span>
       </div>
     );
   }
@@ -255,33 +261,33 @@ const CheckoutForm = ({
               </svg>
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-yellow-800 mb-2">
-                  Payment Service Unavailable
+                  {t('checkout.paymentServiceUnavailable', null, 'Payment Service Unavailable')}
                 </h3>
                 <p className="text-yellow-700 mb-3">
-                  It looks like your ad blocker is preventing our payment system from loading. To complete your purchase:
+                  {t('checkout.adBlockerMessage', null, 'It looks like your ad blocker is preventing our payment system from loading. To complete your purchase:')}
                 </p>
                 <ol className="list-decimal list-inside text-yellow-700 space-y-2 mb-4 ml-2">
-                  <li>Disable your ad blocker temporarily, or</li>
-                  <li>Add our site to your ad blocker's allowlist, or</li>
-                  <li>Use credits to complete your order (if available)</li>
+                  <li>{t('checkout.adBlockerStep1', null, 'Disable your ad blocker temporarily, or')}</li>
+                  <li>{t('checkout.adBlockerStep2', null, 'Add our site to your ad blocker\'s allowlist, or')}</li>
+                  <li>{t('checkout.adBlockerStep3', null, 'Use credits to complete your order (if available)')}</li>
                 </ol>
                 {credits?.balance > 0 && (
                   <p className="text-sm text-yellow-600 bg-yellow-100 p-2 rounded">
-                    💡 You have ${(credits.balance || 0).toFixed(2)} in credits available!
+                    {t('checkout.youHaveCredits', { amount: (credits.balance || 0).toFixed(2) }, `💡 You have $${(credits.balance || 0).toFixed(2)} in credits available!`)}
                   </p>
                 )}
               </div>
             </div>
           </>
         ) : (
-          <p className="text-red-800">{error || 'Failed to initialize payment. Please try again.'}</p>
+          <p className="text-red-800">{error || t('checkout.failedToInitializePaymentRetry', null, 'Failed to initialize payment. Please try again.')}</p>
         )}
         {onCancel && (
           <button
             onClick={onCancel}
             className="mt-4 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
           >
-            Cancel
+            {t('common.cancel', null, 'Cancel')}
           </button>
         )}
       </div>
@@ -303,13 +309,13 @@ const CheckoutForm = ({
         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <h4 className="font-semibold text-gray-900">Apply Credits</h4>
+              <h4 className="font-semibold text-gray-900">{t('checkout.applyCredits', null, 'Apply Credits')}</h4>
               <p className="text-sm text-gray-600">
-                You have ${(credits?.balance || 0).toFixed(2)} available
+                {t('checkout.youHaveAvailable', { amount: (credits?.balance || 0).toFixed(2) }, `You have $${(credits?.balance || 0).toFixed(2)} available`)}
               </p>
             </div>
             <div className="text-right">
-              <div className="text-sm text-gray-600">Available</div>
+              <div className="text-sm text-gray-600">{t('checkout.available', null, 'Available')}</div>
               <div className="text-lg font-bold text-green-600">
                 ${(credits?.balance || 0).toFixed(2)}
               </div>
@@ -331,7 +337,7 @@ const CheckoutForm = ({
               onClick={() => setCreditsToApply(availableCredits)}
               className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium min-h-[44px]"
             >
-              Apply Max
+              {t('checkout.applyMax', null, 'Apply Max')}
             </button>
             {creditsToApply > 0 && (
               <button
@@ -339,7 +345,7 @@ const CheckoutForm = ({
                 onClick={() => setCreditsToApply(0)}
                 className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium min-h-[44px]"
               >
-                Clear
+                {t('checkout.clear', null, 'Clear')}
               </button>
             )}
           </div>
@@ -349,7 +355,7 @@ const CheckoutForm = ({
       {/* Payment Details - only show if finalAmount > 0 */}
       {finalAmount > 0 && (
       <div className="bg-white p-6 rounded-lg border border-gray-200">
-        <h3 className="text-lg font-semibold mb-4">Payment Details</h3>
+        <h3 className="text-lg font-semibold mb-4">{t('checkout.paymentDetails', null, 'Payment Details')}</h3>
         
         {/* Payment Element - Stripe handles the form UI */}
         <div className="mb-4">
@@ -364,31 +370,31 @@ const CheckoutForm = ({
         {/* Amount Breakdown */}
         <div className="mt-6 pt-6 border-t border-gray-200 space-y-2">
           <div className="flex justify-between items-center">
-            <span className="text-gray-600">Subtotal:</span>
+            <span className="text-gray-600">{t('checkout.subtotal', null, 'Subtotal:')}</span>
             <span className="text-gray-900 font-semibold">
               ${amount.toFixed(2)}
             </span>
           </div>
           {creditAmount > 0 && (
             <div className="flex justify-between items-center text-green-600">
-              <span>Credits Applied:</span>
+              <span>{t('checkout.creditsApplied', null, 'Credits Applied:')}</span>
               <span className="font-semibold">-${creditAmount.toFixed(2)}</span>
             </div>
           )}
           <div className="flex justify-between items-center pt-2 border-t border-gray-200">
-            <span className="text-gray-900 font-semibold">Total Amount:</span>
+            <span className="text-gray-900 font-semibold">{t('checkout.totalAmount', null, 'Total Amount:')}</span>
             <span className="text-2xl font-bold text-gray-900">
               ${finalAmount.toFixed(2)} {currency.toUpperCase()}
             </span>
           </div>
           {finalAmount === 0 && creditAmount > 0 && (
             <p className="text-sm text-green-600 font-medium mt-2">
-              ✓ Order fully covered by credits!
+              {t('checkout.orderFullyCovered', null, '✓ Order fully covered by credits!')}
             </p>
           )}
           {finalAmount > 0 && (
             <p className="text-sm text-gray-500 mt-2">
-              💳 Payment is held securely until order fulfillment
+              {t('checkout.paymentHeldSecurely', null, '💳 Payment is held securely until order fulfillment')}
             </p>
           )}
         </div>
@@ -409,7 +415,7 @@ const CheckoutForm = ({
               disabled={isProcessing}
               className="flex-1 px-4 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              Cancel
+              {t('common.cancel', null, 'Cancel')}
             </button>
           )}
           <button
@@ -420,12 +426,12 @@ const CheckoutForm = ({
             {isProcessing ? (
               <span className="flex items-center justify-center">
                 <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
-                Processing...
+                {t('checkout.processing', null, 'Processing...')}
               </span>
             ) : finalAmount <= 0 ? (
-              'Complete Order (Credits Only)'
+              t('checkout.completeOrderCredits', null, 'Complete Order (Credits Only)')
             ) : (
-              `Pay $${finalAmount.toFixed(2)}`
+              t('checkout.payAmount', { amount: finalAmount.toFixed(2) }, `Pay $${finalAmount.toFixed(2)}`)
             )}
           </button>
         </div>
@@ -440,8 +446,8 @@ const CheckoutForm = ({
               <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
             </svg>
             <div className="text-sm text-yellow-800">
-              <p className="font-bold">TEST MODE - NO REAL PAYMENTS</p>
-              <p className="mt-1">You are in test mode. No real payments will be processed. This is for development and testing only.</p>
+              <p className="font-bold">{t('checkout.testMode', null, 'TEST MODE - NO REAL PAYMENTS')}</p>
+              <p className="mt-1">{t('checkout.testModeDescription', null, 'You are in test mode. No real payments will be processed. This is for development and testing only.')}</p>
             </div>
           </div>
         </div>
@@ -454,8 +460,8 @@ const CheckoutForm = ({
             <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
           </svg>
           <div className="text-sm text-blue-800">
-            <p className="font-semibold">Secure Payment</p>
-            <p className="mt-1">Your payment information is encrypted and processed securely by Stripe. We never store your card details.</p>
+            <p className="font-semibold">{t('checkout.securePayment', null, 'Secure Payment')}</p>
+            <p className="mt-1">{t('checkout.securePaymentDescription', null, 'Your payment information is encrypted and processed securely by Stripe. We never store your card details.')}</p>
           </div>
         </div>
       </div>

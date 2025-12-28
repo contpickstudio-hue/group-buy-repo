@@ -20,6 +20,7 @@ import CreditsDisplay from '../components/CreditsDisplay';
 import GuestEarlyAccess from '../components/GuestEarlyAccess';
 import RoleAcquisition from '../components/RoleAcquisition';
 import { getUserDisplayName, isGuestUser } from '../utils/authUtils';
+import { useTranslation } from '../contexts/TranslationProvider';
 
 const ProfilePage = () => {
     try {
@@ -28,9 +29,10 @@ const ProfilePage = () => {
         const setCurrentScreen = useSetCurrentScreen();
         const setUser = useSetUser();
         const resetStore = useAppStore((state) => state.resetStore);
-        const loginMethod = useAuthStore((state) => state.loginMethod);
-        const isDevelopment = import.meta.env.DEV;
-        const displayName = getUserDisplayName(user, loginMethod);
+    const loginMethod = useAuthStore((state) => state.loginMethod);
+    const isDevelopment = import.meta.env.DEV;
+    const displayName = getUserDisplayName(user, loginMethod);
+    const { t } = useTranslation();
         const [showOrders, setShowOrders] = React.useState(false);
         
         // Community stats hooks
@@ -94,8 +96,14 @@ const ProfilePage = () => {
         return (
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <GuestEarlyAccess 
-                    title="Profile Preview"
-                    description="You're browsing in guest mode. Sign up to access your full profile with account settings, credits, referrals, and order history."
+                    title={t('guestEarlyAccess.profileTitle', null, 'Your Profile')}
+                    description={t('guestEarlyAccess.profileDescription', null, 'Create an account to manage your settings, view credits and referrals, and access your order history.')}
+                    benefits={[
+                        t('guestEarlyAccess.profileBenefit1', null, 'Manage account settings'),
+                        t('guestEarlyAccess.profileBenefit2', null, 'View credits and referrals'),
+                        t('guestEarlyAccess.profileBenefit3', null, 'Access order history'),
+                        t('guestEarlyAccess.profileBenefit4', null, 'Update your profile')
+                    ]}
                 />
             </div>
         );

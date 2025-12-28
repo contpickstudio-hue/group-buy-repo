@@ -21,6 +21,7 @@ import ReportButton from '../components/ReportButton';
 import { checkErrandSuspension } from '../services/moderationService';
 import { CheckCircle, Clock, User, Star, AlertCircle, Lock } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { t } from '../utils/translations';
 
 const ErrandDetailPage = () => {
     const [errandId, setErrandId] = useState(null);
@@ -105,7 +106,7 @@ const ErrandDetailPage = () => {
                         )}
                         <button
                             onClick={() => setCurrentScreen('errands')}
-                            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors min-h-[44px]"
+                            className="bg-blue-600 text-white px-6 py-3.5 rounded-xl hover:bg-blue-700 transition-colors shadow-lg"
                         >
                             Back to Errands
                         </button>
@@ -125,9 +126,9 @@ const ErrandDetailPage = () => {
                         <p className="text-gray-600 mb-4">The errand you're looking for doesn't exist.</p>
                         <button
                             onClick={() => setCurrentScreen('errands')}
-                            className="btn-primary"
+                            className="btn-secondary"
                         >
-                            Back to Errands
+                            {t('errand.backToErrands', null, 'Back to Errands')}
                         </button>
                     </div>
                 </div>
@@ -415,17 +416,17 @@ const ErrandDetailPage = () => {
                                 {isCompleted && !showRatingForm && (
                                     <button
                                         onClick={() => setShowRatingForm(true)}
-                                        className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold flex items-center justify-center gap-2"
+                                        className="w-full btn-primary flex items-center justify-center gap-2"
                                     >
                                         <Star size={20} />
-                                        Rate Helper
+                                        {t('errand.rateHelper', null, 'Rate Helper')}
                                     </button>
                                 )}
 
                                 {/* Rating Form */}
                                 {showRatingForm && (
                                     <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                                        <h3 className="font-semibold text-gray-900 mb-3">Rate Helper</h3>
+                                        <h3 className="font-semibold text-gray-900 mb-3">{t('errand.rateHelper', null, 'Rate Helper')}</h3>
                                         <div className="space-y-3">
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -456,9 +457,9 @@ const ErrandDetailPage = () => {
                                             <div className="flex gap-2">
                                                 <button
                                                     onClick={handleRateHelper}
-                                                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                                                    className="btn-primary"
                                                 >
-                                                    Submit Rating
+                                                    {t('errand.submitRating', null, 'Submit Rating')}
                                                 </button>
                                                 <button
                                                     onClick={() => {
@@ -506,13 +507,13 @@ const ErrandDetailPage = () => {
                                 {!showApplicationForm ? (
                                     <button
                                         onClick={() => setShowApplicationForm(true)}
-                                        className="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-semibold"
+                                        className="w-full btn-primary"
                                     >
-                                        Apply to Help
+                                        {t('errand.applyToHelp', null, 'Apply to Help')}
                                     </button>
                                 ) : (
                                     <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                                        <h3 className="font-semibold text-gray-900 mb-3">Apply to Help</h3>
+                                        <h3 className="font-semibold text-gray-900 mb-3">{t('errand.applyToHelp', null, 'Apply to Help')}</h3>
                                         {!canApplyDueToLimit && (
                                             <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-3 flex items-start gap-2">
                                                 <AlertCircle size={18} className="text-red-600 mt-0.5" />

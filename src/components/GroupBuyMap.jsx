@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import { useProducts, useUserLocation } from '../stores';
 import { formatDistance } from '../services/geolocationService';
+import { t } from '../utils/translations';
 
 const mapContainerStyle = {
   width: '100%',
@@ -163,7 +164,7 @@ const GroupBuyMap = ({
                 onClick={() => handleProductCardClick(selectedProduct)}
                 className="text-xs text-blue-600 hover:text-blue-800 font-medium"
               >
-                View Details →
+                {t('groupBuy.viewDetails')} →
               </button>
             </div>
           </InfoWindow>

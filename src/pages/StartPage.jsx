@@ -2,6 +2,7 @@ import React from 'react';
 import { useUser, useSetCurrentScreen, useProducts, useErrands } from '../stores';
 import { ShoppingCart, Package, ArrowRight, Users, Sparkles } from 'lucide-react';
 import { t } from '../utils/translations';
+import { SignupChoice } from '../components/UnifiedSignupCTA';
 
 const StartPage = () => {
     const user = useUser();
@@ -27,21 +28,7 @@ const StartPage = () => {
                     {t('startPage.joinDescription')}
                 </p>
                 {!user && (
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                        <button
-                            onClick={() => setCurrentScreen('auth')}
-                            className="btn-primary px-8 py-4 text-lg flex items-center gap-2 group"
-                        >
-                            {t('startPage.getStarted')}
-                            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                        </button>
-                        <button
-                            onClick={() => setCurrentScreen('browse')}
-                            className="btn-secondary px-8 py-4 text-lg"
-                        >
-                            {t('startPage.browseMarketplace')}
-                        </button>
-                    </div>
+                    <SignupChoice className="max-w-2xl mx-auto" />
                 )}
             </div>
 
@@ -65,6 +52,9 @@ const StartPage = () => {
                                 {t('startPage.exploreGroupBuys')}
                                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                             </button>
+                            <p className="text-sm text-gray-500 mt-2">
+                                Group purchases let you save money by buying together with neighbors
+                            </p>
                         </div>
                     </div>
                     {featuredProducts.length > 0 && (
@@ -100,6 +90,9 @@ const StartPage = () => {
                                 {t('startPage.exploreErrands')}
                                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                             </button>
+                            <p className="text-sm text-gray-500 mt-2">
+                                Ask for help with tasks or offer to help others in your community
+                            </p>
                         </div>
                     </div>
                     {featuredErrands.length > 0 && (
@@ -129,10 +122,10 @@ const StartPage = () => {
                 </p>
                 {!user && (
                     <button
-                        onClick={() => setCurrentScreen('auth')}
-                        className="btn-primary px-8 py-3 text-base"
+                        onClick={() => setCurrentScreen('browse')}
+                        className="btn-secondary px-8"
                     >
-                        {t('startPage.signUpFree')}
+                        {t('startPage.browseMarketplace')}
                     </button>
                 )}
             </div>

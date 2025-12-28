@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Bell } from 'lucide-react';
 import { useNotifications } from '../stores';
 import NotificationPanel from './NotificationPanel';
+import { useTranslation } from '../contexts/TranslationProvider';
 
 /**
  * NotificationIcon Component
@@ -10,15 +11,20 @@ import NotificationPanel from './NotificationPanel';
 const NotificationIcon = () => {
   const notifications = useNotifications();
   const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const { t } = useTranslation();
   
   // Count unread notifications
   const unreadCount = Array.isArray(notifications) ? notifications.filter(n => n && !n.read).length : 0;
+  const tooltipText = unreadCount > 0 
+    ? t('navbar.notifications', null, 'Notifications') + ` (${unreadCount} unread)`
+    : t('navbar.notifications', null, 'Notifications');
 
   return (
     <>
       <button
         className="relative p-2.5 sm:p-3 text-gray-600 hover:text-gray-900 transition-colors min-w-[48px] min-h-[48px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center touch-manipulation"
-        aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
+        aria-label={tooltipText}
+        title={tooltipText}
         onClick={() => setIsPanelOpen(true)}
       >
         <Bell size={20} className="flex-shrink-0" />

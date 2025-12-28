@@ -46,9 +46,9 @@ export const TranslationProvider = ({ children }) => {
         };
     }, []);
 
-    const t = (key, params) => {
-        // Use current language from store
-        return tUtil(key, params);
+    const t = (key, params, fallback) => {
+        // Use current language from store with fallback support
+        return tUtil(key, params, fallback);
     };
 
     return (

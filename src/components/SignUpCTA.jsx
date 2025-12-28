@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSetCurrentScreen } from '../stores';
 import { t } from '../utils/translations';
+import UnifiedSignupCTA from './UnifiedSignupCTA';
 
 /**
  * SignUpCTA Component
@@ -39,12 +40,9 @@ const SignUpCTA = ({ message, className = "" }) => {
                 <p className="text-gray-600 text-sm mb-4">
                     {t('auth.signUpToAccess')}
                 </p>
-                <button
-                    onClick={handleSignUp}
-                    className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium min-h-[44px]"
-                >
-                    {t('auth.signUpToContinue')}
-                </button>
+                <UnifiedSignupCTA 
+                    type="full"
+                />
             </div>
         </div>
     );

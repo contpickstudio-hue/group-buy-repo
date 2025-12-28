@@ -3,6 +3,7 @@ import { useSetCurrentScreen, useSignUp, useSignIn, useSignInWithGoogle, useSkip
 import { useProcessReferralSignup } from '../stores';
 import { useFormHandler } from '../hooks/useErrorHandler';
 import { AsyncErrorBoundary } from '../components/ErrorBoundary';
+import { t } from '../utils/translations';
 
 const AuthPage = () => {
     const setCurrentScreen = useSetCurrentScreen();
@@ -161,14 +162,24 @@ const AuthPage = () => {
                 <div className="max-w-md w-full bg-white rounded-lg shadow-md p-6">
                 <div className="text-center mb-6">
                     <h2 className="text-2xl font-bold text-gray-900">
-                        {isSignUp ? 'Join Korean Community Commerce' : 'Welcome Back'}
+                        {isSignUp ? 'Create Account - Full Access' : 'Welcome Back'}
                     </h2>
                     <p className="text-gray-600 mt-2">
                         {isSignUp 
-                            ? 'Connect with your community through group buys and local errands'
+                            ? 'Get immediate access to all features: create group buys, post errands, view analytics, and more'
                             : 'Sign in to your account'
                         }
                     </p>
+                    {isSignUp && (
+                        <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-left">
+                            <p className="text-sm text-gray-700 mb-2">
+                                <strong>Looking for early access instead?</strong>
+                            </p>
+                            <p className="text-xs text-gray-600">
+                                Join our waitlist to be notified when services launch in your area. Full account creation gives you immediate access to all features.
+                            </p>
+                        </div>
+                    )}
                     {referralCode && isSignUp && (
                         <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-sm text-green-800">
                             🎉 You were referred! Get $3 credit on your first order.
@@ -282,15 +293,15 @@ const AuthPage = () => {
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {isLoading ? (
                             <div className="flex items-center justify-center">
                                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                {isSignUp ? 'Creating Account...' : 'Signing In...'}
+                                {isSignUp ? t('auth.creatingAccount', null, 'Creating Account...') : t('auth.signingIn', null, 'Signing In...')}
                             </div>
                         ) : (
-                            isSignUp ? 'Get Started' : 'Sign In'
+                            isSignUp ? t('auth.getStarted', null, 'Get Started') : t('auth.signIn', null, 'Sign In')
                         )}
                     </button>
                 </form>

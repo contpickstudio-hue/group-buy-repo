@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useUser, useProducts, useListings, useOrders, useErrands, useSetCurrentScreen, useAppStore, useLoadProducts, useLoadListings, useGetBatchesByListing, useLoadBatchesForListing, useAuthStore } from '../stores';
 import { isGuestUser } from '../utils/authUtils';
+import { useTranslation } from '../contexts/TranslationProvider';
 import { 
   useCommunitySavings, 
   useUserContribution,
@@ -31,9 +32,10 @@ import GuestEarlyAccess from '../components/GuestEarlyAccess';
 const DashboardPage = () => {
     try {
         const user = useUser();
-    const loginMethod = useAuthStore((state) => state.loginMethod);
-    const isGuest = isGuestUser(user, loginMethod);
-    const displayName = getUserDisplayName(user, loginMethod);
+        const loginMethod = useAuthStore((state) => state.loginMethod);
+        const isGuest = isGuestUser(user, loginMethod);
+        const displayName = getUserDisplayName(user, loginMethod);
+        const { t } = useTranslation();
     const accountSummary = useAccountSummary();
     const products = useProducts();
     const listings = useListings();
@@ -119,13 +121,20 @@ const DashboardPage = () => {
     const roles = isGuest ? [] : (user.roles || []);
     const [activeTab, setActiveTab] = useState('overview');
 
-    // For guests, show early access message instead of dashboard
+    // For guests, show preview card only - intentional browsing experience
     if (isGuest) {
         return (
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <GuestEarlyAccess 
-                    title="Dashboard Preview"
-                    description="You're browsing in guest mode. Sign up to access your dashboard with analytics, earnings, orders, and account management."
+                    title={t('guestEarlyAccess.dashboardTitle', null, 'Your Dashboard')}
+                    description={t('guestEarlyAccess.dashboardDescription', null, 'Create an account to track your activity, manage orders, and access all features.')}
+                    benefits={[
+                        t('guestEarlyAccess.dashboardBenefit1', null, 'Track savings and earnings'),
+                        t('guestEarlyAccess.dashboardBenefit2', null, 'View active orders and errands'),
+                        t('guestEarlyAccess.dashboardBenefit3', null, 'Manage credits and referrals'),
+                        t('guestEarlyAccess.dashboardBenefit4', null, 'Quick access to create listings')
+                    ]}
+                    compact={false}
                 />
             </div>
         );
@@ -284,12 +293,12 @@ const DashboardPage = () => {
     // Guest users only see overview (no analytics, orders, or payouts)
     const tabs = [];
     if (!isGuest && roles.includes('vendor')) {
-        tabs.push({ id: 'overview', label: 'Overview' });
-        tabs.push({ id: 'orders', label: 'Orders' });
-        tabs.push({ id: 'analytics', label: 'Analytics' });
-        tabs.push({ id: 'payouts', label: 'Payout Settings' });
+        tabs.push({ id: 'overview', label: t('dashboard.overview') });
+        tabs.push({ id: 'orders', label: t('dashboard.orders') });
+        tabs.push({ id: 'analytics', label: t('dashboard.analytics') });
+        tabs.push({ id: 'payouts', label: t('dashboard.payoutSettings') });
     } else {
-        tabs.push({ id: 'overview', label: 'Overview' });
+        tabs.push({ id: 'overview', label: t('dashboard.overview') });
     }
 
     return (
@@ -297,10 +306,10 @@ const DashboardPage = () => {
             {/* Header */}
             <div className="text-center mb-8">
                 <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                    Welcome, {displayName}
+                    {t('dashboard.welcome', { name: displayName }, 'My Activity')}
                 </h2>
                 <p className="text-gray-600">
-                    Track tasks, payouts, and requests in one place.
+                    {t('dashboard.subtitle')}
                 </p>
             </div>
 
@@ -350,18 +359,20 @@ const DashboardPage = () => {
                     </div>
 
                     {/* Account Summary - Stacked on mobile */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-8">
                         <div className="bg-white rounded-lg shadow-md p-6 text-center">
                             <div className="text-2xl font-bold text-blue-600 mb-2">
                                 ${(Number(accountSummary?.totalSavings) || 0).toFixed(2)}
                             </div>
-                            <div className="text-gray-600">Total Savings</div>
+                            <div className="text-gray-600 font-medium">{t('dashboard.totalSavings')}</div>
+                            <div className="text-xs text-gray-500 mt-1">{t('dashboard.totalSavingsHelp')}</div>
                         </div>
                         <div className="bg-white rounded-lg shadow-md p-6 text-center">
                             <div className="text-2xl font-bold text-green-600 mb-2">
                                 ${(Number(accountSummary?.totalEarnings) || 0).toFixed(2)}
                             </div>
-                            <div className="text-gray-600">Total Earnings</div>
+                            <div className="text-gray-600 font-medium">{t('dashboard.totalEarnings')}</div>
+                            <div className="text-xs text-gray-500 mt-1">{t('dashboard.totalEarningsHelp')}</div>
                         </div>
                         <div className="bg-white rounded-lg shadow-md p-6 text-center">
                             <div className="text-2xl font-bold text-purple-600 mb-2">
@@ -393,24 +404,24 @@ const DashboardPage = () => {
 
                     {/* Quick Actions */}
                     <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-                        <h3 className="text-xl font-semibold mb-4">Quick Actions</h3>
+                        <h3 className="text-xl font-semibold mb-5">Quick Actions</h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {roles.includes('vendor') && (
                                 <button
                                     onClick={() => setCurrentScreen('groupbuys')}
-                                    className="flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors min-h-[48px] font-semibold"
+                                    className="btn-primary w-full"
                                 >
                                     <span className="mr-2">🛒</span>
-                                    Create Group Buy
+                                    {t('dashboard.createGroupBuy', null, 'Start a Group Buy')}
                                 </button>
                             )}
                             {roles.includes('customer') && (
                                 <button
                                     onClick={() => setCurrentScreen('errands')}
-                                    className="flex items-center justify-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors min-h-[48px] font-semibold"
+                                    className="flex items-center justify-center px-6 py-3.5 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors shadow-lg font-semibold"
                                 >
                                     <span className="mr-2">📝</span>
-                                    Post Errand
+                                    {t('errand.post')}
                                 </button>
                             )}
                         </div>
@@ -418,11 +429,11 @@ const DashboardPage = () => {
 
                     {/* Active Group Buys - Mobile optimized */}
                     <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6 sm:mb-8">
-                        <h3 className="text-lg sm:text-xl font-semibold mb-4">Active Group Buys</h3>
+                        <h3 className="text-lg sm:text-xl font-semibold mb-4">{t('dashboard.activeGroupBuys')}</h3>
                         {userData.activeGroupBuys.length > 0 ? (
-                            <div className="space-y-4">
+                            <div className="space-y-3">
                                 {userData.activeGroupBuys.slice(0, 5).map(order => (
-                                    <div key={order.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <div key={order.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl gap-4">
                                         <div className="flex-1">
                                             <div className="font-medium text-gray-900">
                                                 {order.product?.title || 'Product'}
@@ -450,11 +461,11 @@ const DashboardPage = () => {
 
                     {/* Active Errands - Mobile optimized */}
                     <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6 sm:mb-8">
-                        <h3 className="text-lg sm:text-xl font-semibold mb-4">Active Errands</h3>
+                        <h3 className="text-lg sm:text-xl font-semibold mb-4">{t('dashboard.activeErrands')}</h3>
                         {userData.activeErrands.length > 0 ? (
-                            <div className="space-y-4">
+                            <div className="space-y-3">
                                 {userData.activeErrands.slice(0, 5).map(errand => (
-                                    <div key={errand.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <div key={errand.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl gap-4">
                                         <div className="flex-1">
                                             <div className="font-medium text-gray-900">
                                                 {errand.title}
@@ -473,7 +484,7 @@ const DashboardPage = () => {
                                             errand.status === 'matched' ? 'bg-yellow-100 text-yellow-800' :
                                             'bg-blue-100 text-blue-800'
                                         }`}>
-                                            {errand.status}
+                                            {t(`status.${errand.status}`, null, errand.status)}
                                         </span>
                                     </div>
                                 ))}
@@ -487,7 +498,7 @@ const DashboardPage = () => {
 
                     {/* Completed Items */}
                     <div className="bg-white rounded-lg shadow-md p-6">
-                        <h3 className="text-xl font-semibold mb-4">Completed Items</h3>
+                        <h3 className="text-xl font-semibold mb-4">{t('dashboard.completedItems')}</h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <h4 className="text-sm font-medium text-gray-700 mb-2">Group Buys</h4>

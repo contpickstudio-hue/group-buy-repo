@@ -2,6 +2,7 @@ import React from 'react';
 import { Sparkles, Lock, ArrowRight } from 'lucide-react';
 import { useSetCurrentScreen } from '../stores';
 import { t } from '../utils/translations';
+import UnifiedSignupCTA from './UnifiedSignupCTA';
 
 /**
  * Guest Early Access Component
@@ -11,14 +12,22 @@ import { t } from '../utils/translations';
 const GuestEarlyAccess = ({ 
     title = null, 
     description = null,
+    benefits = null,
     showSignUpButton = true,
     compact = false 
 }) => {
     const setCurrentScreen = useSetCurrentScreen();
 
-    const defaultTitle = title || t('guestEarlyAccess.title') || 'Early Access Preview';
+    const defaultTitle = title || t('guestEarlyAccess.title') || 'Guest Preview Mode';
     const defaultDescription = description || t('guestEarlyAccess.description') || 
-        'You\'re browsing in guest mode. Sign up to access full features including creating group buys, posting errands, viewing analytics, and managing your account.';
+        'You\'re browsing in guest preview mode. Create an account to unlock full features including creating group buys, posting errands, viewing analytics, and managing your account.';
+    // Use provided benefits or default generic benefits, but only if benefits array is not explicitly empty
+    const defaultBenefits = benefits !== null ? benefits : [
+        t('guestEarlyAccess.benefit1', null, 'Track your savings and earnings'),
+        t('guestEarlyAccess.benefit2', null, 'View active orders and errands'),
+        t('guestEarlyAccess.benefit3', null, 'Manage credits and referrals'),
+        t('guestEarlyAccess.benefit4', null, 'Quick access to create content')
+    ];
 
     if (compact) {
         return (
@@ -34,14 +43,22 @@ const GuestEarlyAccess = ({
                         <p className="text-sm text-gray-600 mb-3">
                             {defaultDescription}
                         </p>
+                        {defaultBenefits && defaultBenefits.length > 0 && (
+                            <ul className="space-y-1.5 mb-3 text-xs text-gray-600">
+                                {defaultBenefits.slice(0, 3).map((benefit, index) => (
+                                    <li key={index} className="flex items-start gap-2">
+                                        <span className="text-blue-600 mt-0.5 flex-shrink-0">•</span>
+                                        <span>{benefit}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
                         {showSignUpButton && (
-                            <button
-                                onClick={() => setCurrentScreen('auth')}
-                                className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
-                            >
-                                Sign Up for Full Access
-                                <ArrowRight className="w-4 h-4" />
-                            </button>
+                            <UnifiedSignupCTA 
+                                type="full"
+                                variant="inline"
+                                className="text-sm"
+                            />
                         )}
                     </div>
                 </div>
@@ -70,36 +87,24 @@ const GuestEarlyAccess = ({
                 </p>
 
                 {/* Benefits List */}
-                <div className="mb-6 text-left max-w-md mx-auto">
-                    <ul className="space-y-2 text-sm text-gray-700">
-                        <li className="flex items-start gap-2">
-                            <span className="text-blue-600 mt-0.5">✓</span>
-                            <span>Create and manage group buys</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                            <span className="text-blue-600 mt-0.5">✓</span>
-                            <span>Post and track errands</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                            <span className="text-blue-600 mt-0.5">✓</span>
-                            <span>View analytics and earnings</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                            <span className="text-blue-600 mt-0.5">✓</span>
-                            <span>Access referral program and credits</span>
-                        </li>
-                    </ul>
-                </div>
+                {defaultBenefits && defaultBenefits.length > 0 && (
+                    <div className="mb-6 text-left max-w-md mx-auto">
+                        <ul className="space-y-2.5 text-sm text-gray-700">
+                            {defaultBenefits.map((benefit, index) => (
+                                <li key={index} className="flex items-start gap-2.5">
+                                    <span className="text-blue-600 mt-0.5 flex-shrink-0">✓</span>
+                                    <span>{benefit}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
 
                 {/* CTA Button */}
                 {showSignUpButton && (
-                    <button
-                        onClick={() => setCurrentScreen('auth')}
-                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium min-h-[48px] shadow-sm"
-                    >
-                        Sign Up for Full Access
-                        <ArrowRight className="w-5 h-5" />
-                    </button>
+                    <UnifiedSignupCTA 
+                        type="full"
+                    />
                 )}
             </div>
         </div>

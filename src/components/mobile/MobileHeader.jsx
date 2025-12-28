@@ -39,12 +39,13 @@ const MobileHeader = ({
                     onClick={handleBack}
                     className="flex items-center justify-center min-w-[44px] min-h-[44px] -ml-2 text-gray-700 hover:text-gray-900 active:scale-95 transition-all"
                     aria-label="Go back"
+                    title="Go back"
                 >
                     <ArrowLeft size={24} strokeWidth={2} />
                 </button>
 
                 {/* Title */}
-                <h1 className="flex-1 text-center text-lg font-semibold text-gray-900 truncate px-2">
+                <h1 className="flex-1 text-center text-lg font-semibold text-gray-900 truncate px-2" title={title}>
                     {title}
                 </h1>
 

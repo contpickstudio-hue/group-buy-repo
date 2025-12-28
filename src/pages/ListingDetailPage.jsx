@@ -16,6 +16,7 @@ import ReportButton from '../components/ReportButton';
 import { checkListingSuspension } from '../services/moderationService';
 import toast from 'react-hot-toast';
 import { getUserDisplayName, isGuestUser } from '../utils/authUtils';
+import { t } from '../utils/translations';
 
 const ListingDetailPage = () => {
     // Get listingId from URL hash (e.g., #listing/123)
@@ -101,12 +102,12 @@ const ListingDetailPage = () => {
                 <div className="bg-white rounded-lg shadow-md p-6 text-center">
                     <h2 className="text-xl font-semibold text-gray-900 mb-2">Listing Not Found</h2>
                     <p className="text-gray-600 mb-4">The listing you're looking for doesn't exist.</p>
-                    <button
-                        onClick={() => setCurrentScreen('groupbuys')}
-                        className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
-                    >
-                        Back to Marketplace
-                    </button>
+                                    <button
+                                        onClick={() => setCurrentScreen('groupbuys')}
+                                        className="btn-secondary"
+                                    >
+                                        {t('common.backToMarketplace', null, 'Back to Marketplace')}
+                                    </button>
                 </div>
             </div>
         );
@@ -377,9 +378,9 @@ const ListingDetailPage = () => {
                                 {canJoinBatch(selectedBatch) && !isGuestUser(user, loginMethod) && (
                                     <button
                                         onClick={handleJoinListing}
-                                        className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 transition-colors font-semibold text-lg"
+                                        className="w-full btn-primary text-base sm:text-lg"
                                     >
-                                        Place Order - ${selectedBatch.price.toFixed(2)}
+                                        {t('listing.placeOrder', null, 'Place Order')} - ${selectedBatch.price.toFixed(2)}
                                     </button>
                                 )}
                                 {/* Guest message */}

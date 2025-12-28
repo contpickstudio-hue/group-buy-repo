@@ -3,6 +3,7 @@ import { MessageCircle, X } from 'lucide-react';
 import { useGetTotalUnreadCount, useLoadChatThreads, useChatThreads } from '../stores';
 import ChatList from './ChatList';
 import ChatModal from './ChatModal';
+import { useTranslation } from '../contexts/TranslationProvider';
 
 /**
  * ChatIcon Component
@@ -15,10 +16,18 @@ const ChatIcon = () => {
   const getTotalUnreadCount = useGetTotalUnreadCount();
   const loadChatThreads = useLoadChatThreads();
   const chatThreads = useChatThreads();
+  const { t } = useTranslation();
 
   // Safety checks for hooks that might not be initialized yet after login
   const unreadCount = typeof getTotalUnreadCount === 'function' ? getTotalUnreadCount() : 0;
   const hasChats = Array.isArray(chatThreads) && chatThreads.length > 0;
+  
+  // Tooltip text based on state
+  const tooltipText = hasChats
+    ? unreadCount > 0
+      ? t('navbar.chat', null, 'Chat') + ` (${unreadCount} unread)`
+      : t('navbar.chat', null, 'Chat')
+    : t('navbar.chatNoChats', null, 'Chat (no chats yet)');
 
   useEffect(() => {
     // Load chat threads when icon is clicked
@@ -72,8 +81,8 @@ const ChatIcon = () => {
               ? 'text-gray-600 hover:text-gray-900' 
               : 'text-gray-400 hover:text-gray-500 opacity-75'
           }`}
-          aria-label={hasChats ? "Chat" : "Chat (no chats yet)"}
-          title={!hasChats ? "No chats yet. Join a group buy or errand to start chatting." : undefined}
+          aria-label={tooltipText}
+          title={tooltipText}
         >
           <MessageCircle size={20} className="flex-shrink-0" />
           {unreadCount > 0 && (

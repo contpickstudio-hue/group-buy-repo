@@ -5,7 +5,9 @@ import DateInput from '../components/DateInput';
 import { isGuestUser } from '../utils/authUtils';
 import SignUpCTA from '../components/SignUpCTA';
 import GuestEarlyAccess from '../components/GuestEarlyAccess';
+import GuestZeroState from '../components/GuestZeroState';
 import { EmptyStateWithAction } from '../components/EmptyState';
+import { t } from '../utils/translations';
 
 const ErrandsPage = () => {
     // Hooks must be at top level - cannot be inside try-catch
@@ -187,10 +189,10 @@ const ErrandsPage = () => {
                     Community assistance
                 </div>
                 <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight">
-                    Errands & Tasks
+                    Community Errands
                 </h1>
                 <p className="text-gray-600 text-base sm:text-lg">
-                    Help neighbors or get help with your tasks
+                    Request help or offer to help others
                 </p>
             </div>
 
@@ -220,8 +222,8 @@ const ErrandsPage = () => {
             </div>
 
             {/* Create Errand Form - Mobile optimized, single screen */}
-            <div className="card mb-6 sm:mb-8 pb-24 sm:pb-6" data-testid="create-errand-form" data-coach-target="post-errand-form">
-                <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-gray-900">Post a New Errand</h3>
+            <div className="card mb-6 sm:mb-8" data-testid="create-errand-form" data-coach-target="post-errand-form">
+                <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-gray-900">{t('errand.postNew')}</h3>
                 {isGuest ? (
                     <GuestEarlyAccess 
                         title="Post Errands"
@@ -229,24 +231,25 @@ const ErrandsPage = () => {
                         compact={true}
                     />
                 ) : (
-                <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5 pb-24 sm:pb-6">
+                <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6 pb-32 sm:pb-6">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Title <span className="text-red-500">*</span>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            {t('errand.title')} <span className="text-red-500">*</span>
                         </label>
                         <input
                             type="text"
                             name="title"
                             value={formData.title}
                             onChange={handleInputChange}
-                            placeholder="e.g., Weekly H-Mart Grocery Run"
+                            placeholder={t('errand.titlePlaceholder')}
                             required
-                            className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 text-base min-h-[44px] ${
+                            className={`w-full px-4 py-3.5 border rounded-xl focus:outline-none focus:ring-2 text-base min-h-[52px] ${
                                 formErrors.title 
                                     ? 'border-red-300 focus:ring-red-500' 
                                     : 'border-gray-300 focus:ring-blue-500'
                             }`}
                         />
+                        <p className="mt-1 text-xs text-gray-500">{t('errand.titleHelp')}</p>
                         {formErrors.title && (
                             <p className="mt-1 text-sm text-red-600" role="alert">
                                 {formErrors.title}
@@ -254,22 +257,23 @@ const ErrandsPage = () => {
                         )}
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Description <span className="text-red-500">*</span>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            {t('errand.description')} <span className="text-red-500">*</span>
                         </label>
                         <textarea
                             name="description"
                             value={formData.description}
                             onChange={handleInputChange}
-                            rows={3}
-                            placeholder="Describe what you need help with..."
+                            rows={4}
+                            placeholder={t('errand.descriptionPlaceholder')}
                             required
-                            className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 text-base min-h-[88px] ${
+                            className={`w-full px-4 py-3.5 border rounded-xl focus:outline-none focus:ring-2 text-base min-h-[100px] ${
                                 formErrors.description 
                                     ? 'border-red-300 focus:ring-red-500' 
                                     : 'border-gray-300 focus:ring-blue-500'
                             }`}
                         />
+                        <p className="mt-1 text-xs text-gray-500">{t('errand.descriptionHelp')}</p>
                         {formErrors.description && (
                             <p className="mt-1 text-sm text-red-600" role="alert">
                                 {formErrors.description}
@@ -277,7 +281,7 @@ const ErrandsPage = () => {
                         )}
                     </div>
                     {/* Mobile-optimized: Stack fields on mobile, grid on desktop */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Region
@@ -286,7 +290,7 @@ const ErrandsPage = () => {
                                 name="region"
                                 value={formData.region}
                                 onChange={handleInputChange}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[48px]"
+                                className="w-full px-4 py-3.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[52px]"
                                 data-coach-target="region-filter"
                             >
                                 <option value="Toronto">Toronto</option>
@@ -296,7 +300,7 @@ const ErrandsPage = () => {
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Budget ($)
+                                {t('errand.budget')}
                             </label>
                             <input
                                 type="number"
@@ -305,25 +309,27 @@ const ErrandsPage = () => {
                                 onChange={handleInputChange}
                                 min="1"
                                 placeholder="25"
-                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[44px]"
+                                className="w-full px-4 py-3.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[52px]"
                             />
+                            <p className="mt-1 text-xs text-gray-500">{t('errand.budgetHelp')}</p>
                         </div>
                         <div>
                             <DateInput
                                 name="deadline"
-                                label="Deadline"
+                                label={t('errand.deadline')}
                                 value={formData.deadline}
                                 onChange={handleInputChange}
                                 type="datetime-local"
                                 min={new Date().toISOString().slice(0, 16)}
                                 error={formErrors.deadline}
                             />
+                            <p className="mt-1 text-xs text-gray-500">{t('errand.deadlineHelp')}</p>
                         </div>
                     </div>
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full bg-blue-600 text-white py-3 px-4 rounded-xl hover:bg-blue-700 transition-colors font-semibold text-base min-h-[44px] disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:bg-gray-400"
+                        className="w-full bg-blue-600 text-white py-4 px-6 rounded-xl hover:bg-blue-700 transition-colors font-semibold text-base min-h-[52px] disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:bg-gray-400 shadow-lg mt-2"
                     >
                         {isSubmitting ? (
                             <div className="flex items-center justify-center gap-2">
@@ -331,7 +337,7 @@ const ErrandsPage = () => {
                                 <span>Posting...</span>
                             </div>
                         ) : (
-                            'Post Errand'
+                            t('errand.post')
                         )}
                     </button>
                 </form>
@@ -355,7 +361,7 @@ const ErrandsPage = () => {
                 </div>
 
                 {filteredErrands.length > 0 ? (
-                    <div className="space-y-4 sm:space-y-6">
+                    <div className="space-y-5 sm:space-y-6">
                         {filteredErrands.map((errand, index) => (
                             <div 
                                 key={errand.id} 
@@ -401,13 +407,7 @@ const ErrandsPage = () => {
                                         errand.status === 'cancelled' ? 'bg-red-100 text-red-800' :
                                         'bg-gray-100 text-gray-800'
                                     }`}>
-                                        {errand.status === 'open' ? 'Open' :
-                                         errand.status === 'assigned' ? 'Assigned' :
-                                         errand.status === 'in_progress' ? 'In Progress' :
-                                         errand.status === 'awaiting_confirmation' ? 'Awaiting Confirmation' :
-                                         errand.status === 'completed' ? 'Completed' :
-                                         errand.status === 'cancelled' ? 'Cancelled' :
-                                         errand.status}
+                                        {t(`status.${errand.status}`, null, errand.status)}
                                     </span>
                                 </div>
                                 <div className="flex flex-col sm:flex-row gap-2 sm:justify-end pt-4 border-t border-gray-100">
@@ -415,18 +415,18 @@ const ErrandsPage = () => {
                                         onClick={() => {
                                             window.location.hash = `#errand/${errand.id}`;
                                         }}
-                                        className="btn-secondary text-sm sm:text-base py-3 w-full sm:w-auto min-h-[48px]"
+                                        className="btn-secondary text-base py-4 w-full sm:w-auto"
                                     >
-                                        View Details
+                                        {t('errand.viewDetails')}
                                     </button>
                                     {errand.status === 'open' && !errand.assignedHelperEmail && (
                                         <button 
                                             onClick={() => {
                                                 window.location.hash = `#errand/${errand.id}`;
                                             }}
-                                            className="btn-primary text-sm sm:text-base py-3 w-full sm:w-auto min-h-[48px]"
+                                            className="btn-primary text-base w-full sm:w-auto"
                                         >
-                                            Apply to Help
+                                            {t('errand.applyToHelp', null, 'Apply to Help')}
                                         </button>
                                     )}
                                     {errand.status === 'assigned' || errand.status === 'in_progress' || (errand.assignedHelperEmail && errand.status !== 'completed' && errand.status !== 'cancelled') ? (
@@ -443,10 +443,14 @@ const ErrandsPage = () => {
                     </div>
                 ) : (
                     <div className="card-empty animate-fade-in">
-                        <EmptyStateWithAction 
-                            type="errands"
-                            message="No errands available"
-                        />
+                        {errands.length === 0 ? (
+                            <GuestZeroState type="errands" />
+                        ) : (
+                            <EmptyStateWithAction 
+                                type="errands"
+                                message={t('errand.noErrandsMatchFilters', null, 'No errands match your filters')}
+                            />
+                        )}
                     </div>
                 )}
             </div>

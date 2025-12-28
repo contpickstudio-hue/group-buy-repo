@@ -157,7 +157,7 @@ const SettingsPage = () => {
                         onClick={() => setCurrentScreen('auth')}
                         className="mt-4 btn-primary"
                     >
-                        Sign In
+                        {t('auth.signIn', null, 'Sign In')}
                     </button>
                 </div>
             </div>
@@ -194,7 +194,7 @@ const SettingsPage = () => {
                                     {displayName ? displayName.charAt(0).toUpperCase() : 'U'}
                                 </span>
                             </div>
-                            <button className="btn-secondary text-sm min-h-[44px]">
+                            <button className="btn-secondary">
                                 {t('common.change')}
                             </button>
                         </div>
@@ -227,7 +227,7 @@ const SettingsPage = () => {
                     </div>
 
                     {/* Manage Account Button */}
-                    <button className="w-full btn-secondary mt-4 min-h-[48px]">
+                    <button className="w-full btn-secondary mt-4">
                         {t('settings.account.manageAccount')}
                     </button>
                 </div>

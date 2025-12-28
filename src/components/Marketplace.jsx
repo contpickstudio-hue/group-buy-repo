@@ -5,6 +5,7 @@ import { canJoinBatch } from '../services/supabaseService';
 import { EmptyStateWithAction } from './EmptyState';
 import GuestZeroState from './GuestZeroState';
 import { isGuestUser } from '../utils/authUtils';
+import { t } from '../utils/translations';
 
 /**
  * Marketplace Component
@@ -147,9 +148,9 @@ const Marketplace = ({ filters = {}, onJoinListing, user }) => {
                                 {user && (
                                     <button
                                         onClick={() => onJoinListing(listing)}
-                                        className="btn-primary px-4 py-2 text-sm"
+                                        className="btn-primary"
                                     >
-                                        View Details
+                                        {t('groupBuy.viewDetails')}
                                     </button>
                                 )}
                             </div>

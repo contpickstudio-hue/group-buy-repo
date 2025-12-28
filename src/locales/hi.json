@@ -44,7 +44,8 @@
     "required": "आवश्यक",
     "requiredField": "आवश्यक",
     "guest": "अतिथि",
-    "user": "उपयोगकर्ता"
+    "user": "उपयोगकर्ता",
+    "moderation": "संशोधन"
   },
   "onboarding": {
     "screen1": {

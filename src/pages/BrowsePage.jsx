@@ -28,7 +28,7 @@ const BrowsePage = () => {
                     {t('browsePage.browseTitle')}
                 </h1>
                 <p className="text-gray-600 text-base sm:text-lg max-w-2xl mx-auto px-4">
-                    {t('browsePage.discoverCommunity')}
+                    {t('browsePage.browseSubtitle', null, 'Find group purchases and errand requests from your community')}
                 </p>
             </div>
 
@@ -38,7 +38,7 @@ const BrowsePage = () => {
                     <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('browsePage.featuredGroupBuys')}</h2>
                     <button
                         onClick={() => setCurrentScreen('groupbuys')}
-                        className="btn-ghost text-sm sm:text-base flex items-center gap-1 group"
+                        className="btn-ghost text-base flex items-center gap-2 group py-2.5"
                     >
                         {t('browsePage.viewMore')}
                         <span className="group-hover:translate-x-1 transition-transform">→</span>
@@ -46,7 +46,7 @@ const BrowsePage = () => {
                 </div>
                 
                 {featuredProducts.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-6">
                         {featuredProducts.map((product, index) => (
                             <div 
                                 key={product.id} 
@@ -104,7 +104,7 @@ const BrowsePage = () => {
                                         onClick={() => {
                                             window.location.hash = `#groupbuy/${product.id}`;
                                         }}
-                                        className="w-full btn-primary text-sm sm:text-base py-3 min-h-[48px]"
+                                        className="w-full btn-primary text-base mt-2"
                                     >
                                         {t('browsePage.viewDetails')}
                                     </button>
@@ -132,7 +132,7 @@ const BrowsePage = () => {
                     <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('browsePage.openErrands')}</h2>
                     <button
                         onClick={() => setCurrentScreen('errands')}
-                        className="btn-ghost text-sm sm:text-base flex items-center gap-1 group"
+                        className="btn-ghost text-base flex items-center gap-2 group py-2.5"
                     >
                         {t('browsePage.viewAll')}
                         <span className="group-hover:translate-x-1 transition-transform">→</span>
@@ -140,7 +140,7 @@ const BrowsePage = () => {
                 </div>
                 
                 {featuredErrands.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-6">
                         {featuredErrands.map((errand, index) => (
                             <div 
                                 key={errand.id} 
@@ -175,7 +175,7 @@ const BrowsePage = () => {
                                     onClick={() => {
                                         window.location.hash = `#errand/${errand.id}`;
                                     }}
-                                    className="w-full mt-4 btn-secondary text-sm sm:text-base py-3 min-h-[48px]"
+                                    className="w-full mt-4 btn-secondary text-base"
                                 >
                                     {t('browsePage.viewDetails')}
                                 </button>
@@ -184,10 +184,14 @@ const BrowsePage = () => {
                     </div>
                 ) : (
                     <div className="card-empty">
-                        <EmptyStateWithAction 
-                            type="errands"
-                            message={t('errand.noErrandsAvailable')}
-                        />
+                        {errands.length === 0 ? (
+                            <GuestZeroState type="errands" />
+                        ) : (
+                            <EmptyStateWithAction 
+                                type="errands"
+                                message={t('errand.noErrandsMatchFilters', null, 'No errands match your filters')}
+                            />
+                        )}
                     </div>
                 )}
             </div>

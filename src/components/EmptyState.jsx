@@ -1,8 +1,8 @@
 import React from 'react';
-import { useUser, useSetCurrentScreen } from '../stores';
+import { useUser, useSetCurrentScreen, useAuthStore } from '../stores';
 import { hasRole, isGuestUser } from '../utils/authUtils';
-import { useAuthStore } from '../stores';
 import { t } from '../utils/translations';
+import UnifiedSignupCTA from './UnifiedSignupCTA';
 
 /**
  * EmptyState Component
@@ -16,6 +16,10 @@ const EmptyState = ({
     icon,
     className = "" 
 }) => {
+    const user = useUser();
+    const loginMethod = useAuthStore((state) => state.loginMethod);
+    const isGuest = !user || isGuestUser(user, loginMethod);
+
     return (
         <div className={`text-center py-8 px-4 ${className}`}>
             {icon && (
@@ -27,6 +31,20 @@ const EmptyState = ({
                 {message}
             </p>
             {action && actionLabel && (
+                isGuest ? (
+                    <UnifiedSignupCTA 
+                        type="early"
+                    />
+                ) : (
+                    <button
+                        onClick={action}
+                        className="inline-flex items-center px-6 py-3.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors text-base font-medium min-h-[52px] shadow-lg"
+                    >
+                        {actionLabel}
+                    </button>
+                )
+            )}
+            {!action && actionLabel && (
                 <button
                     onClick={action}
                     className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium min-h-[44px]"
@@ -59,8 +77,8 @@ export const EmptyStateWithAction = ({
             // Guest users - show early access messaging
             return {
                 message: message || t('emptyState.earlyAccessMarketplace'),
-                actionLabel: t('auth.signUpToContinue'),
-                action: () => setCurrentScreen('auth')
+                actionLabel: t('unifiedCTA.joinEarlyAccess', null, 'Join Early Access'),
+                action: () => setCurrentScreen('auth') // Will show early access modal via UnifiedSignupCTA
             };
         }
 

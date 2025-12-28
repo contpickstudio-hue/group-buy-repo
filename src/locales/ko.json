@@ -44,7 +44,8 @@
     "required": "필수",
     "requiredField": "필수",
     "guest": "게스트",
-    "user": "사용자"
+    "user": "사용자",
+    "moderation": "관리"
   },
   "onboarding": {
     "screen1": {

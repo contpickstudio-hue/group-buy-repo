@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSetCurrentScreen } from '../stores';
 import { Lock, ArrowRight } from 'lucide-react';
+import { t } from '../utils/translations';
 
 /**
  * Permission Denied Component
@@ -15,20 +16,20 @@ const PermissionDenied = ({
 
   const getRoleTitle = () => {
     const titles = {
-      vendor: 'Vendor Account Required',
-      customer: 'Customer Account Required',
-      helper: 'Helper Account Required'
+      vendor: t('permissionDenied.vendorRoleRequired', null, 'Seller Account Needed'),
+      customer: t('permissionDenied.customerRoleRequired', null, 'Account Needed'),
+      helper: t('permissionDenied.helperRoleRequired', null, 'Helper Account Needed')
     };
-    return titles[requiredRole] || 'Permission Required';
+    return titles[requiredRole] || t('permissionDenied.title');
   };
 
   const getRoleDescription = () => {
     const descriptions = {
-      vendor: 'To create group buys, you need a vendor account. Upgrade your account to start creating group buys and reaching more customers.',
-      customer: 'To join group buys, you need a customer account. Sign up or ensure your account has customer permissions.',
-      helper: 'To apply to errands, you need to be a verified helper. Complete the helper verification process to start helping others.'
+      vendor: t('permissionDenied.vendorRoleRequired', { action: action }, 'To start a group purchase, you\'ll need to set up a seller account.'),
+      customer: t('permissionDenied.customerRoleRequired', { action: action }, 'To join group purchases, you\'ll need to create an account.'),
+      helper: t('permissionDenied.helperRoleRequired', { action: action }, 'To help with errands, you\'ll need to set up a helper account.')
     };
-    return descriptions[requiredRole] || `You need ${requiredRole} permissions to ${action}.`;
+    return descriptions[requiredRole] || t('permissionDenied.defaultMessage');
   };
 
   const handleUpgrade = () => {
@@ -75,7 +76,7 @@ const PermissionDenied = ({
               onClick={() => setCurrentScreen('browse')}
               className="inline-flex items-center justify-center px-6 py-3 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors font-medium min-h-[44px]"
             >
-              Browse Marketplace
+              {t('common.browse')}
             </button>
           </div>
         )}

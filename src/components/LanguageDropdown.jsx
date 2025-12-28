@@ -50,9 +50,10 @@ const LanguageDropdown = () => {
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-2.5 sm:py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors min-h-[48px] min-w-[48px] sm:min-h-[44px] sm:min-w-[44px] touch-manipulation"
-                aria-label={t('common.language') || 'Language'}
+                aria-label={t('common.selectLanguage') || 'Select Language'}
                 aria-expanded={isOpen}
                 aria-haspopup="true"
+                title={t('common.selectLanguage') || 'Select Language'}
             >
                 <Globe size={18} className="text-gray-600 flex-shrink-0" />
                 <span className="hidden sm:inline text-sm font-medium">

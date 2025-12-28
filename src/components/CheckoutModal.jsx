@@ -1,6 +1,7 @@
 import React from 'react';
 import CheckoutForm from './CheckoutForm';
 import { Shield } from 'lucide-react';
+import { t } from '../utils/translations';
 
 const CheckoutModal = ({ isOpen, onClose, product, quantity = 1, orderId, onPaymentSuccess }) => {
   if (!isOpen) return null;
@@ -37,10 +38,9 @@ const CheckoutModal = ({ isOpen, onClose, product, quantity = 1, orderId, onPaym
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 flex items-start gap-2">
             <Shield size={18} className="text-blue-600 mt-0.5 flex-shrink-0" />
             <div className="text-sm text-blue-800">
-              <p className="font-medium mb-1">Funds Protected in Escrow</p>
+              <p className="font-medium mb-1">Funds Protected</p>
               <p className="text-xs">
-                Your payment will be held securely until the group buy succeeds. 
-                If it fails, you'll be automatically refunded.
+                {t('checkout.paymentHeldSecurely')}
               </p>
             </div>
           </div>

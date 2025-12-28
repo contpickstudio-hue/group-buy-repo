@@ -3,6 +3,7 @@ import { Plus, Store, HandHeart, Search, ShoppingCart } from 'lucide-react';
 import { useUser, useCurrentScreen, useSetCurrentScreen, useAuthStore } from '../stores';
 import { isGuestUser, hasRole } from '../utils/authUtils';
 import { checkPermission } from '../utils/rbacUtils';
+import { t } from '../utils/translations';
 
 const FloatingActionButton = () => {
     // Wrap entire component logic in try-catch to prevent any errors from bubbling up
@@ -228,7 +229,7 @@ const FloatingActionButton = () => {
             try {
                 actions_list.push({
                     icon: Store,
-                    label: 'Create Group Buy',
+                    label: t('floatingAction.createGroupBuy'),
                     action: () => {
                         try {
                             // RBAC check before navigation with error handling
@@ -292,7 +293,7 @@ const FloatingActionButton = () => {
             try {
                 actions_list.push({
                     icon: HandHeart,
-                    label: 'Post Errand',
+                    label: t('floatingAction.postErrand'),
                     action: () => {
                         try {
                             // RBAC check before navigation with error handling
@@ -356,7 +357,7 @@ const FloatingActionButton = () => {
             try {
                 actions_list.push({
                     icon: Search,
-                    label: 'Browse Errands',
+                    label: t('floatingAction.browseErrands'),
                     action: () => {
                         try {
                             // RBAC check before navigation with error handling
@@ -406,7 +407,7 @@ const FloatingActionButton = () => {
         try {
             actions_list.push({
                 icon: ShoppingCart,
-                label: 'Browse Group Buys',
+                label: t('floatingAction.browseGroupBuys'),
                 action: () => {
                     try {
                         if (setCurrentScreen && typeof setCurrentScreen === 'function') {
@@ -440,7 +441,7 @@ const FloatingActionButton = () => {
         // Render FAB with error handling
         try {
             return (
-                <div className="fab-container" style={{ bottom: 'calc(64px + 1rem + env(safe-area-inset-bottom))', zIndex: 30 }}>
+                <div className="fab-container" style={{ bottom: 'calc(72px + 1rem + env(safe-area-inset-bottom))', zIndex: 30 }}>
                     {/* FAB Menu - Mobile optimized */}
                     {isMenuOpen && (
                         <div 
@@ -461,13 +462,13 @@ const FloatingActionButton = () => {
                                             className="fab-menu-item touch-manipulation"
                                             style={{ animationDelay: `${index * 0.05}s` }}
                                         >
-                                            <div className="w-10 h-10 sm:w-9 sm:h-9 rounded-lg bg-blue-50 flex items-center justify-center mr-3 flex-shrink-0">
+                                            <div className="w-11 h-11 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
                                                 <Icon 
-                                                    size={20} 
+                                                    size={22} 
                                                     className="text-blue-600" 
                                                 />
                                             </div>
-                                            <span className="fab-menu-label">
+                                            <span className="fab-menu-label text-base font-medium">
                                                 {action.label}
                                             </span>
                                         </button>

@@ -44,7 +44,8 @@
     "required": "必填",
     "requiredField": "必填",
     "guest": "访客",
-    "user": "用户"
+    "user": "用户",
+    "moderation": "审核"
   },
   "onboarding": {
     "screen1": {

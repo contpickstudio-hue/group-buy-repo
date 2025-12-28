@@ -16,13 +16,33 @@ const Navbar = () => {
     const isDevelopment = import.meta.env.DEV;
     const displayName = getUserDisplayName(user, loginMethod);
 
-    // Safety wrapper for translation function
+    // Enhanced translation wrapper with guaranteed fallback
+    // Ensures we never render raw translation keys in production
     const safeTranslate = (key, fallback) => {
         try {
-            return t && typeof t === 'function' ? t(key) || fallback : fallback;
+            if (!t || typeof t !== 'function') {
+                return fallback || '';
+            }
+            
+            const translation = t(key, null, fallback);
+            
+            // Double-check: if translation equals the key (meaning it wasn't found),
+            // always use fallback in production
+            if (import.meta.env.PROD && translation === key && fallback) {
+                return fallback;
+            }
+            
+            // Ensure we never return empty or undefined in production
+            if (import.meta.env.PROD && (!translation || translation.trim() === '')) {
+                return fallback || '';
+            }
+            
+            return translation || fallback || '';
         } catch (error) {
-            console.warn('Translation error:', error);
-            return fallback;
+            if (import.meta.env.DEV) {
+                console.warn('Translation error:', error);
+            }
+            return fallback || '';
         }
     };
 
@@ -37,18 +57,20 @@ const Navbar = () => {
         }
     };
 
-    const navItems = user
+    // Guests can only browse (Home, Browse, Group Buys, Errands) - no Dashboard or Profile
+    const isGuest = user ? isGuestUser(user, loginMethod) : false;
+    const navItems = !user || isGuest
         ? [
+            { key: 'start', label: safeTranslate('common.home', 'Home'), screen: 'start' },
+            { key: 'groupbuys', label: safeTranslate('common.groupBuys', 'Group Buys'), screen: 'groupbuys' },
+            { key: 'errands', label: safeTranslate('common.errands', 'Errands'), screen: 'errands' }
+        ]
+        : [
             { key: 'browse', label: safeTranslate('common.browse', 'Browse'), screen: 'browse' },
             { key: 'groupbuys', label: safeTranslate('common.groupBuys', 'Group Buys'), screen: 'groupbuys' },
             { key: 'errands', label: safeTranslate('common.errands', 'Errands'), screen: 'errands' },
             { key: 'dashboard', label: safeTranslate('common.dashboard', 'Dashboard'), screen: 'dashboard' },
-            ...(isAdmin(user, loginMethod) ? [{ key: 'moderation', label: 'Moderation', screen: 'moderation' }] : [])
-        ]
-        : [
-            { key: 'start', label: safeTranslate('common.home', 'Home'), screen: 'start' },
-            { key: 'groupbuys', label: safeTranslate('common.groupBuys', 'Group Buys'), screen: 'groupbuys' },
-            { key: 'errands', label: safeTranslate('common.errands', 'Errands'), screen: 'errands' }
+            ...(isAdmin(user, loginMethod) ? [{ key: 'moderation', label: safeTranslate('common.moderation', 'Moderation'), screen: 'moderation' }] : [])
         ];
 
     return (
@@ -60,8 +82,10 @@ const Navbar = () => {
                         <button
                             onClick={() => handleNavigation('start')}
                             className="navbar-brand text-base sm:text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent hover:from-blue-700 hover:to-indigo-700 transition-all"
+                            aria-label={safeTranslate('navbar.goToHome', 'Go to Home')}
+                            title={safeTranslate('navbar.goToHome', 'Go to Home')}
                         >
-                            <span className="hidden sm:inline">{safeTranslate('common.appName', 'Korean Community Commerce')}</span>
+                            <span className="hidden sm:inline truncate max-w-[200px]">{safeTranslate('common.appName', 'Korean Community Commerce')}</span>
                             <span className="sm:hidden">{safeTranslate('common.appNameShort', 'KCC')}</span>
                         </button>
                     </div>
@@ -105,14 +129,20 @@ const Navbar = () => {
                                 
                                 {/* User Profile - Mobile optimized with consistent spacing */}
                                 <div className="flex items-center gap-1.5 sm:gap-2">
-                                    <div className="avatar-circle w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center shadow-md ring-2 ring-white min-w-[36px] min-h-[36px] sm:min-w-[40px] sm:min-h-[40px]">
-                                        <span className="text-sm sm:text-base font-bold text-white">
-                                            {displayName ? displayName.charAt(0).toUpperCase() : 'U'}
-                                        </span>
-                                    </div>
-                                    <div className="hidden sm:block">
-                                        <div className="text-sm font-semibold text-gray-900">{displayName}</div>
-                                        <div className="flex flex-wrap gap-1 mt-0.5">
+                                    <button
+                                        onClick={() => handleNavigation('profile')}
+                                        className="flex items-center gap-1.5 sm:gap-2 hover:opacity-90 transition-opacity"
+                                        aria-label={safeTranslate('navbar.goToProfile', 'Go to Profile')}
+                                        title={safeTranslate('navbar.goToProfile', 'Go to Profile')}
+                                    >
+                                        <div className="avatar-circle w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center shadow-md ring-2 ring-white min-w-[36px] min-h-[36px] sm:min-w-[40px] sm:min-h-[40px] flex-shrink-0">
+                                            <span className="text-sm sm:text-base font-bold text-white">
+                                                {displayName ? displayName.charAt(0).toUpperCase() : 'U'}
+                                            </span>
+                                        </div>
+                                        <div className="hidden sm:block min-w-0">
+                                            <div className="text-sm font-semibold text-gray-900 truncate max-w-[150px]">{displayName}</div>
+                                            <div className="flex flex-wrap gap-1 mt-0.5">
                                             {/* Only show roles for registered users, not guests */}
                                             {!isGuestUser(user, loginMethod) && user.roles?.map(role => (
                                                 <span
@@ -133,8 +163,9 @@ const Navbar = () => {
                                                     ✓ Verified
                                                 </span>
                                             )}
+                                            </div>
                                         </div>
-                                    </div>
+                                    </button>
                                 </div>
 
                                 {/* Action Buttons - Mobile optimized with consistent spacing */}
@@ -143,23 +174,29 @@ const Navbar = () => {
                                         <button
                                             onClick={() => window.location.reload()}
                                             className="btn-reset hidden sm:inline-flex px-3 py-2 text-sm min-h-[44px] min-w-[44px]"
+                                            aria-label={safeTranslate('common.reset', 'Reset')}
+                                            title={safeTranslate('common.reset', 'Reset')}
                                         >
                                             {safeTranslate('common.reset', 'Reset')}
                                         </button>
                                     )}
                                     <button
                                         onClick={handleLogout}
-                                        className="btn-primary px-3 sm:px-4 py-2 text-xs sm:text-sm min-h-[44px] min-w-[44px]"
+                                        className="btn-primary px-3 sm:px-4 py-2.5 text-xs sm:text-sm min-h-[48px] min-w-[48px]"
+                                        aria-label={safeTranslate('common.logout', 'Logout')}
+                                        title={safeTranslate('common.logout', 'Logout')}
                                     >
                                         <span className="hidden sm:inline">{safeTranslate('common.logout', 'Logout')}</span>
-                                        <span className="sm:hidden">{safeTranslate('common.logoutShort', 'Out')}</span>
+                                        <span className="sm:hidden" aria-hidden="true">{safeTranslate('common.logoutShort', 'Out')}</span>
                                     </button>
                                 </div>
                             </>
                         ) : (
                             <button
                                 onClick={() => handleNavigation('auth')}
-                                className="btn-primary px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors min-h-[44px] min-w-[44px] text-sm sm:text-base"
+                                className="btn-primary px-4 sm:px-5 py-2.5 text-xs sm:text-base min-h-[48px] whitespace-nowrap"
+                                aria-label={safeTranslate('common.loginSignUp', 'Login / Sign Up')}
+                                title={safeTranslate('common.loginSignUp', 'Login / Sign Up')}
                             >
                                 <span className="hidden sm:inline">{safeTranslate('common.loginSignUp', 'Login / Sign Up')}</span>
                                 <span className="sm:hidden">{safeTranslate('common.login', 'Login')}</span>
@@ -176,3 +213,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+

@@ -6,6 +6,7 @@
 import React from 'react';
 import MobileHeader from '../components/mobile/MobileHeader';
 import { useSetCurrentScreen } from '../stores';
+import { t } from '../utils/translations';
 
 const PrivacyPolicyPage = () => {
     const setCurrentScreen = useSetCurrentScreen();
@@ -181,9 +182,9 @@ const PrivacyPolicyPage = () => {
                     <div className="mt-8 pt-6 border-t border-gray-200">
                         <button
                             onClick={() => setCurrentScreen('settings')}
-                            className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors min-h-[44px]"
+                            className="btn-secondary"
                         >
-                            Back to Settings
+                            {t('common.backToSettings', null, 'Back to Settings')}
                         </button>
                     </div>
                 </div>

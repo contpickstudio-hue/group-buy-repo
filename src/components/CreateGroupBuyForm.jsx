@@ -63,15 +63,15 @@ const CreateGroupBuyForm = () => {
     return (
         <div className="bg-white rounded-lg shadow-md p-6 mb-8" data-testid="create-product-form">
             <h3 className="text-xl font-semibold mb-4">{t('groupBuy.createTitle')}</h3>
-            <form className="space-y-4 pb-24 sm:pb-6" onSubmit={handleSubmit}>
+            <form className="space-y-5 sm:space-y-6 pb-32 sm:pb-6" onSubmit={handleSubmit}>
                 {error && (
                     <div className="bg-red-50 border border-red-200 rounded-md p-3 text-red-700 text-sm">
                         {error}
                     </div>
                 )}
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid md:grid-cols-2 gap-5 sm:gap-4">
                     <div>
-                        <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
                             {t('groupBuy.productTitle')}
                         </label>
                         <input
@@ -81,12 +81,13 @@ const CreateGroupBuyForm = () => {
                             value={formData.title}
                             onChange={handleChange}
                             placeholder={t('groupBuy.productTitlePlaceholder')}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+                            className="w-full px-4 py-3.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[52px]"
                             required
                         />
+                        <p className="mt-1 text-xs text-gray-500">{t('groupBuy.productTitleHelp')}</p>
                     </div>
                     <div>
-                        <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
                             {t('groupBuy.pricePerUnit')}
                         </label>
                         <input
@@ -98,13 +99,14 @@ const CreateGroupBuyForm = () => {
                             min="1"
                             step="0.01"
                             placeholder="38"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+                            className="w-full px-4 py-3.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[52px]"
                             required
                         />
+                        <p className="mt-1 text-xs text-gray-500">{t('groupBuy.pricePerUnitHelp')}</p>
                     </div>
                 </div>
                 <div>
-                    <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
                         {t('groupBuy.description')}
                     </label>
                     <textarea
@@ -112,14 +114,15 @@ const CreateGroupBuyForm = () => {
                         name="description"
                         value={formData.description}
                         onChange={handleChange}
-                        rows={3}
+                        rows={4}
                         placeholder={t('groupBuy.descriptionPlaceholder')}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+                        className="w-full px-4 py-3.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[100px]"
                     />
+                    <p className="mt-1 text-xs text-gray-500">{t('groupBuy.descriptionHelp')}</p>
                 </div>
-                <div className="grid md:grid-cols-3 gap-4">
+                <div className="grid md:grid-cols-3 gap-5 sm:gap-4">
                     <div>
-                        <label htmlFor="region" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label htmlFor="region" className="block text-sm font-medium text-gray-700 mb-2">
                             {t('groupBuy.region')}
                         </label>
                         <select 
@@ -127,7 +130,7 @@ const CreateGroupBuyForm = () => {
                             name="region"
                             value={formData.region}
                             onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+                            className="w-full px-4 py-3.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[52px]"
                         >
                             <option value="Toronto">Toronto</option>
                             <option value="Hamilton">Hamilton</option>
@@ -135,7 +138,7 @@ const CreateGroupBuyForm = () => {
                         </select>
                     </div>
                     <div>
-                        <label htmlFor="targetQuantity" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label htmlFor="targetQuantity" className="block text-sm font-medium text-gray-700 mb-2">
                             {t('groupBuy.targetQuantity')}
                         </label>
                         <input
@@ -145,9 +148,10 @@ const CreateGroupBuyForm = () => {
                             value={formData.targetQuantity}
                             onChange={handleChange}
                             min="5"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+                            className="w-full px-4 py-3.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[52px]"
                             required
                         />
+                        <p className="mt-1 text-xs text-gray-500">{t('groupBuy.targetQuantityHelp')}</p>
                     </div>
                     <div>
                         <DateInput
@@ -161,10 +165,11 @@ const CreateGroupBuyForm = () => {
                             type="date"
                             error={error && (error.includes('deadline') || error.includes('Deadline')) ? error : null}
                         />
+                        <p className="mt-1 text-xs text-gray-500">{t('groupBuy.deadlineHelp')}</p>
                     </div>
                 </div>
                 <div>
-                    <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-2">
                         {t('groupBuy.image')}
                     </label>
                     <input
@@ -187,7 +192,7 @@ const CreateGroupBuyForm = () => {
                                 reader.readAsDataURL(file);
                             }
                         }}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+                        className="w-full px-4 py-3.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[52px] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                     />
                     <p className="text-xs text-gray-500 mt-1">{t('groupBuy.uploadImage')}</p>
                 </div>
@@ -320,7 +325,7 @@ const CreateGroupBuyForm = () => {
                 <button
                     type="submit"
                     disabled={isSubmitting || !isFormValid}
-                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:bg-gray-400 disabled:opacity-60 relative min-h-[48px] font-semibold"
+                    className="w-full bg-blue-600 text-white py-4 px-6 rounded-xl hover:bg-blue-700 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:bg-gray-400 disabled:opacity-60 relative min-h-[52px] font-semibold shadow-lg mt-2"
                 >
                     {isSubmitting ? (
                         <div className="flex items-center justify-center gap-2">
