@@ -22,9 +22,9 @@
     max-width: 100vw;
   }
   
-  /* Mobile-first: Ensure touch targets are at least 44x44px */
-  button:not(.fab-button), a {
-    @apply min-h-[44px] min-w-[44px];
+  /* Mobile-first: Ensure touch targets are at least 48x48px for better thumb accessibility */
+  button:not(.fab-button):not(.bottom-nav-item), a {
+    @apply min-h-[48px] min-w-[48px];
     touch-action: manipulation; /* Remove 300ms tap delay on mobile */
   }
   
@@ -42,13 +42,23 @@
     
     /* Ensure forms have enough bottom padding for FAB and keyboard */
     form {
-      padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+      padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px));
       margin-bottom: env(keyboard-inset-height, 0px);
     }
     
     /* Add extra padding when inputs are focused */
     input:focus, textarea:focus, select:focus {
-      scroll-margin-bottom: 120px;
+      scroll-margin-bottom: 140px;
+    }
+    
+    /* Increase spacing between form fields for easier tapping */
+    form > div, form > * {
+      margin-bottom: 1rem;
+    }
+    
+    form .space-y-4 > * + *,
+    form .space-y-5 > * + * {
+      margin-top: 1.25rem;
     }
   }
   
@@ -131,20 +141,22 @@
 
   /* Custom button styles - Mobile optimized */
   .btn-primary {
-    @apply bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-xl;
+    @apply bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3.5 rounded-xl;
     @apply hover:from-blue-700 hover:to-blue-800 active:scale-95;
     @apply shadow-lg shadow-blue-600/30 hover:shadow-xl shadow-blue-600/40;
     @apply transition-all duration-200 font-semibold;
     @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
-    @apply min-h-[48px]; /* Touch-friendly */
+    @apply min-h-[52px]; /* Larger touch target for primary actions */
+    @apply text-base; /* Comfortable text size */
   }
 
   .btn-secondary {
-    @apply bg-white border-2 border-gray-200 text-gray-700 px-6 py-3 rounded-xl;
+    @apply bg-white border-2 border-gray-200 text-gray-700 px-6 py-3.5 rounded-xl;
     @apply hover:bg-gray-50 hover:border-gray-300 active:scale-95;
     @apply shadow-sm hover:shadow-md transition-all duration-200 font-medium;
     @apply focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
-    @apply min-h-[48px];
+    @apply min-h-[52px]; /* Larger touch target */
+    @apply text-base;
   }
 
   .btn-reset {
@@ -231,8 +243,9 @@
   }
 
   .bottom-nav-item {
-    @apply flex flex-col items-center justify-center px-2 py-2 sm:px-3 rounded-xl transition-all duration-200;
-    @apply min-w-[60px] min-h-[60px];
+    @apply flex flex-col items-center justify-center px-3 py-3 sm:px-4 rounded-xl transition-all duration-200;
+    @apply min-w-[64px] min-h-[64px]; /* Larger touch targets for bottom nav */
+    @apply gap-1; /* Better spacing between icon and label */
   }
 
   .bottom-nav-item.active {
@@ -257,7 +270,7 @@
     @apply fixed;
     @apply bottom-20 md:bottom-6 right-4 sm:right-6;
     /* Ensure FAB is above bottom nav (64px height + padding) */
-    bottom: calc(64px + 1rem + env(safe-area-inset-bottom));
+    bottom: calc(72px + 1rem + env(safe-area-inset-bottom));
     /* Lower z-index than modals/panels but above content */
     z-index: 30;
   }
@@ -285,11 +298,12 @@
   }
 
   .fab-menu-item {
-    @apply w-full flex items-center px-4 py-4 sm:py-3.5 text-left hover:bg-blue-50/50 transition-all;
-    @apply min-h-[56px] sm:min-h-[52px];
+    @apply w-full flex items-center px-5 py-4 text-left hover:bg-blue-50/50 transition-all;
+    @apply min-h-[56px];
     @apply active:bg-blue-100 active:scale-95;
     @apply border-b border-gray-100 last:border-0;
     @apply touch-manipulation;
+    @apply gap-4; /* Better spacing between icon and label */
   }
 
   .fab-menu-icon {
@@ -430,13 +444,40 @@
   
   /* Optimize cards for mobile - full width, better spacing */
   .card {
-    @apply p-4 w-full;
-    @apply mb-5; /* Increased spacing between cards */
+    @apply p-4 sm:p-6 w-full;
+    @apply mb-6; /* Increased spacing between cards for easier scrolling */
   }
   
   /* Full-width cards on mobile */
   .card-product {
-    @apply w-full mb-5;
+    @apply w-full mb-6;
+  }
+  
+  /* Better spacing in lists and grids - prevent accidental taps */
+  .space-y-4 > * + * {
+    margin-top: 1.25rem;
+  }
+  
+  .space-y-5 > * + * {
+    margin-top: 1.5rem;
+  }
+  
+  .space-y-6 > * + * {
+    margin-top: 1.75rem;
+  }
+  
+  /* Ensure buttons in cards have adequate spacing */
+  .card button:not(:last-child) {
+    margin-bottom: 0.75rem;
+  }
+  
+  /* Better spacing between form fields */
+  form .space-y-4 > * + * {
+    margin-top: 1.25rem;
+  }
+  
+  form .space-y-5 > * + * {
+    margin-top: 1.5rem;
   }
   
   /* Stack all grids on mobile */
@@ -478,11 +519,21 @@
 @media (min-width: 360px) and (max-width: 430px) {
   /* Optimize for iPhone SE to iPhone 12 Pro Max range */
   .card {
-    @apply p-4 mb-5;
+    @apply p-4 mb-6;
   }
   
   .btn-primary, .btn-secondary {
-    @apply py-3 px-5 text-base;
+    @apply py-3.5 px-6 text-base;
+    min-height: 52px;
+  }
+  
+  /* Better spacing between list items */
+  .space-y-4 > * + * {
+    margin-top: 1.25rem;
+  }
+  
+  .space-y-5 > * + * {
+    margin-top: 1.5rem;
   }
 }
 

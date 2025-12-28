@@ -261,11 +261,9 @@ function AppContent() {
             case 'errands':
                 return <ErrandsPage />;
             case 'dashboard':
-                // Route-level RBAC: Dashboard accessible by authenticated users
-                // Specific actions (create group buy) are protected at action level
-                if (!user) {
-                    return <PermissionDenied requiredRole="vendor" action="access dashboard" showUpgradeCTA={false} />;
-                }
+                // Dashboard accessible by all users (guests see preview card)
+                // Guests will see GuestEarlyAccess component in DashboardPage
+                // Registered users see full dashboard with metrics and controls
                 return <DashboardPage />;
             case 'profile':
                 return <ProfilePage />;

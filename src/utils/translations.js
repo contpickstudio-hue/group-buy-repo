@@ -1,141 +1,170 @@
 /**
  * Translation Utility
- * Handles multilingual support for the app
+ * Handles i18n translations with fallback support
  */
 
-// Import translation files (Vite handles JSON imports automatically)
+// Import translation files
 import enTranslations from '../locales/en.json';
 import koTranslations from '../locales/ko.json';
 import zhTranslations from '../locales/zh.json';
 import hiTranslations from '../locales/hi.json';
 
-// Translation dictionary with fallback
+// Store reference for accessing current language from Zustand store
+let storeRef = null;
+
+// Translation cache
 const translations = {
-    en: enTranslations || {},
-    ko: koTranslations || enTranslations || {},
-    zh: zhTranslations || enTranslations || {},
-    hi: hiTranslations || enTranslations || {}
+  en: enTranslations,
+  ko: koTranslations,
+  zh: zhTranslations,
+  hi: hiTranslations
 };
 
 // Default language
 const DEFAULT_LANGUAGE = 'en';
 
+// Fallback translations (English)
+const FALLBACK_TRANSLATIONS = enTranslations;
+
 /**
- * Get current language from localStorage
- * @returns {string} Language code
- * Note: This is now a fallback. The Zustand store is the source of truth.
+ * Get current language from store or default
  */
 export function getCurrentLanguage() {
+  if (storeRef) {
     try {
-        const stored = localStorage.getItem('language');
-        if (stored && translations[stored]) {
-            return stored;
-        }
+      const store = storeRef.getState();
+      if (store && store.currentLanguage) {
+        return store.currentLanguage;
+      }
     } catch (error) {
-        console.warn('Failed to get language from localStorage:', error);
+      // Store not available, use default
     }
-    return DEFAULT_LANGUAGE;
+  }
+  
+  // Try to get from localStorage as fallback
+  try {
+    const stored = localStorage.getItem('language');
+    if (stored && translations[stored]) {
+      return stored;
+    }
+  } catch (error) {
+    // localStorage not available
+  }
+  
+  return DEFAULT_LANGUAGE;
 }
 
 /**
- * Set language preference
- * @param {string} langCode - Language code (en, ko, zh, hi)
- * Note: This function now only saves to localStorage. The TranslationProvider handles UI updates.
+ * Set language (updates localStorage)
  */
 export function setLanguage(langCode) {
-    if (translations[langCode]) {
-        try {
-            localStorage.setItem('language', langCode);
-            // Dispatch event for TranslationProvider to pick up
-            window.dispatchEvent(new Event('languagechange'));
-        } catch (error) {
-            console.error('Failed to save language preference:', error);
-        }
-    }
-}
-
-// Store reference for accessing current language
-let storeRef = null;
-
-/**
- * Set store reference for translation function
- * Called by TranslationProvider
- */
-export function setStoreRef(store) {
-    storeRef = store;
-}
-
-/**
- * Translation function
- * @param {string} key - Translation key (e.g., "common.welcome")
- * @param {Object} params - Optional parameters for interpolation
- * @param {string} forceLang - Optional language code to force (for use outside React context)
- * @returns {string} Translated text
- */
-export function t(key, params = {}, forceLang = null) {
-    // Try to get language from Zustand store if available
-    let lang = forceLang;
-    if (!lang && storeRef) {
-        try {
-            const state = storeRef.getState();
-            if (state && state.currentLanguage) {
-                lang = state.currentLanguage;
-            }
-        } catch (e) {
-            // Store not available, fall back to localStorage
-        }
-    }
-    
-    // Fallback to localStorage if store not available
-    if (!lang) {
-        lang = getCurrentLanguage();
-    }
-    
-    const translation = translations[lang] || translations[DEFAULT_LANGUAGE];
-    
-    // Navigate nested object using dot notation
-    const keys = key.split('.');
-    let value = translation;
-    
-    for (const k of keys) {
-        if (value && typeof value === 'object' && k in value) {
-            value = value[k];
-        } else {
-            // Fallback to English if translation not found
-            const enValue = translations[DEFAULT_LANGUAGE];
-            let fallback = enValue;
-            for (const fk of keys) {
-                if (fallback && typeof fallback === 'object' && fk in fallback) {
-                    fallback = fallback[fk];
-                } else {
-                    return key; // Return key if translation not found
-                }
-            }
-            value = fallback;
-            break;
-        }
-    }
-    
-    // Handle string interpolation if params provided
-    if (typeof value === 'string' && params) {
-        return value.replace(/\{\{(\w+)\}\}/g, (match, paramKey) => {
-            return params[paramKey] !== undefined ? params[paramKey] : match;
-        });
-    }
-    
-    return typeof value === 'string' ? value : key;
+  try {
+    localStorage.setItem('language', langCode);
+  } catch (error) {
+    // localStorage not available
+  }
 }
 
 /**
  * Get available languages
- * @returns {Array} Array of language objects with code, name, and flag
  */
 export function getAvailableLanguages() {
-    return [
-        { code: 'en', name: 'English', flag: '🇺🇸', nativeName: 'English' },
-        { code: 'ko', name: 'Korean', flag: '🇰🇷', nativeName: '한국어' },
-        { code: 'zh', name: 'Chinese (Simplified)', flag: '🇨🇳', nativeName: '中文' },
-        { code: 'hi', name: 'Hindi', flag: '🇮🇳', nativeName: 'हिंदी' }
-    ];
+  return [
+    { code: 'en', name: 'English' },
+    { code: 'ko', name: 'Korean' },
+    { code: 'zh', name: 'Chinese (Simplified)' },
+    { code: 'hi', name: 'Hindi' }
+  ];
 }
+
+/**
+ * Get nested value from object using dot notation path
+ */
+function getNestedValue(obj, path) {
+  if (!obj || typeof obj !== 'object') {
+    return undefined;
+  }
+  
+  const parts = path.split('.');
+  let current = obj;
+  
+  for (const part of parts) {
+    if (current == null || typeof current !== 'object') {
+      return undefined;
+    }
+    current = current[part];
+  }
+  
+  return current;
+}
+
+/**
+ * Generate fallback text from key (last part of key path)
+ */
+function generateFallback(key) {
+  const parts = key.split('.');
+  const lastPart = parts[parts.length - 1];
+  
+  // Convert camelCase to Title Case
+  return lastPart
+    .replace(/([A-Z])/g, ' $1')
+    .replace(/^./, str => str.toUpperCase())
+    .trim();
+}
+
+/**
+ * Translate a key with fallback support
+ * @param {string} key - Translation key (e.g., 'common.appName')
+ * @param {Object} params - Optional parameters for interpolation
+ * @param {string} fallback - Optional fallback string (if provided, always used when translation missing)
+ * @returns {string} Translated string or fallback
+ */
+export function t(key, params = null, fallback = null) {
+  if (!key || typeof key !== 'string') {
+    return fallback || '';
+  }
+  
+  const currentLang = getCurrentLanguage();
+  const langTranslations = translations[currentLang] || FALLBACK_TRANSLATIONS;
+  
+  // Try to get translation from current language
+  let translation = getNestedValue(langTranslations, key);
+  
+  // If not found, try fallback language (English)
+  if (translation === undefined && currentLang !== DEFAULT_LANGUAGE) {
+    translation = getNestedValue(FALLBACK_TRANSLATIONS, key);
+  }
+  
+  // If still not found, use provided fallback or generate one
+  if (translation === undefined) {
+    translation = fallback !== null ? fallback : generateFallback(key);
+  }
+  
+  // Ensure we never return raw translation keys in production
+  if (import.meta.env.PROD) {
+    // In production, if translation looks like a key (contains dots and is not a valid path), use fallback
+    if (typeof translation === 'string' && translation.includes('.') && translation === key) {
+      translation = fallback !== null ? fallback : generateFallback(key);
+    }
+  }
+  
+  // Handle parameter interpolation (e.g., "Hello {{name}}")
+  if (params && typeof translation === 'string') {
+    return translation.replace(/\{\{(\w+)\}\}/g, (match, paramKey) => {
+      return params[paramKey] !== undefined ? String(params[paramKey]) : match;
+    });
+  }
+  
+  return translation;
+}
+
+/**
+ * Set store reference for accessing current language
+ */
+export function setStoreRef(store) {
+  storeRef = store;
+}
+
+// Export default t function with enhanced fallback
+export default t;
 
